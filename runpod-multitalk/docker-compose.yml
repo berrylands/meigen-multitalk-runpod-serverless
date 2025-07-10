@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  multitalk:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - MODEL_PATH=/models
+      - RUNPOD_DEBUG_LEVEL=INFO
+    volumes:
+      - ./models:/models
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]

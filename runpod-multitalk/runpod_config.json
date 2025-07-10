@@ -1,0 +1,31 @@
+{
+  "name": "MultiTalk Serverless",
+  "imageName": "YOUR_DOCKERHUB_USERNAME/multitalk-runpod:latest",
+  "gpuType": "RTX 4090",
+  "minWorkers": 0,
+  "maxWorkers": 3,
+  "workerInactiveTimeout": 60,
+  "scalerType": "QUEUE_DEPTH",
+  "scalerValue": 1,
+  "containerDiskSize": 10,
+  "volumeMounts": [
+    {
+      "name": "multitalk-models",
+      "mountPath": "/runpod-volume"
+    }
+  ],
+  "env": [
+    {
+      "key": "MODEL_PATH",
+      "value": "/runpod-volume/models"
+    },
+    {
+      "key": "RUNPOD_DEBUG_LEVEL",
+      "value": "INFO"
+    }
+  ],
+  "resources": {
+    "cpu": 4,
+    "memory": 16
+  }
+}

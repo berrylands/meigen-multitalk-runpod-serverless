@@ -1,0 +1,16 @@
+runpod==1.7.3
+torch==2.4.1
+xformers==0.0.28.post3
+flash-attn==2.7.2.post1
+librosa==0.10.2
+transformers==4.47.1
+diffusers==0.32.1
+accelerate==1.2.1
+omegaconf==2.3.0
+einops==0.8.0
+scipy==1.14.1
+moviepy==1.0.3
+opencv-python-headless==4.10.0.84
+huggingface-hub==0.27.0
+pillow==11.0.0
+numpy<2.0.0
