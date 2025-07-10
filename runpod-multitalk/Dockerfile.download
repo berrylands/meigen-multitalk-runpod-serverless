@@ -1,0 +1,17 @@
+FROM python:3.10-slim
+
+WORKDIR /app
+
+# Install runpod and huggingface_hub
+RUN pip install --no-cache-dir runpod huggingface_hub
+
+# Copy the handler with download support
+COPY handler_with_download.py /app/handler.py
+
+# Set environment variables
+ENV PYTHONUNBUFFERED=1
+ENV MODEL_PATH=/runpod-volume/models
+ENV HF_HOME=/runpod-volume/huggingface
+
+# Run the handler
+CMD ["python", "-u", "handler.py"]

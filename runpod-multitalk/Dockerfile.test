@@ -1,0 +1,25 @@
+FROM python:3.10-slim
+
+# Set working directory
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    git \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install minimal Python dependencies
+RUN pip install --no-cache-dir \
+    runpod \
+    pillow \
+    requests
+
+# Copy test handler
+COPY src/test_handler.py /app/handler.py
+
+# Set environment variables
+ENV RUNPOD_DEBUG_LEVEL=INFO
+ENV MODEL_PATH=/runpod-volume/models
+
+# Run the handler
+CMD ["python", "-u", "handler.py"]

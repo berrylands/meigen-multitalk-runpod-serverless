@@ -1,0 +1,30 @@
+FROM python:3.10-slim
+
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    ffmpeg \
+    git \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Python packages
+RUN pip install --no-cache-dir \
+    runpod \
+    huggingface_hub \
+    numpy \
+    Pillow \
+    tqdm \
+    ffmpeg-python
+
+# Copy handler files
+COPY multitalk_handler.py /app/handler.py
+COPY handler_with_download.py /app/handler_with_download.py
+
+# Set environment variables
+ENV PYTHONUNBUFFERED=1
+ENV MODEL_PATH=/runpod-volume/models
+ENV HF_HOME=/runpod-volume/huggingface
+
+# Run the handler
+CMD ["python", "-u", "handler.py"]

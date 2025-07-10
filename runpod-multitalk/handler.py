@@ -1,0 +1,41 @@
+import runpod
+import os
+import sys
+import json
+
+def handler(job):
+    try:
+        job_input = job.get('input', {})
+        
+        # Health check
+        if job_input.get('health_check'):
+            return {
+                "status": "healthy",
+                "message": "MultiTalk test handler is working!",
+                "python_version": sys.version,
+                "worker_id": os.environ.get('RUNPOD_POD_ID', 'unknown'),
+                "volume_mounted": os.path.exists('/runpod-volume'),
+                "model_path_exists": os.path.exists('/runpod-volume/models'),
+                "environment": {
+                    "MODEL_PATH": os.environ.get('MODEL_PATH', 'Not set'),
+                    "RUNPOD_DEBUG_LEVEL": os.environ.get('RUNPOD_DEBUG_LEVEL', 'Not set')
+                }
+            }
+        
+        # Echo test
+        return {
+            "message": "MultiTalk test handler successful!",
+            "echo": job_input,
+            "server_info": {
+                "python_version": sys.version,
+                "worker_id": os.environ.get('RUNPOD_POD_ID', 'unknown'),
+                "volume_available": os.path.exists('/runpod-volume')
+            }
+        }
+        
+    except Exception as e:
+        return {"error": f"Handler failed: {str(e)}"}
+
+if __name__ == "__main__":
+    print("Starting MultiTalk test handler...")
+    runpod.serverless.start({"handler": handler})

@@ -1,0 +1,35 @@
+FROM python:3.10-slim
+
+WORKDIR /app
+
+# Install system dependencies including FFmpeg for video generation
+RUN apt-get update && apt-get install -y \
+    ffmpeg \
+    git \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Python packages including PyTorch CPU (for testing)
+RUN pip install --no-cache-dir \
+    runpod \
+    huggingface_hub \
+    numpy \
+    Pillow \
+    tqdm \
+    ffmpeg-python \
+    torch \
+    torchaudio \
+    transformers
+
+# Copy all handler files
+COPY complete_multitalk_handler.py /app/handler.py
+COPY handler_with_download.py /app/handler_with_download.py
+
+# Set environment variables
+ENV PYTHONUNBUFFERED=1
+ENV MODEL_PATH=/runpod-volume/models
+ENV HF_HOME=/runpod-volume/huggingface
+ENV CUDA_VISIBLE_DEVICES=0
+
+# Run the complete handler
+CMD ["python", "-u", "handler.py"]

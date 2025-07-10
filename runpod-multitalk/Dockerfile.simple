@@ -1,0 +1,15 @@
+FROM python:3.10-slim
+
+WORKDIR /app
+
+# Install RunPod and basic dependencies
+RUN pip install runpod
+
+# Copy handler
+COPY handler.py /app/handler.py
+
+# Set environment variables
+ENV PYTHONUNBUFFERED=1
+ENV MODEL_PATH=/runpod-volume/models
+
+CMD ["python", "-u", "handler.py"]
