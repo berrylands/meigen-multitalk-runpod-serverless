@@ -8,6 +8,7 @@ import json
 import base64
 import tempfile
 import traceback
+import logging
 from pathlib import Path
 from typing import Dict, Any, Optional
 
@@ -17,12 +18,43 @@ import numpy as np
 from PIL import Image
 from io import BytesIO
 
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
+
 # Add local imports
 sys.path.append('/app/src')
 from multitalk_inference import MultiTalkInference
 
 # Global model instance
 model = None
+
+def health_check(job: Dict[str, Any]) -> Dict[str, Any]:
+    """Health check endpoint."""
+    logger.info("Health check requested")
+    
+    # Check if models directory exists
+    model_path = os.environ.get('MODEL_PATH', '/runpod-volume/models')
+    models_exist = os.path.exists(model_path) and os.path.isdir(model_path)
+    
+    # Check GPU availability
+    gpu_available = torch.cuda.is_available()
+    gpu_name = torch.cuda.get_device_name(0) if gpu_available else "None"
+    
+    # Check model loading status
+    model_loaded = model is not None
+    
+    return {
+        "status": "healthy",
+        "models_directory_exists": models_exist,
+        "gpu_available": gpu_available,
+        "gpu_name": gpu_name,
+        "model_loaded": model_loaded,
+        "model_path": model_path
+    }
 
 def download_input_file(url_or_base64: str, file_type: str) -> str:
     """Download or decode input file and save to temp location."""
@@ -53,7 +85,7 @@ def download_input_file(url_or_base64: str, file_type: str) -> str:
     
     return temp_path
 
-def handler(job: Dict[str, Any]) -> Dict[str, Any]:
+def inference_handler(job: Dict[str, Any]) -> Dict[str, Any]:
     """
     RunPod handler function for MultiTalk inference.
     
@@ -86,14 +118,18 @@ def handler(job: Dict[str, Any]) -> Dict[str, Any]:
         
         # Initialize model if not already loaded
         if model is None:
-            print("Loading MultiTalk model...")
-            model = MultiTalkInference(
-                model_path=os.environ.get('MODEL_PATH', '/runpod-volume/models')
-            )
-            print("Model loaded successfully!")
+            logger.info("Loading MultiTalk model...")
+            try:
+                model = MultiTalkInference(
+                    model_path=os.environ.get('MODEL_PATH', '/runpod-volume/models')
+                )
+                logger.info("Model loaded successfully!")
+            except Exception as e:
+                logger.error(f"Failed to load model: {str(e)}")
+                return {"error": f"Model initialization failed: {str(e)}"}
         
         # Download/decode input files
-        print("Processing input files...")
+        logger.info("Processing input files...")
         image_path = download_input_file(job_input['reference_image'], 'image')
         audio1_path = download_input_file(job_input['audio_1'], 'audio')
         audio2_path = None
@@ -112,7 +148,7 @@ def handler(job: Dict[str, Any]) -> Dict[str, Any]:
             'fps': job_input.get('fps', 8)
         }
         
-        print(f"Generating video with params: {params}")
+        logger.info(f"Generating video with params: {params}")
         
         # Generate video
         output_path = model.generate(
@@ -141,7 +177,7 @@ def handler(job: Dict[str, Any]) -> Dict[str, Any]:
         return result
         
     except Exception as e:
-        print(f"Error in handler: {str(e)}")
+        logger.error(f"Error in handler: {str(e)}")
         traceback.print_exc()
         return {"error": str(e)}
 
@@ -172,6 +208,17 @@ def upload_to_s3(file_path: str) -> str:
     )
     
     return url
+
+def handler(job: Dict[str, Any]) -> Dict[str, Any]:
+    """Main handler that routes requests."""
+    job_input = job.get('input', {})
+    
+    # Check if this is a health check request
+    if job_input.get('health_check') or job_input.get('type') == 'health':
+        return health_check(job)
+    
+    # Otherwise, handle as inference request
+    return inference_handler(job)
 
 # RunPod serverless worker
 runpod.serverless.start({"handler": handler})

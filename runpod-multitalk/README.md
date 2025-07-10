@@ -229,6 +229,49 @@ docker run --gpus all -v $(pwd)/models:/runpod-volume/models multitalk-local
 2. Update `src/handler.py` for API changes
 3. Rebuild and push Docker image
 
+## CI/CD with GitHub Actions
+
+This project includes automated CI/CD that builds, pushes to DockerHub, and deploys to RunPod on every push.
+
+### Setting up GitHub Actions
+
+1. **Add GitHub Secrets**:
+   Go to your repository Settings → Secrets and variables → Actions, and add:
+   - `DOCKERHUB_USERNAME`: Your DockerHub username
+   - `DOCKERHUB_TOKEN`: DockerHub access token (not password)
+   - `RUNPOD_API_KEY`: Your RunPod API key
+
+2. **DockerHub Setup**:
+   - Create a repository on DockerHub with the same name as your GitHub repo
+   - Generate an access token: Account Settings → Security → Access Tokens
+
+3. **RunPod Setup**:
+   - Ensure you have a network volume with models downloaded
+   - Get your API key from RunPod dashboard
+
+### GitHub Actions Workflow
+
+The workflow automatically:
+1. Builds Docker image on push to main/master
+2. Pushes to DockerHub with appropriate tags
+3. Deploys to RunPod serverless
+4. Runs integration tests
+5. Reports results
+
+To manually trigger deployment:
+```bash
+# Go to Actions tab in GitHub
+# Select "Build and Deploy to RunPod"
+# Click "Run workflow"
+```
+
+### Monitoring Deployments
+
+View deployment status:
+- GitHub Actions tab shows workflow runs
+- RunPod dashboard shows endpoint status
+- Check logs in RunPod for debugging
+
 ## License
 
 This wrapper is provided under MIT License. MeiGen MultiTalk is licensed under Apache 2.0.

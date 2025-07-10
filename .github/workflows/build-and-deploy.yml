@@ -1,0 +1,127 @@
+name: Build and Deploy to RunPod
+
+on:
+  push:
+    branches: [ master, main ]
+    paths:
+      - 'runpod-multitalk/**'
+      - '.github/workflows/build-and-deploy.yml'
+  pull_request:
+    branches: [ master, main ]
+  workflow_dispatch:
+    inputs:
+      deploy_to_runpod:
+        description: 'Deploy to RunPod after build'
+        required: false
+        default: 'true'
+
+env:
+  DOCKER_IMAGE: meigen-multitalk-runpod-serverless
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    outputs:
+      image-tag: ${{ steps.meta.outputs.tags }}
+      image-digest: ${{ steps.build.outputs.digest }}
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+    
+    - name: Log in to DockerHub
+      uses: docker/login-action@v3
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+    
+    - name: Extract metadata
+      id: meta
+      uses: docker/metadata-action@v5
+      with:
+        images: ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.DOCKER_IMAGE }}
+        tags: |
+          type=ref,event=branch
+          type=ref,event=pr
+          type=sha,prefix={{branch}}-
+          type=raw,value=latest,enable={{is_default_branch}}
+    
+    - name: Build and push Docker image
+      id: build
+      uses: docker/build-push-action@v5
+      with:
+        context: ./runpod-multitalk
+        file: ./runpod-multitalk/Dockerfile
+        push: true
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+        platforms: linux/amd64
+    
+    - name: Image digest
+      run: echo ${{ steps.build.outputs.digest }}
+
+  deploy-to-runpod:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main') || github.event.inputs.deploy_to_runpod == 'true'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+    
+    - name: Install RunPod Python SDK
+      run: |
+        pip install runpod requests
+    
+    - name: Deploy to RunPod
+      env:
+        RUNPOD_API_KEY: ${{ secrets.RUNPOD_API_KEY }}
+        DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+      run: |
+        python .github/scripts/deploy_to_runpod.py \
+          --image "${{ secrets.DOCKERHUB_USERNAME }}/${{ env.DOCKER_IMAGE }}:latest" \
+          --endpoint-name "multitalk-serverless-${{ github.run_number }}"
+    
+    - name: Wait for deployment
+      run: sleep 60
+    
+    - name: Test deployment
+      env:
+        RUNPOD_API_KEY: ${{ secrets.RUNPOD_API_KEY }}
+      run: |
+        python .github/scripts/test_deployment.py
+
+  test-endpoint:
+    needs: deploy-to-runpod
+    runs-on: ubuntu-latest
+    if: success()
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+    
+    - name: Install dependencies
+      run: |
+        pip install requests pillow numpy
+    
+    - name: Run integration tests
+      env:
+        RUNPOD_API_KEY: ${{ secrets.RUNPOD_API_KEY }}
+        RUNPOD_ENDPOINT_ID: ${{ needs.deploy-to-runpod.outputs.endpoint-id }}
+      run: |
+        python .github/scripts/integration_tests.py
