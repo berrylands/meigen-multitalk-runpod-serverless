@@ -1,0 +1,64 @@
+# MultiTalk V110 - Minimal stable build with volume exploration
+FROM pytorch/pytorch:2.1.2-cuda12.1-cudnn8-devel
+
+# System dependencies
+ENV DEBIAN_FRONTEND=noninteractive
+RUN apt-get update && apt-get install -y \
+    git \
+    ffmpeg \
+    gcc \
+    g++ \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
+# Environment variables
+ENV PYTHONPATH=/app/multitalk_official:/app:/runpod-volume/models
+ENV HF_HOME=/tmp/huggingface
+ENV TRANSFORMERS_CACHE=/tmp/huggingface
+ENV MODEL_PATH=/runpod-volume/models
+ENV PYTHONUNBUFFERED=1
+ENV PIP_NO_CACHE_DIR=1
+
+WORKDIR /app
+
+# Install only essential dependencies to ensure build success
+RUN pip install --no-cache-dir \
+    runpod==1.7.3 \
+    numpy==1.24.3 \
+    scipy==1.10.1 \
+    transformers==4.43.3 \
+    tokenizers==0.19.1 \
+    librosa==0.10.2 \
+    soundfile==0.12.1 \
+    diffusers>=0.31.0 \
+    accelerate>=1.1.1 \
+    safetensors>=0.4.3 \
+    opencv-python>=4.9.0 \
+    imageio>=2.30.0 \
+    huggingface-hub==0.23.5 \
+    einops \
+    omegaconf \
+    easydict \
+    ftfy \
+    boto3 \
+    moviepy \
+    imageio-ffmpeg \
+    Pillow \
+    pydub \
+    pyloudnorm
+
+# Try to install xfuser (optional)
+RUN pip install --no-cache-dir beautifulsoup4>=4.12.3 yunchang>=0.6.0 || echo "xfuser deps failed"
+RUN pip install --no-cache-dir xfuser==0.4.1 || echo "xfuser failed, continuing without it"
+
+# Clone MultiTalk repository
+RUN mkdir -p /app/multitalk_official && \
+    cd /app/multitalk_official && \
+    git clone https://github.com/MeiGen-AI/MultiTalk.git . && \
+    echo "MultiTalk repository cloned successfully"
+
+# Copy implementation files
+COPY multitalk_v106_implementation.py /app/
+COPY handler_v108.py /app/handler.py
+
+CMD ["python", "-u", "/app/handler.py"]
