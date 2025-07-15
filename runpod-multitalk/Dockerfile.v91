@@ -1,0 +1,236 @@
+# MultiTalk V91 - Debug startup issues with V90
+FROM pytorch/pytorch:2.1.2-cuda12.1-cudnn8-devel
+
+# System dependencies
+ENV DEBIAN_FRONTEND=noninteractive
+ENV TZ=UTC
+RUN apt-get update && apt-get install -y \
+    git \
+    ffmpeg \
+    gcc \
+    g++ \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
+# Environment
+ENV PYTHONPATH=/app:/runpod-volume/models
+ENV HF_HOME=/runpod-volume/huggingface
+ENV TRANSFORMERS_CACHE=/runpod-volume/huggingface
+ENV MODEL_PATH=/runpod-volume/models
+
+WORKDIR /app
+
+# Install basic dependencies first - proven working from V89
+RUN pip install --no-cache-dir \
+    runpod==1.7.3 \
+    numpy==1.24.3 \
+    scipy==1.10.1 \
+    boto3
+
+# Create V91 handler - start simple and build up
+RUN cat > /app/handler.py << 'EOF'
+import runpod
+import os
+import json
+import sys
+import time
+import tempfile
+import subprocess
+from pathlib import Path
+
+def check_models():
+    """Check if MultiTalk models exist"""
+    model_path = Path("/runpod-volume/models")
+    print(f"V91: Checking models in: {model_path}")
+    
+    if model_path.exists():
+        files = list(model_path.rglob("*"))
+        print(f"V91: Found {len(files)} files in models directory")
+        
+        # List some key files
+        for f in files[:20]:
+            print(f"V91: File: {f}")
+        
+        return True, len(files)
+    else:
+        print("V91: Models directory not found!")
+        return False, 0
+
+def simple_video_generation(audio_path, image_path):
+    """Create a simple test video"""
+    try:
+        import cv2
+        import numpy as np
+        
+        print(f"V91: Creating video with audio={audio_path}, image={image_path}")
+        
+        # Load the condition image
+        if os.path.exists(image_path):
+            img = cv2.imread(image_path)
+            print(f"V91: Loaded image shape: {img.shape}")
+        else:
+            print(f"V91: Image not found, creating dummy image")
+            img = np.zeros((512, 512, 3), dtype=np.uint8)
+            img[:] = (100, 150, 200)  # Blue background
+        
+        # Create output path
+        output_path = f"/tmp/v91_output_{int(time.time())}.mp4"
+        
+        # Create video
+        fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+        out = cv2.VideoWriter(output_path, fourcc, 25.0, (img.shape[1], img.shape[0]))
+        
+        # Write 75 frames (3 seconds)
+        for i in range(75):
+            # Add frame counter text
+            frame = img.copy()
+            cv2.putText(frame, f"V91 Frame {i+1}/75", (10, 30), 
+                       cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 2)
+            out.write(frame)
+        
+        out.release()
+        print(f"V91: Video created at {output_path}")
+        return output_path
+        
+    except Exception as e:
+        print(f"V91: Error creating video: {e}")
+        return None
+
+def handler(job):
+    """V91 Handler - Debug startup and model access"""
+    print(f"V91: Handler received job: {job}")
+    
+    job_input = job.get("input", {})
+    action = job_input.get("action", "generate")
+    
+    try:
+        print(f"V91: Processing action: {action}")
+        
+        # Check models
+        has_models, file_count = check_models()
+        
+        if action == "model_check":
+            return {
+                "output": {
+                    "message": "V91 debug handler working!",
+                    "models_available": has_models,
+                    "model_file_count": file_count,
+                    "network_volume_mounted": os.path.exists("/runpod-volume"),
+                    "version": "91",
+                    "debug_info": {
+                        "python_version": sys.version,
+                        "working_directory": os.getcwd(),
+                        "environment_vars": {
+                            "MODEL_PATH": os.getenv("MODEL_PATH"),
+                            "HF_HOME": os.getenv("HF_HOME"),
+                            "PYTHONPATH": os.getenv("PYTHONPATH")
+                        }
+                    }
+                }
+            }
+        
+        elif action == "generate":
+            print("V91: Starting generation...")
+            
+            # Get inputs
+            audio_input = job_input.get("audio_1", "1.wav")
+            image_input = job_input.get("condition_image", "multi1.png")
+            output_format = job_input.get("output_format", "s3")
+            s3_key = job_input.get("s3_output_key", f"multitalk-out/v91-output-{int(time.time())}.mp4")
+            
+            print(f"V91: Inputs - audio: {audio_input}, image: {image_input}")
+            
+            # Find actual files
+            model_path = Path("/runpod-volume/models")
+            audio_path = None
+            image_path = None
+            
+            if model_path.exists():
+                # Look for audio file
+                audio_candidates = list(model_path.rglob(audio_input))
+                if audio_candidates:
+                    audio_path = str(audio_candidates[0])
+                    print(f"V91: Found audio at: {audio_path}")
+                
+                # Look for image file  
+                image_candidates = list(model_path.rglob(image_input))
+                if image_candidates:
+                    image_path = str(image_candidates[0])
+                    print(f"V91: Found image at: {image_path}")
+            
+            # Create video
+            video_path = simple_video_generation(audio_path, image_path)
+            
+            if video_path and os.path.exists(video_path):
+                print(f"V91: Video created successfully: {video_path}")
+                
+                # For now, just return success without S3 upload
+                result = {
+                    "status": "completed",
+                    "message": "V91 test video generated",
+                    "video_path": video_path,
+                    "video_size_mb": round(os.path.getsize(video_path) / (1024*1024), 2),
+                    "inputs": {
+                        "audio_input": audio_input,
+                        "image_input": image_input,
+                        "audio_path": audio_path,
+                        "image_path": image_path
+                    },
+                    "version": "91"
+                }
+                
+                # Cleanup
+                try:
+                    os.unlink(video_path)
+                except:
+                    pass
+                
+                return {"output": result}
+            else:
+                return {
+                    "output": {
+                        "status": "error",
+                        "error": "Failed to create video",
+                        "version": "91"
+                    }
+                }
+        
+        else:
+            return {
+                "output": {
+                    "status": "error",
+                    "error": f"Unknown action: {action}",
+                    "version": "91"
+                }
+            }
+            
+    except Exception as e:
+        print(f"V91: Handler error: {e}")
+        import traceback
+        traceback.print_exc()
+        return {
+            "output": {
+                "status": "error",
+                "error": str(e),
+                "traceback": traceback.format_exc(),
+                "version": "91"
+            }
+        }
+
+# Add required dependencies for video processing
+try:
+    import cv2
+    print("V91: OpenCV imported successfully")
+except ImportError:
+    print("V91: Installing OpenCV...")
+    import subprocess
+    subprocess.check_call([sys.executable, "-m", "pip", "install", "opencv-python"])
+    import cv2
+    print("V91: OpenCV installed and imported")
+
+# Start the serverless handler
+print("V91: Starting debug MultiTalk serverless handler...")
+runpod.serverless.start({"handler": handler})
+EOF
+
+CMD ["python", "-u", "/app/handler.py"]
