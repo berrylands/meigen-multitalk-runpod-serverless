@@ -1,0 +1,50 @@
+# MultiTalk V87 - Back to V79.4 base with minimal fix
+FROM pytorch/pytorch:2.1.2-cuda12.1-cudnn8-devel
+
+# System dependencies
+ENV DEBIAN_FRONTEND=noninteractive
+ENV TZ=UTC
+RUN apt-get update && apt-get install -y \
+    git \
+    ffmpeg \
+    gcc \
+    g++ \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
+# Environment
+ENV PYTHONPATH=/app
+ENV HF_HOME=/runpod-volume/huggingface
+ENV TRANSFORMERS_CACHE=/runpod-volume/huggingface
+
+WORKDIR /app
+
+# Install dependencies - copy from V79.4 which was last working version
+RUN pip install --no-cache-dir \
+    runpod==1.7.3 \
+    numpy==1.24.3 \
+    scipy==1.10.1 \
+    boto3
+
+# Create a test handler
+RUN cat > /app/handler.py << 'EOF'
+import runpod
+
+def handler(job):
+    """Test handler for V87"""
+    print(f"V87 Handler received job: {job}")
+    
+    # Return in the exact format RunPod expects
+    return {
+        "output": {
+            "message": "V87 handler is working!",
+            "received_input": job.get("input", {}),
+            "version": "87"
+        }
+    }
+
+# Start the serverless handler
+runpod.serverless.start({"handler": handler})
+EOF
+
+CMD ["python", "-u", "/app/handler.py"]
