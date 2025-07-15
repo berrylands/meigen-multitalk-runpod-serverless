@@ -1,0 +1,90 @@
+{
+  "delayTime": 45841,
+  "executionTime": 37,
+  "id": "32464449-ea50-4b3e-9f20-c3a0e89af010-e2",
+  "output": {
+    "output": {
+      "message": "V111 MultiTalk handler ready (Real WAN model implementation)",
+      "model_info": {
+        "cuda_available": true,
+        "device": "NVIDIA GeForce RTX 4090",
+        "models_directory_exists": true,
+        "multitalk_v111_available": true,
+        "multitalk_v111_info": {
+          "device": "cuda",
+          "model_path": "/runpod-volume/models",
+          "models_available": {
+            "clip": true,
+            "diffusion": true,
+            "multitalk": true,
+            "text_encoder": true,
+            "vae": true,
+            "wan_path": true,
+            "wav2vec": true,
+            "wav2vec_path": true
+          },
+          "models_loaded": {
+            "clip": true,
+            "diffusion": true,
+            "multitalk": true,
+            "text_encoder": false,
+            "vae": true,
+            "wav2vec": true
+          },
+          "version": "111",
+          "wan_path": "/runpod-volume/models/wan2.1-i2v-14b-480p",
+          "wav2vec_path": "/runpod-volume/models/wav2vec2-large-960h"
+        },
+        "multitalk_v111_initialized": true,
+        "network_volume_mounted": true,
+        "pytorch_version": "2.1.2",
+        "s3_configured": true,
+        "safetensors_available": true,
+        "volume_exploration": {
+          "key_model_files": {
+            "clip": {
+              "exists": true,
+              "path": "wan2.1-i2v-14b-480p/models_clip_open-clip-xlm-roberta-large-vit-huge-14.pth",
+              "size_mb": 4551.28
+            },
+            "diffusion": {
+              "exists": true,
+              "path": "wan2.1-i2v-14b-480p/diffusion_pytorch_model-00007-of-00007.safetensors",
+              "size_mb": 6734.78
+            },
+            "multitalk": {
+              "exists": true,
+              "path": "wan2.1-i2v-14b-480p/multitalk.safetensors",
+              "size_mb": 9487.05
+            },
+            "text_encoder": {
+              "exists": false,
+              "path": "wan2.1-i2v-14b-480p/google/umt5-xxl/config.json"
+            },
+            "vae": {
+              "exists": true,
+              "path": "wan2.1-i2v-14b-480p/Wan2.1_VAE.pth",
+              "size_mb": 484.09
+            },
+            "wav2vec": {
+              "exists": true,
+              "path": "wav2vec2-large-960h/pytorch_model.bin",
+              "size_mb": 1203.55
+            }
+          },
+          "models_dir_exists": true,
+          "total_size_gb": 21.93,
+          "volume_exists": true,
+          "wan_models": [],
+          "wav2vec_models": []
+        },
+        "xformers_available": false,
+        "xfuser_available": false
+      },
+      "status": "ready",
+      "version": "111"
+    }
+  },
+  "status": "COMPLETED",
+  "workerId": "wkgdo074d1hfk6"
+}

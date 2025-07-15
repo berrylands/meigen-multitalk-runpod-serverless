@@ -1,0 +1,17 @@
+{
+  "delayTime": 154,
+  "executionTime": 516,
+  "id": "7b98d58a-76ba-4930-af79-dfe8d4b1fb1d-e1",
+  "output": {
+    "output": {
+      "details": {
+        "audio_found": false,
+        "image_found": false
+      },
+      "error": "Failed to process input files",
+      "status": "error"
+    }
+  },
+  "status": "COMPLETED",
+  "workerId": "wkgdo074d1hfk6"
+}

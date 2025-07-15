@@ -22,7 +22,7 @@ sys.path.insert(0, '/app/multitalk_official')
 sys.path.insert(0, '/app')
 
 print("="*50)
-print("V111: MultiTalk Handler - Real WAN Model Implementation")
+print("V112: MultiTalk Handler - Real WAN Model Implementation with Fixed S3")
 print(f"Python: {sys.version}")
 print(f"PyTorch: {torch.__version__}")
 print(f"CUDA Available: {torch.cuda.is_available()}")
@@ -299,8 +299,8 @@ def handler(job):
             return {
                 "output": {
                     "status": "ready",
-                    "message": "V111 MultiTalk handler ready (Real WAN model implementation)",
-                    "version": "111",
+                    "message": "V112 MultiTalk handler ready (Real WAN model implementation with fixed S3)",
+                    "version": "112",
                     "model_info": model_info
                 }
             }
@@ -311,7 +311,7 @@ def handler(job):
             condition_image = job_input.get("condition_image")
             prompt = job_input.get("prompt", "A person talking naturally")
             output_format = job_input.get("output_format", "s3")
-            s3_key = job_input.get("s3_output_key", f"multitalk-v111/output-{int(time.time())}.mp4")
+            s3_key = job_input.get("s3_output_key", f"multitalk-v112/output-{int(time.time())}.mp4")
             
             # Generation parameters
             duration = job_input.get("duration")
@@ -333,7 +333,7 @@ def handler(job):
                 return {
                     "output": {
                         "status": "error",
-                        "error": "MultiTalk V111 not available",
+                        "error": "MultiTalk V112 not available",
                         "details": {
                             "multitalk_v111_available": MULTITALK_V111_AVAILABLE,
                             "models_available": multitalk_v111.models_available if multitalk_v111 else None
@@ -380,7 +380,7 @@ def handler(job):
                 return {
                     "output": {
                         "status": "error",
-                        "error": "Failed to generate video with MultiTalk V111",
+                        "error": "Failed to generate video with MultiTalk V112",
                         "details": {
                             "video_path": video_path,
                             "file_exists": os.path.exists(video_path) if video_path else False
@@ -402,7 +402,7 @@ def handler(job):
                         "status": "completed",
                         "video_url": video_url,
                         "s3_key": s3_key,
-                        "message": f"Video generated successfully with MultiTalk V111 (Real WAN models)",
+                        "message": f"Video generated successfully with MultiTalk V112 (Real WAN models with fixed S3)",
                         "generation_params": {
                             "prompt": prompt,
                             "sample_steps": sample_steps,
@@ -417,7 +417,7 @@ def handler(job):
                     result = {
                         "status": "completed",
                         "video_base64": video_base64,
-                        "message": "Video generated with MultiTalk V111 (S3 upload failed)",
+                        "message": "Video generated with MultiTalk V112 (S3 upload failed)",
                         "generation_params": {
                             "prompt": prompt,
                             "sample_steps": sample_steps,
@@ -432,7 +432,7 @@ def handler(job):
                 result = {
                     "status": "completed",
                     "video_base64": video_base64,
-                    "message": f"Video generated successfully with MultiTalk V111 (Real WAN models)",
+                    "message": f"Video generated successfully with MultiTalk V112 (Real WAN models with fixed S3)",
                     "generation_params": {
                         "prompt": prompt,
                         "sample_steps": sample_steps,
@@ -464,17 +464,17 @@ def handler(job):
             }
             
     except Exception as e:
-        print(f"V111: Handler error: {e}")
+        print(f"V112: Handler error: {e}")
         traceback.print_exc()
         return {
             "output": {
                 "status": "error",
                 "error": str(e),
                 "traceback": traceback.format_exc(),
-                "version": "111"
+                "version": "112"
             }
         }
 
 # Start handler
-print("V111: Starting RunPod serverless handler...")
+print("V112: Starting RunPod serverless handler...")
 runpod.serverless.start({"handler": handler})
