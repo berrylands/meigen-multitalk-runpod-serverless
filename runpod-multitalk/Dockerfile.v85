@@ -1,0 +1,72 @@
+# MultiTalk V85 - Proper RunPod serverless handler
+FROM python:3.10-slim
+
+# Environment
+ENV PYTHONPATH=/app
+ENV PYTHONUNBUFFERED=1
+ENV HF_HOME=/runpod-volume/huggingface
+ENV DEBIAN_FRONTEND=noninteractive
+ENV TZ=UTC
+
+WORKDIR /app
+
+# Install dependencies
+RUN pip install --no-cache-dir \
+    runpod==1.7.3 \
+    numpy==1.24.3 \
+    scipy==1.10.1 \
+    boto3
+
+# Create proper RunPod handler
+RUN cat > /app/handler.py << 'EOF'
+import runpod
+import os
+import json
+import time
+
+def handler(event):
+    """RunPod serverless handler"""
+    print("=== V85 Handler Called ===")
+    print(f"Event: {json.dumps(event, indent=2)}")
+    
+    try:
+        # Extract input from event
+        job_input = event.get("input", {})
+        print(f"Input received: {job_input}")
+        
+        # Simple test response
+        result = {
+            "output": {
+                "status": "success",
+                "message": "V85 handler working properly!",
+                "version": "85.0.0",
+                "timestamp": time.time(),
+                "input_received": job_input,
+                "environment": {
+                    "endpoint_id": os.environ.get("RUNPOD_ENDPOINT_ID", "unknown"),
+                    "pod_id": os.environ.get("RUNPOD_POD_ID", "unknown"),
+                    "aws_bucket": os.environ.get("AWS_S3_BUCKET_NAME", "not_set")
+                }
+            }
+        }
+        
+        print(f"Returning result: {json.dumps(result, indent=2)}")
+        return result
+        
+    except Exception as e:
+        print(f"Error in handler: {str(e)}")
+        return {
+            "error": str(e),
+            "status": "failed"
+        }
+
+# Start RunPod serverless worker
+print("Starting RunPod serverless worker...")
+runpod.serverless.start({"handler": handler})
+EOF
+
+# Make executable
+RUN chmod +x /app/handler.py
+
+# Run directly
+CMD ["python", "-u", "/app/handler.py"]
