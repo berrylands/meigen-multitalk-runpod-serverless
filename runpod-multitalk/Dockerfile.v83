@@ -1,0 +1,27 @@
+# MultiTalk V83 - Ultra simple build for debugging
+FROM pytorch/pytorch:2.1.2-cuda12.1-cudnn8-devel
+
+# System dependencies
+RUN apt-get update && apt-get install -y git ffmpeg && rm -rf /var/lib/apt/lists/*
+
+# Environment
+ENV PYTHONPATH=/app
+ENV HF_HOME=/runpod-volume/huggingface
+
+WORKDIR /app
+
+# Python dependencies - minimal set
+RUN pip install --no-cache-dir \
+    runpod==1.7.3 \
+    numpy==1.24.3 \
+    scipy==1.10.1 \
+    boto3
+
+# Create simple handler
+RUN echo 'import runpod\n\
+def handler(job):\n\
+    return {"status": "success", "message": "V83 working"}\n\
+runpod.serverless.start({"handler": handler})' > /app/handler.py
+
+# Run
+CMD ["python", "-u", "/app/handler.py"]
