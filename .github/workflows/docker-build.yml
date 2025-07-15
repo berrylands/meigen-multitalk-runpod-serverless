@@ -1,0 +1,80 @@
+name: Build and Push MultiTalk
+
+on:
+  push:
+    branches: [ master ]
+    paths:
+      - 'runpod-multitalk/Dockerfile.v*'
+      - 'runpod-multitalk/handler_v*.py'
+      - 'runpod-multitalk/multitalk_v*.py'
+      - '.github/workflows/docker-build.yml'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to build (e.g., v80)'
+        required: false
+        default: 'latest'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+    
+    - name: Login to DockerHub
+      uses: docker/login-action@v2
+      with:
+        username: berrylands
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+    
+    - name: Determine version
+      id: version
+      run: |
+        if [ "${{ github.event.inputs.version }}" != "" ] && [ "${{ github.event.inputs.version }}" != "latest" ]; then
+          VERSION="${{ github.event.inputs.version }}"
+        else
+          # Find the latest Dockerfile.v* file
+          VERSION=$(ls runpod-multitalk/Dockerfile.v* | grep -E 'Dockerfile\.v[0-9]+$' | sort -V | tail -1 | sed 's/.*Dockerfile\.//')
+        fi
+        echo "version=$VERSION" >> $GITHUB_OUTPUT
+        echo "Building version: $VERSION"
+    
+    - name: Build and push
+      uses: docker/build-push-action@v4
+      with:
+        context: ./runpod-multitalk
+        file: ./runpod-multitalk/Dockerfile.${{ steps.version.outputs.version }}
+        platforms: linux/amd64
+        push: true
+        tags: |
+          berrylands/multitalk-runpod:${{ steps.version.outputs.version }}
+          berrylands/multitalk-runpod:latest
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+        build-args: |
+          BUILD_TIME=${{ github.event.repository.updated_at }}
+          BUILD_ID=gh-${{ github.run_id }}
+    
+    - name: Update RunPod template
+      if: success()
+      run: |
+        # Install RunPod CLI or use API to update template
+        echo "Template ID: joospbpdol"
+        echo "New image: berrylands/multitalk-runpod:${{ steps.version.outputs.version }}"
+    
+    - name: Create summary
+      run: |
+        echo "# MultiTalk Build Complete! 🎉" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "## Version: ${{ steps.version.outputs.version }}" >> $GITHUB_STEP_SUMMARY
+        echo "**Image:** berrylands/multitalk-runpod:${{ steps.version.outputs.version }}" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "## Auto-Update Template" >> $GITHUB_STEP_SUMMARY
+        echo "Template ID: \`joospbpdol\`" >> $GITHUB_STEP_SUMMARY
+        echo "Template Name: \`multitalk-v80-auto-update\`" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "## Testing" >> $GITHUB_STEP_SUMMARY
+        echo "The endpoint will automatically use the new image." >> $GITHUB_STEP_SUMMARY
