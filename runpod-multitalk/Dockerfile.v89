@@ -1,0 +1,72 @@
+# MultiTalk V89 - Minimal MultiTalk addition to working V87
+FROM pytorch/pytorch:2.1.2-cuda12.1-cudnn8-devel
+
+# System dependencies
+ENV DEBIAN_FRONTEND=noninteractive
+ENV TZ=UTC
+RUN apt-get update && apt-get install -y \
+    git \
+    ffmpeg \
+    gcc \
+    g++ \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
+# Environment
+ENV PYTHONPATH=/app
+ENV HF_HOME=/runpod-volume/huggingface
+ENV TRANSFORMERS_CACHE=/runpod-volume/huggingface
+
+WORKDIR /app
+
+# Install dependencies - exact same as working V87
+RUN pip install --no-cache-dir \
+    runpod==1.7.3 \
+    numpy==1.24.3 \
+    scipy==1.10.1 \
+    boto3
+
+# Create V89 handler - V87 base + model checking
+RUN cat > /app/handler.py << 'EOF'
+import runpod
+import os
+import json
+from pathlib import Path
+
+def check_models():
+    """Check if MultiTalk models exist"""
+    model_path = Path("/runpod-volume/models")
+    print(f"Checking models in: {model_path}")
+    
+    if model_path.exists():
+        files = list(model_path.rglob("*"))
+        print(f"Found {len(files)} files in models directory")
+        return True, len(files)
+    return False, 0
+
+def handler(job):
+    """V89 Handler - V87 + model checking"""
+    print(f"V89 Handler received job: {job}")
+    
+    job_input = job.get("input", {})
+    
+    # Check for models
+    has_models, file_count = check_models()
+    
+    # Return enhanced response
+    result = {
+        "message": "V89 handler is working!",
+        "received_input": job_input,
+        "version": "89",
+        "models_available": has_models,
+        "model_file_count": file_count,
+        "network_volume_mounted": os.path.exists("/runpod-volume")
+    }
+    
+    return {"output": result}
+
+# Start the serverless handler
+runpod.serverless.start({"handler": handler})
+EOF
+
+CMD ["python", "-u", "/app/handler.py"]
