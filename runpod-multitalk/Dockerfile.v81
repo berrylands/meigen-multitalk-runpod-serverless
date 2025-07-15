@@ -1,0 +1,175 @@
+# MultiTalk V81 - Fixed dependencies and xfuser handling
+FROM pytorch/pytorch:2.1.2-cuda12.1-cudnn8-devel
+
+# System dependencies
+ENV DEBIAN_FRONTEND=noninteractive
+ENV TZ=UTC
+RUN apt-get update && apt-get install -y \
+    git \
+    ffmpeg \
+    gcc \
+    g++ \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
+# Version info
+ENV VERSION=81.0.0
+ENV BUILD_ID=multitalk-v81-fixed
+ENV BUILD_TIME=2025-07-15T11:00:00Z
+ENV IMPLEMENTATION=COMPLETE_FIX
+ENV PYTHONPATH=/app/multitalk_official:/app:/runpod-volume/models
+ENV HF_HOME=/runpod-volume/huggingface
+ENV TRANSFORMERS_CACHE=/runpod-volume/huggingface
+ENV HF_DATASETS_CACHE=/runpod-volume/huggingface/datasets
+
+WORKDIR /app
+
+# Copy our files
+COPY multitalk_v75_0_json_input.py .
+COPY handler_v75.py handler.py
+
+# Create a fixed setup script that properly handles xfuser
+RUN cat > setup_multitalk_v80.sh << 'EOF'
+#!/bin/bash
+set -e
+
+echo "=========================================="
+echo "Setting up MultiTalk V80 - Complete Fix"
+echo "=========================================="
+
+# Create directory structure
+echo "📁 Creating directory structure..."
+mkdir -p /app/multitalk_official
+cd /app/multitalk_official
+
+# Clone official repository
+echo "📥 Cloning official MultiTalk repository..."
+git clone https://github.com/MeiGen-AI/MultiTalk.git .
+
+# Copy implementation files (without kokoro)
+echo "📋 Copying official implementation..."
+cp -r wan /app/multitalk_official/
+cp generate_multitalk.py /app/multitalk_official/ || cp scripts/generate_multitalk.py /app/multitalk_official/ || true
+
+# Fix xfuser imports properly
+echo "🔧 Fixing xfuser imports..."
+if [ -f /app/multitalk_official/wan/utils/multitalk_utils.py ]; then
+    # Create a backup
+    cp /app/multitalk_official/wan/utils/multitalk_utils.py /app/multitalk_official/wan/utils/multitalk_utils.py.bak
+    
+    # Replace the entire xfuser import block with stub functions
+    cat > /tmp/xfuser_fix.py << 'PYEOF'
+import re
+
+with open('/app/multitalk_official/wan/utils/multitalk_utils.py', 'r') as f:
+    content = f.read()
+
+# Find and replace the xfuser import block
+pattern = r'from xfuser\.core\.distributed import \([^)]+\)'
+replacement = '''# xfuser imports removed for compatibility
+def get_sequence_parallel_rank():
+    return 0
+def get_sequence_parallel_world_size():
+    return 1
+def get_sequence_parallel_group():
+    return None
+def get_data_parallel_rank():
+    return 0
+def get_data_parallel_world_size():
+    return 1'''
+
+content = re.sub(pattern, replacement, content, flags=re.DOTALL)
+
+# Also replace any single-line xfuser imports
+content = re.sub(r'^from xfuser\.[^\n]+$', '# xfuser import removed', content, flags=re.MULTILINE)
+content = re.sub(r'^import xfuser[^\n]*$', '# xfuser import removed', content, flags=re.MULTILINE)
+
+with open('/app/multitalk_official/wan/utils/multitalk_utils.py', 'w') as f:
+    f.write(content)
+
+print("✅ Fixed xfuser imports")
+PYEOF
+
+    python /tmp/xfuser_fix.py
+fi
+
+# Remove kokoro dependency
+echo "🔧 Removing kokoro dependency..."
+if [ -f /app/multitalk_official/generate_multitalk.py ]; then
+    sed -i '/import kokoro/d' /app/multitalk_official/generate_multitalk.py
+    sed -i '/from kokoro/d' /app/multitalk_official/generate_multitalk.py
+fi
+
+echo "✅ MultiTalk V80 setup complete!"
+EOF
+
+RUN chmod +x setup_multitalk_v80.sh
+
+# Python dependencies (all in one layer, optimized for compatibility)
+RUN pip install --no-cache-dir \
+    runpod==1.7.3 \
+    numpy==1.24.3 \
+    scipy==1.10.1 \
+    transformers==4.43.3 \
+    tokenizers==0.19.1 \
+    librosa==0.10.2 \
+    soundfile==0.12.1 \
+    diffusers>=0.31.0 \
+    accelerate>=1.1.1 \
+    safetensors>=0.4.3 \
+    opencv-python>=4.9.0 \
+    imageio>=2.30.0 \
+    huggingface-hub==0.23.5 \
+    einops \
+    rotary-embedding-torch \
+    tensorboardX \
+    omegaconf \
+    easydict \
+    ftfy \
+    timm \
+    sentencepiece \
+    peft \
+    boto3 \
+    moviepy \
+    imageio-ffmpeg
+
+# Setup MultiTalk with fixes
+RUN ./setup_multitalk_v80.sh
+
+# Create runtime initialization script
+RUN cat > /app/init_runtime.sh << 'EOF'
+#!/bin/bash
+echo "🚀 Initializing runtime environment..."
+
+# Ensure cache directories exist with proper permissions
+mkdir -p /runpod-volume/huggingface/hub
+mkdir -p /runpod-volume/huggingface/datasets
+mkdir -p /runpod-volume/huggingface/modules
+chmod -R 777 /runpod-volume/huggingface
+
+# Additional cache directories
+mkdir -p /tmp/.cache
+mkdir -p /root/.cache
+mkdir -p /app/.cache
+chmod -R 777 /tmp/.cache /root/.cache /app/.cache
+
+echo "✅ Runtime environment initialized"
+
+# Start the handler
+exec python -u /app/handler.py
+EOF
+
+RUN chmod +x /app/init_runtime.sh
+
+# Validation
+RUN python -c "import runpod; print('✅ RunPod imports')" && \
+    python -c "import scipy.stats; print('✅ SciPy imports')" && \
+    python -c "import torch; print('✅ PyTorch imports')" && \
+    python -c "import transformers; print('✅ Transformers imports')" && \
+    python -c "import diffusers; print('✅ Diffusers imports')" && \
+    python -c "import cv2; print('✅ OpenCV imports')" && \
+    python -c "import moviepy; print('✅ MoviePy imports')" && \
+    echo "✅ All critical imports successful!"
+
+# Use the runtime initialization script
+CMD ["/app/init_runtime.sh"]
