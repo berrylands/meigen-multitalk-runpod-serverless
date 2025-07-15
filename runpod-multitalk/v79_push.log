@@ -1,0 +1,69 @@
+The push refers to repository [docker.io/berrylands/multitalk-runpod]
+6755b1fd1a3d: Preparing
+e5b4f794b7e3: Preparing
+13ae323ff0b8: Preparing
+48dd0af311e8: Preparing
+0d88e34554ad: Preparing
+7fe8bf8dba37: Preparing
+740ec48ec52f: Preparing
+f584b9fedb13: Preparing
+ae8f674b18e3: Preparing
+87bdf5cff876: Preparing
+6888845e0d27: Preparing
+8eb85b561415: Preparing
+3f2f263da0ed: Preparing
+ad6bf06f23c6: Preparing
+0e5e6a7b15e4: Preparing
+226146661e72: Preparing
+cca411d699bf: Preparing
+82adc44e81b3: Preparing
+379cd604fb89: Preparing
+9dbd6d766fae: Preparing
+8d78458ccbe2: Preparing
+f620bf47e83d: Preparing
+5c0359201b8f: Preparing
+6c3e7df31590: Preparing
+ad6bf06f23c6: Waiting
+0e5e6a7b15e4: Waiting
+226146661e72: Waiting
+cca411d699bf: Waiting
+f584b9fedb13: Waiting
+82adc44e81b3: Waiting
+379cd604fb89: Waiting
+9dbd6d766fae: Waiting
+8d78458ccbe2: Waiting
+f620bf47e83d: Waiting
+5c0359201b8f: Waiting
+6c3e7df31590: Waiting
+ae8f674b18e3: Waiting
+87bdf5cff876: Waiting
+6888845e0d27: Waiting
+8eb85b561415: Waiting
+3f2f263da0ed: Waiting
+7fe8bf8dba37: Waiting
+740ec48ec52f: Waiting
+0d88e34554ad: Layer already exists
+48dd0af311e8: Layer already exists
+6755b1fd1a3d: Layer already exists
+e5b4f794b7e3: Layer already exists
+740ec48ec52f: Layer already exists
+ae8f674b18e3: Layer already exists
+f584b9fedb13: Layer already exists
+7fe8bf8dba37: Layer already exists
+87bdf5cff876: Layer already exists
+6888845e0d27: Layer already exists
+8eb85b561415: Layer already exists
+3f2f263da0ed: Layer already exists
+ad6bf06f23c6: Layer already exists
+0e5e6a7b15e4: Layer already exists
+226146661e72: Layer already exists
+cca411d699bf: Layer already exists
+82adc44e81b3: Layer already exists
+379cd604fb89: Layer already exists
+9dbd6d766fae: Layer already exists
+8d78458ccbe2: Layer already exists
+f620bf47e83d: Layer already exists
+5c0359201b8f: Layer already exists
+6c3e7df31590: Layer already exists
+13ae323ff0b8: Pushed
+Post "https://registry-1.docker.io/v2/berrylands/multitalk-runpod/blobs/uploads/": proxyconnect tcp: dial tcp 192.168.65.1:3128: i/o timeout

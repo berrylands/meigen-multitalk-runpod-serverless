@@ -1,0 +1,19 @@
+# MultiTalk implementation with real inference
+FROM berrylands/multitalk-v34:fix
+
+# Install additional dependencies for MultiTalk
+RUN pip install --no-cache-dir \
+    soundfile==0.12.1 \
+    opencv-python-headless==4.8.0.74
+
+# Copy the real MultiTalk implementation
+COPY real_multitalk_inference.py /app/real_multitalk_inference.py
+COPY multitalk_handler_v2.py /app/handler.py
+
+# Update version
+ENV VERSION="35.0.0"
+ENV BUILD_TIME="2025-01-12T00:00:00Z"
+ENV BUILD_ID="multitalk-v35-real"
+
+WORKDIR /app
+CMD ["python", "-u", "/app/handler.py"]

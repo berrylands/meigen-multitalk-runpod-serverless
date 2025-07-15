@@ -1,0 +1,46 @@
+# Requirements for real MultiTalk implementation
+# Based on official MeiGen-AI/MultiTalk requirements
+
+# Core ML libraries
+torch>=2.0.0
+torchvision>=0.15.0
+torchaudio>=2.0.0
+
+# Diffusion and transformers
+diffusers>=0.31.0
+transformers>=4.49.0
+tokenizers>=0.20.3
+accelerate>=1.1.1
+safetensors
+
+# Audio processing
+soundfile
+librosa
+pyloudnorm
+
+# Image/Video processing
+opencv-python>=4.9.0.80
+imageio
+imageio-ffmpeg
+scikit-image
+Pillow
+
+# Utilities
+tqdm
+easydict
+ftfy
+loguru
+numpy>=1.23.5,<2
+
+# AWS/S3 support
+boto3
+
+# RunPod
+runpod
+
+# Optional but recommended for optimization
+xformers
+flash-attn
+
+# Development
+pytest

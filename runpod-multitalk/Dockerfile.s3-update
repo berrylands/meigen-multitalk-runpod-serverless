@@ -1,0 +1,27 @@
+# S3 Update Dockerfile - Adds S3 support to existing image
+FROM berrylands/multitalk-test:latest
+
+# Just add boto3 and the S3 handler
+RUN pip install --no-cache-dir boto3==1.35.0
+
+# Copy the updated handlers
+COPY complete_multitalk_handler.py /app/handler.py
+COPY s3_handler.py /app/s3_handler.py
+
+# Build arguments for versioning
+ARG BUILD_TIME="unknown"
+ARG BUILD_ID="unknown"
+
+# Update environment variables
+ENV BUILD_TIME=${BUILD_TIME}
+ENV BUILD_ID=${BUILD_ID}
+
+# S3 environment variables (will be overridden by RunPod secrets)
+ENV AWS_ACCESS_KEY_ID=""
+ENV AWS_SECRET_ACCESS_KEY=""
+ENV AWS_REGION="us-east-1"
+ENV AWS_S3_BUCKET_NAME=""
+ENV BUCKET_ENDPOINT_URL=""
+
+# Same entrypoint
+CMD ["python", "-u", "handler.py"]

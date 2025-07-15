@@ -28,7 +28,7 @@ WORKDIR /app
 COPY multitalk_v75_0_json_input.py .
 COPY handler_v75.py handler.py
 
-# Create a fixed setup script that properly handles xfuser
+# Create a fixed setup script that properly handles xfuser  
 RUN cat > setup_multitalk_v80.sh << 'EOF'
 #!/bin/bash
 set -e

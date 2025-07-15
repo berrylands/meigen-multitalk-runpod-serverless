@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """
-Batch Video Processor for MultiTalk
+Batch Video Processor for MultiTalk with S3 Support
 Process multiple audio files in parallel using the MultiTalk serverless endpoint.
+Supports both local files and S3 storage for inputs/outputs.
 """
 
 import os
@@ -22,6 +23,37 @@ runpod.api_key = os.getenv("RUNPOD_API_KEY")
 # Configuration
 ENDPOINT_ID = "kkx3cfy484jszl"
 MAX_WORKERS = 3  # Maximum parallel jobs
+
+# S3 Configuration (optional)
+USE_S3 = os.getenv("USE_S3", "false").lower() == "true"
+S3_BUCKET = os.getenv("AWS_S3_BUCKET_NAME")
+
+# Check if S3 is available
+S3_AVAILABLE = False
+if USE_S3:
+    try:
+        import boto3
+        S3_AVAILABLE = bool(os.getenv("AWS_ACCESS_KEY_ID")) and bool(S3_BUCKET)
+    except ImportError:
+        print("Warning: boto3 not installed. S3 support disabled.")
+        S3_AVAILABLE = False
+
+def upload_audio_to_s3(audio_file):
+    """Upload audio file to S3 and return S3 URL."""
+    if not S3_AVAILABLE:
+        return None
+    
+    try:
+        s3_client = boto3.client('s3')
+        timestamp = time.strftime("%Y%m%d_%H%M%S")
+        s3_key = f"multitalk/batch/audio/{Path(audio_file).stem}_{timestamp}.wav"
+        
+        print(f"   Uploading to S3: {s3_key}")
+        s3_client.upload_file(audio_file, S3_BUCKET, s3_key)
+        return f"s3://{S3_BUCKET}/{s3_key}"
+    except Exception as e:
+        print(f"   S3 upload failed: {e}")
+        return None
 
 def load_audio(filename):
     """Load and prepare audio for processing."""
@@ -50,34 +82,58 @@ def load_audio(filename):
         print(f"Error loading {filename}: {e}")
         return None, None
 
-def process_single_file(audio_file, output_dir):
-    """Process a single audio file."""
+def process_single_file(audio_file, output_dir, use_s3=False):
+    """Process a single audio file with optional S3 support."""
     print(f"\n📁 Processing: {audio_file}")
-    
-    # Load audio
-    audio_data, duration = load_audio(audio_file)
-    if audio_data is None:
-        return audio_file, False, "Failed to load audio"
     
     # Prepare output filename
     base_name = Path(audio_file).stem
-    output_file = output_dir / f"{base_name}_video.mp4"
+    timestamp = time.strftime("%Y%m%d_%H%M%S")
     
-    # Encode audio
-    audio_b64 = base64.b64encode(audio_data.tobytes()).decode('utf-8')
+    # Prepare job input
+    job_input = {
+        "action": "generate",
+        "fps": 30,
+        "width": 512,
+        "height": 512
+    }
+    
+    # Handle audio input
+    if use_s3 and S3_AVAILABLE:
+        # Upload audio to S3
+        audio_s3_url = upload_audio_to_s3(audio_file)
+        if audio_s3_url:
+            job_input["audio"] = audio_s3_url
+            print(f"   Using S3 audio: {audio_s3_url}")
+            # Get duration for S3 audio
+            _, duration = load_audio(audio_file)
+            job_input["duration"] = duration or 5.0
+        else:
+            # Fallback to base64
+            use_s3 = False
+    
+    if not use_s3 or not S3_AVAILABLE:
+        # Load and encode audio to base64
+        audio_data, duration = load_audio(audio_file)
+        if audio_data is None:
+            return audio_file, False, "Failed to load audio"
+        job_input["audio"] = base64.b64encode(audio_data.tobytes()).decode('utf-8')
+        job_input["duration"] = duration
+    
+    # Configure output format
+    if use_s3 and S3_AVAILABLE:
+        job_input["output_format"] = "s3"
+        job_input["s3_output_key"] = f"multitalk/batch/videos/{base_name}_{timestamp}.mp4"
+        print(f"   Output format: S3")
+    else:
+        output_file = output_dir / f"{base_name}_video.mp4"
+        print(f"   Output format: Local file")
     
     # Submit job
     endpoint = runpod.Endpoint(ENDPOINT_ID)
     
     try:
-        job = endpoint.run({
-            "action": "generate",
-            "audio": audio_b64,
-            "duration": duration,
-            "fps": 30,
-            "width": 512,
-            "height": 512
-        })
+        job = endpoint.run(job_input)
         
         print(f"   Job ID: {job.job_id}")
         
@@ -92,13 +148,22 @@ def process_single_file(audio_file, output_dir):
         if job.status() == "COMPLETED":
             result = job.output()
             if result and result.get("success"):
-                # Save video
-                video_data = base64.b64decode(result["video"])
-                with open(output_file, "wb") as f:
-                    f.write(video_data)
-                
                 processing_time = time.time() - start_time
-                return audio_file, True, f"Success ({processing_time:.1f}s)"
+                
+                # Handle output based on type
+                output_type = result.get("output_type", "base64")
+                
+                if output_type == "s3_url":
+                    # S3 output
+                    s3_url = result.get("video")
+                    s3_key = result.get("s3_key")
+                    return audio_file, True, f"Success ({processing_time:.1f}s) - S3: {s3_key}"
+                else:
+                    # Base64 output - save locally
+                    video_data = base64.b64decode(result["video"])
+                    with open(output_file, "wb") as f:
+                        f.write(video_data)
+                    return audio_file, True, f"Success ({processing_time:.1f}s) - Local: {output_file.name}"
             else:
                 return audio_file, False, result.get("error", "Unknown error")
         else:
@@ -107,13 +172,20 @@ def process_single_file(audio_file, output_dir):
     except Exception as e:
         return audio_file, False, str(e)
 
-def process_directory(input_dir, output_dir, pattern="*.wav"):
+def process_directory(input_dir, output_dir, pattern="*.wav", use_s3=None):
     """Process all audio files in a directory."""
+    
+    # Auto-detect S3 usage if not specified
+    if use_s3 is None:
+        use_s3 = USE_S3 and S3_AVAILABLE
     
     # Setup paths
     input_path = Path(input_dir)
     output_path = Path(output_dir)
-    output_path.mkdir(exist_ok=True)
+    
+    # Create output directory only if not using S3
+    if not use_s3:
+        output_path.mkdir(exist_ok=True)
     
     # Find audio files
     audio_files = list(input_path.glob(pattern))
@@ -123,7 +195,12 @@ def process_directory(input_dir, output_dir, pattern="*.wav"):
         return
     
     print(f"Found {len(audio_files)} audio files to process")
-    print(f"Output directory: {output_path}")
+    if use_s3:
+        print(f"Output: S3 bucket {S3_BUCKET}")
+        print(f"Storage mode: S3 (inputs and outputs)")
+    else:
+        print(f"Output directory: {output_path}")
+        print(f"Storage mode: Local files")
     print(f"Using {MAX_WORKERS} parallel workers\n")
     
     # Process files in parallel
@@ -131,7 +208,7 @@ def process_directory(input_dir, output_dir, pattern="*.wav"):
     with concurrent.futures.ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
         # Submit all jobs
         future_to_file = {
-            executor.submit(process_single_file, f, output_path): f 
+            executor.submit(process_single_file, f, output_path, use_s3): f 
             for f in audio_files
         }
         
@@ -166,6 +243,15 @@ def main():
     print("MultiTalk Batch Video Processor")
     print("=" * 50)
     
+    # Show S3 status
+    if S3_AVAILABLE:
+        print(f"✅ S3 enabled (bucket: {S3_BUCKET})")
+        print("   Set USE_S3=false to disable S3 storage")
+    else:
+        if USE_S3:
+            print("⚠️  S3 requested but not available (missing credentials or boto3)")
+        print("   Using local file storage")
+    
     if len(sys.argv) < 2:
         print("\nUsage:")
         print("  python batch_processor.py <input_directory> [output_directory] [pattern]")
@@ -173,6 +259,8 @@ def main():
         print("  python batch_processor.py ./audio_files")
         print("  python batch_processor.py ./audio_files ./videos")
         print("  python batch_processor.py ./audio_files ./videos '*.mp3'")
+        print("\nS3 Usage:")
+        print("  USE_S3=true python batch_processor.py ./audio_files")
         
         # Demo mode
         print("\nNo directory specified. Creating demo...")

@@ -1,0 +1,42 @@
+# Fix S3 path prefix issue
+FROM berrylands/multitalk-v17:list-bucket
+
+# Add environment variable for S3 prefix if needed
+ENV S3_KEY_PREFIX=""
+
+# Patch s3_utils.py to handle prefix
+RUN sed -i '/s3_url = f"s3:\/\/{default_bucket}\/{input_data}"/s/{input_data}/{os.environ.get("S3_KEY_PREFIX", "")}{input_data}/' /app/s3_utils.py || true
+
+# Also check if files exist with common prefixes
+RUN cat >> /app/s3_prefix_check.py << 'EOF'
+import os
+
+# Common prefixes to check
+COMMON_PREFIXES = [
+    "",
+    "comfy_outputs/",
+    f"comfy_outputs/{os.environ.get('AWS_S3_BUCKET_NAME', '')}/"
+]
+
+def find_with_prefix(s3_handler, bucket, key):
+    """Try to find file with various prefixes"""
+    for prefix in COMMON_PREFIXES:
+        full_key = f"{prefix}{key}" if prefix else key
+        try:
+            s3_handler.s3_client.head_object(Bucket=bucket, Key=full_key)
+            return full_key
+        except:
+            continue
+    return None
+EOF
+
+# Patch s3_handler to try common prefixes
+RUN sed -i '/def download_from_s3/a\        # Import prefix checker\n        import sys\n        sys.path.insert(0, "/app")\n        from s3_prefix_check import find_with_prefix\n        \n        # Try to find with prefixes\n        actual_key = find_with_prefix(self, bucket, key)\n        if actual_key and actual_key != key:\n            logger.info(f"[S3_PREFIX] Found file at: {actual_key}")\n            key = actual_key' /app/s3_handler.py
+
+# Update version
+ENV VERSION="18.0.0"
+ENV BUILD_TIME="2025-01-11T19:00:00Z"
+ENV BUILD_ID="multitalk-v18-prefix-fix"
+
+WORKDIR /app
+CMD ["python", "-u", "/app/handler.py"]

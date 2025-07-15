@@ -1,0 +1,17 @@
+# V48 - Production MultiTalk Implementation
+FROM berrylands/multitalk-v46:robust-defensive
+
+# Copy production handler
+COPY multitalk_handler_v48_final.py /app/handler.py
+
+# Update version info
+ENV VERSION="48.0.0"
+ENV BUILD_TIME="2025-07-12T11:30:00Z"
+ENV BUILD_ID="multitalk-v48-production"
+ENV RUNPOD_DEBUG_LEVEL="INFO"
+
+# Production optimizations
+ENV PYTHONOPTIMIZE=1
+
+WORKDIR /app
+CMD ["python", "-u", "/app/handler.py"]

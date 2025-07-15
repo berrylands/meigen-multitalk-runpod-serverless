@@ -1,0 +1,73 @@
+# V56 - Fix Diffusers with Compatible Versions
+FROM berrylands/multitalk-v54:proper-architecture
+
+# Remove ALL existing ML packages to start fresh
+RUN pip uninstall -y \
+    torch torchvision torchaudio \
+    transformers tokenizers \
+    diffusers accelerate \
+    huggingface-hub \
+    safetensors \
+    xformers \
+    einops \
+    scipy \
+    || true
+
+# Install compatible versions in the correct order
+# Using more recent versions that work together
+RUN pip install --no-cache-dir \
+    torch==2.1.2+cu121 \
+    torchvision==0.16.2+cu121 \
+    torchaudio==2.1.2+cu121 \
+    --index-url https://download.pytorch.org/whl/cu121
+
+# Install core dependencies
+RUN pip install --no-cache-dir \
+    numpy==1.24.3 \
+    huggingface-hub==0.20.3 \
+    safetensors==0.4.2 \
+    filelock==3.13.1 \
+    typing-extensions==4.9.0
+
+# Install transformers and related
+RUN pip install --no-cache-dir \
+    transformers==4.37.2 \
+    tokenizers==0.15.1 \
+    accelerate==0.26.1
+
+# Install diffusers and related
+RUN pip install --no-cache-dir \
+    diffusers==0.25.1 \
+    xformers==0.0.23.post1 \
+    einops==0.7.0 \
+    scipy==1.11.4 \
+    omegaconf==2.3.0
+
+# Verify all imports work
+RUN python -c "import torch; print(f'torch {torch.__version__}')" && \
+    python -c "import transformers; print(f'transformers {transformers.__version__}')" && \
+    python -c "import diffusers; print(f'diffusers {diffusers.__version__}')" && \
+    python -c "import accelerate; print(f'accelerate {accelerate.__version__}')" && \
+    python -c "from diffusers import AutoencoderKL, UNet2DConditionModel; print('✓ Core diffusers classes imported')"
+
+# Copy the no-fallback implementation
+COPY multitalk_v56_fixed_diffusers.py /app/multitalk_v56_fixed_diffusers.py
+
+# Update handler
+RUN sed -i 's/from multitalk_v54_proper_architecture import MultiTalkV54Pipeline/from multitalk_v56_fixed_diffusers import MultiTalkV56Pipeline/g' /app/handler.py && \
+    sed -i 's/MultiTalkV54Pipeline/MultiTalkV56Pipeline/g' /app/handler.py && \
+    sed -i 's/MultiTalk V54/MultiTalk V56/g' /app/handler.py && \
+    sed -i 's/multitalk-v54-proper-architecture/multitalk-v56-fixed-diffusers/g' /app/handler.py && \
+    sed -i 's/v54_output/v56_output/g' /app/handler.py
+
+# Update version info
+ENV VERSION="56.0.0"
+ENV BUILD_TIME="2025-07-12T19:00:00Z"
+ENV BUILD_ID="multitalk-v56-compatible"
+
+# Ensure CUDA is properly configured
+ENV PYTORCH_CUDA_ALLOC_CONF=max_split_size_mb:512
+ENV CUDA_VISIBLE_DEVICES=0
+
+WORKDIR /app
+CMD ["python", "-u", "/app/handler.py"]

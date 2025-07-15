@@ -5,7 +5,7 @@
 
 ## VIDEO METADATA
 - **Title**: "Deploy AI Video Generation for FREE (When Not Using) - MeiGen MultiTalk on RunPod Serverless"
-- **Duration**: Approximately 15-20 minutes
+- **Duration**: Approximately 20-22 minutes
 - **Target Audience**: Developers, AI enthusiasts, content creators
 - **Prerequisites**: Basic Python knowledge, command line familiarity
 
@@ -383,7 +383,98 @@ job = endpoint.run({
 
 ---
 
-## SECTION 11: Troubleshooting Common Issues (18:00 - 19:00)
+## SECTION 10.5: Advanced Feature - S3 Integration (18:00 - 19:30)
+
+**[VISUAL: S3 logo and integration diagram]**
+
+**Script:**
+"Now let me show you a powerful feature we just added - S3 integration! This is a game-changer for handling large files and production workflows."
+
+**[VISUAL: RunPod environment variables screen]**
+
+"First, configure your S3 credentials in RunPod. Go to your endpoint settings and add these environment variables:"
+
+```
+AWS_ACCESS_KEY_ID=your-key
+AWS_SECRET_ACCESS_KEY=your-secret
+AWS_REGION=us-east-1
+AWS_S3_BUCKET_NAME=your-bucket
+```
+
+**[VISUAL: Split screen showing file size comparison]**
+
+"Here's why S3 is so powerful. Instead of sending a 10MB audio file as base64 - which becomes 13MB - you just send a 50-character S3 URL!"
+
+**[VISUAL: Code example with S3]**
+
+```python
+# Without S3 - Large payload
+job = endpoint.run({
+    "audio": "SGVsbG8gV29ybGQ..." # 13MB of base64!
+})
+
+# With S3 - Tiny payload
+job = endpoint.run({
+    "audio": "s3://my-bucket/audio.wav",  # Just 25 bytes!
+    "output_format": "s3"
+})
+```
+
+**Script:**
+"This means faster uploads, no size limits, and direct cloud-to-cloud transfers!"
+
+**[VISUAL: Live demo uploading to S3]**
+
+"Let me show you a real example. First, I'll upload an audio file to S3:"
+
+```python
+import boto3
+s3 = boto3.client('s3')
+s3.upload_file('speech.wav', 'my-bucket', 'audio/speech.wav')
+```
+
+**[VISUAL: Making the API call]**
+
+"Now watch how clean this API call is:"
+
+```python
+job = endpoint.run({
+    "action": "generate",
+    "audio": "s3://my-bucket/audio/speech.wav",
+    "reference_image": "s3://my-bucket/images/face.jpg",
+    "output_format": "s3",
+    "s3_output_key": "videos/output.mp4"
+})
+```
+
+**[VISUAL: S3 bucket showing the generated video]**
+
+"And boom! The video is generated and saved directly to S3. No downloading, no base64 encoding - pure cloud efficiency!"
+
+**[VISUAL: Batch processing diagram]**
+
+"This really shines for batch processing. Process hundreds of files without worrying about API limits:"
+
+```bash
+# Process entire S3 folder
+USE_S3=true python batch_processor.py s3://bucket/audio/
+```
+
+**[VISUAL: Cost comparison table]**
+
+"Let's talk costs:
+- S3 Storage: $0.023/GB/month
+- API Transfer: Reduced by 99%
+- Processing Time: 50% faster job submission
+- No timeout issues with large files!"
+
+**[VISUAL: Architecture diagram with S3]**
+
+"Your architecture becomes much cleaner. Audio flows from S3 to RunPod to S3, never touching your local machine."
+
+---
+
+## SECTION 11: Troubleshooting Common Issues (19:30 - 20:30)
 
 **[VISUAL: Error messages and solutions]**
 
@@ -411,7 +502,7 @@ job = endpoint.run({
 
 ---
 
-## SECTION 12: Cost Analysis & Optimization (19:00 - 19:45)
+## SECTION 12: Cost Analysis & Optimization (20:30 - 21:15)
 
 **[VISUAL: Cost breakdown graphic]**
 
@@ -437,7 +528,7 @@ job = endpoint.run({
 
 ---
 
-## CONCLUSION (19:45 - 20:30)
+## CONCLUSION (21:15 - 22:00)
 
 **[VISUAL: Summary checklist]**
 
@@ -507,9 +598,10 @@ Learn how to deploy MeiGen MultiTalk AI model on RunPod Serverless infrastructur
 13:30 Downloading Models
 15:00 Creating RunPod Endpoint
 16:30 Testing Your Deployment
-18:00 Troubleshooting Common Issues
-19:00 Cost Analysis & Optimization
-19:45 Conclusion & Next Steps
+18:00 S3 Integration - Handle Large Files Efficiently
+19:30 Troubleshooting Common Issues
+20:30 Cost Analysis & Optimization
+21:15 Conclusion & Next Steps
 
 🏷️ Tags:
 #AI #MachineLearning #Serverless #RunPod #MultiTalk #VideoGeneration #Docker #Python #CloudComputing #Tutorial

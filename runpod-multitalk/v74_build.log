@@ -1,0 +1,243 @@
+#0 building with "desktop-linux" instance using docker driver
+
+#1 [internal] load build definition from Dockerfile.v74-gcc-install
+#1 transferring dockerfile: 854B done
+#1 DONE 0.0s
+
+#2 [internal] load metadata for docker.io/berrylands/multitalk-v72:complete-official
+#2 DONE 0.4s
+
+#3 [internal] load .dockerignore
+#3 transferring context: 2B done
+#3 DONE 0.0s
+
+#4 [1/6] FROM docker.io/berrylands/multitalk-v72:complete-official@sha256:dd4765f2154b5f5797ffdeb6d606daeb980008f94a4620924fdc144b77df68bd
+#4 DONE 0.0s
+
+#5 [2/6] RUN apt-get update && apt-get install -y     build-essential     && rm -rf /var/lib/apt/lists/*
+#5 CACHED
+
+#6 [internal] load build context
+#6 transferring context: 163B done
+#6 DONE 0.0s
+
+#7 [3/6] RUN pip install --no-cache-dir --force-reinstall     xformers     triton
+#7 0.690 Collecting xformers
+#7 0.754   Downloading xformers-0.0.31.post1-cp39-abi3-manylinux_2_28_x86_64.whl (117.1 MB)
+#7 3.125      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 117.1/117.1 MB 55.9 MB/s eta 0:00:00
+#7 3.510 Collecting triton
+#7 3.519   Downloading triton-3.3.1-cp310-cp310-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (155.6 MB)
+#7 6.406      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 155.6/155.6 MB 53.8 MB/s eta 0:00:00
+#7 6.974 Collecting torch==2.7.1
+#7 6.983   Downloading torch-2.7.1-cp310-cp310-manylinux_2_28_x86_64.whl (821.2 MB)
+#7 22.15      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 821.2/821.2 MB 54.8 MB/s eta 0:00:00
+#7 24.92 Collecting numpy
+#7 24.93   Downloading numpy-2.2.6-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (16.8 MB)
+#7 25.22      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 16.8/16.8 MB 57.3 MB/s eta 0:00:00
+#7 25.35 Collecting nvidia-cusolver-cu12==11.7.1.2
+#7 25.35   Downloading nvidia_cusolver_cu12-11.7.1.2-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (158.2 MB)
+#7 28.22      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 158.2/158.2 MB 55.9 MB/s eta 0:00:00
+#7 28.69 Collecting nvidia-cufft-cu12==11.3.0.4
+#7 28.70   Downloading nvidia_cufft_cu12-11.3.0.4-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (200.2 MB)
+#7 32.38      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 200.2/200.2 MB 54.7 MB/s eta 0:00:00
+#7 32.97 Collecting nvidia-nvjitlink-cu12==12.6.85
+#7 32.97   Downloading nvidia_nvjitlink_cu12-12.6.85-py3-none-manylinux2010_x86_64.manylinux_2_12_x86_64.whl (19.7 MB)
+#7 33.35      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 19.7/19.7 MB 59.0 MB/s eta 0:00:00
+#7 33.43 Collecting nvidia-cusparselt-cu12==0.6.3
+#7 33.43   Downloading nvidia_cusparselt_cu12-0.6.3-py3-none-manylinux2014_x86_64.whl (156.8 MB)
+#7 36.31      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 156.8/156.8 MB 54.3 MB/s eta 0:00:00
+#7 36.78 Collecting nvidia-cufile-cu12==1.11.1.6
+#7 36.79   Downloading nvidia_cufile_cu12-1.11.1.6-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (1.1 MB)
+#7 36.81      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.1/1.1 MB 64.2 MB/s eta 0:00:00
+#7 36.83 Collecting nvidia-cusparse-cu12==12.5.4.2
+#7 36.84   Downloading nvidia_cusparse_cu12-12.5.4.2-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (216.6 MB)
+#7 40.80      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 216.6/216.6 MB 57.2 MB/s eta 0:00:00
+#7 41.45 Collecting jinja2
+#7 41.46   Downloading jinja2-3.1.6-py3-none-any.whl (134 kB)
+#7 41.46      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 134.9/134.9 kB 323.7 MB/s eta 0:00:00
+#7 41.48 Collecting nvidia-cuda-runtime-cu12==12.6.77
+#7 41.49   Downloading nvidia_cuda_runtime_cu12-12.6.77-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (897 kB)
+#7 41.51      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 897.7/897.7 kB 64.2 MB/s eta 0:00:00
+#7 41.53 Collecting nvidia-cuda-nvrtc-cu12==12.6.77
+#7 41.54   Downloading nvidia_cuda_nvrtc_cu12-12.6.77-py3-none-manylinux2014_x86_64.whl (23.7 MB)
+#7 41.97      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 23.7/23.7 MB 54.1 MB/s eta 0:00:00
+#7 42.07 Collecting typing-extensions>=4.10.0
+#7 42.08   Downloading typing_extensions-4.14.1-py3-none-any.whl (43 kB)
+#7 42.08      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 43.9/43.9 kB 206.0 MB/s eta 0:00:00
+#7 42.11 Collecting sympy>=1.13.3
+#7 42.12   Downloading sympy-1.14.0-py3-none-any.whl (6.3 MB)
+#7 42.25      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 6.3/6.3 MB 51.5 MB/s eta 0:00:00
+#7 42.38 Collecting nvidia-nccl-cu12==2.26.2
+#7 42.38   Downloading nvidia_nccl_cu12-2.26.2-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (201.3 MB)
+#7 46.00      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 201.3/201.3 MB 58.1 MB/s eta 0:00:00
+#7 46.60 Collecting nvidia-curand-cu12==10.3.7.77
+#7 46.61   Downloading nvidia_curand_cu12-10.3.7.77-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (56.3 MB)
+#7 47.62      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 56.3/56.3 MB 56.9 MB/s eta 0:00:00
+#7 47.82 Collecting nvidia-nvtx-cu12==12.6.77
+#7 47.83   Downloading nvidia_nvtx_cu12-12.6.77-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (89 kB)
+#7 47.83      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 89.3/89.3 kB 142.3 MB/s eta 0:00:00
+#7 47.85 Collecting nvidia-cublas-cu12==12.6.4.1
+#7 47.86   Downloading nvidia_cublas_cu12-12.6.4.1-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (393.1 MB)
+#7 55.16      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 393.1/393.1 MB 55.8 MB/s eta 0:00:00
+#7 56.31 Collecting networkx
+#7 56.32   Downloading networkx-3.4.2-py3-none-any.whl (1.7 MB)
+#7 56.35      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.7/1.7 MB 60.8 MB/s eta 0:00:00
+#7 56.40 Collecting filelock
+#7 56.41   Downloading filelock-3.18.0-py3-none-any.whl (16 kB)
+#7 56.44 Collecting fsspec
+#7 56.45   Downloading fsspec-2025.5.1-py3-none-any.whl (199 kB)
+#7 56.45      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 199.1/199.1 kB 92.1 MB/s eta 0:00:00
+#7 56.48 Collecting nvidia-cuda-cupti-cu12==12.6.80
+#7 56.49   Downloading nvidia_cuda_cupti_cu12-12.6.80-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (8.9 MB)
+#7 56.66      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 8.9/8.9 MB 51.4 MB/s eta 0:00:00
+#7 56.72 Collecting nvidia-cudnn-cu12==9.5.1.17
+#7 56.73   Downloading nvidia_cudnn_cu12-9.5.1.17-py3-none-manylinux_2_28_x86_64.whl (571.0 MB)
+#7 67.30      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 571.0/571.0 MB 56.8 MB/s eta 0:00:00
+#7 69.16 Collecting setuptools>=40.8.0
+#7 69.17   Downloading setuptools-80.9.0-py3-none-any.whl (1.2 MB)
+#7 69.19      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.2/1.2 MB 64.8 MB/s eta 0:00:00
+#7 69.25 Collecting mpmath<1.4,>=1.1.0
+#7 69.25   Downloading mpmath-1.3.0-py3-none-any.whl (536 kB)
+#7 69.26      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 536.2/536.2 kB 75.9 MB/s eta 0:00:00
+#7 69.47 Collecting MarkupSafe>=2.0
+#7 69.47   Downloading MarkupSafe-3.0.2-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (20 kB)
+#7 71.09 Installing collected packages: nvidia-cusparselt-cu12, mpmath, typing-extensions, sympy, setuptools, nvidia-nvtx-cu12, nvidia-nvjitlink-cu12, nvidia-nccl-cu12, nvidia-curand-cu12, nvidia-cufile-cu12, nvidia-cuda-runtime-cu12, nvidia-cuda-nvrtc-cu12, nvidia-cuda-cupti-cu12, nvidia-cublas-cu12, numpy, networkx, MarkupSafe, fsspec, filelock, triton, nvidia-cusparse-cu12, nvidia-cufft-cu12, nvidia-cudnn-cu12, jinja2, nvidia-cusolver-cu12, torch, xformers
+#7 71.09   Attempting uninstall: nvidia-cusparselt-cu12
+#7 71.09     Found existing installation: nvidia-cusparselt-cu12 0.6.3
+#7 71.09     Uninstalling nvidia-cusparselt-cu12-0.6.3:
+#7 71.23       Successfully uninstalled nvidia-cusparselt-cu12-0.6.3
+#7 72.60   Attempting uninstall: mpmath
+#7 72.60     Found existing installation: mpmath 1.3.0
+#7 72.62     Uninstalling mpmath-1.3.0:
+#7 72.64       Successfully uninstalled mpmath-1.3.0
+#7 72.89   Attempting uninstall: typing-extensions
+#7 72.89     Found existing installation: typing_extensions 4.14.1
+#7 72.89     Uninstalling typing_extensions-4.14.1:
+#7 73.07       Successfully uninstalled typing_extensions-4.14.1
+#7 73.09   Attempting uninstall: sympy
+#7 73.09     Found existing installation: sympy 1.14.0
+#7 73.37     Uninstalling sympy-1.14.0:
+#7 73.89       Successfully uninstalled sympy-1.14.0
+#7 77.55   Attempting uninstall: setuptools
+#7 77.55     Found existing installation: setuptools 65.5.1
+#7 77.58     Uninstalling setuptools-65.5.1:
+#7 77.80       Successfully uninstalled setuptools-65.5.1
+#7 78.27   Attempting uninstall: nvidia-nvtx-cu12
+#7 78.27     Found existing installation: nvidia-nvtx-cu12 12.6.77
+#7 78.27     Uninstalling nvidia-nvtx-cu12-12.6.77:
+#7 78.28       Successfully uninstalled nvidia-nvtx-cu12-12.6.77
+#7 78.29   Attempting uninstall: nvidia-nvjitlink-cu12
+#7 78.29     Found existing installation: nvidia-nvjitlink-cu12 12.6.85
+#7 78.30     Uninstalling nvidia-nvjitlink-cu12-12.6.85:
+#7 78.31       Successfully uninstalled nvidia-nvjitlink-cu12-12.6.85
+#7 78.53   Attempting uninstall: nvidia-nccl-cu12
+#7 78.53     Found existing installation: nvidia-nccl-cu12 2.26.2
+#7 78.53     Uninstalling nvidia-nccl-cu12-2.26.2:
+#7 78.77       Successfully uninstalled nvidia-nccl-cu12-2.26.2
+#7 80.51   Attempting uninstall: nvidia-curand-cu12
+#7 80.51     Found existing installation: nvidia-curand-cu12 10.3.7.77
+#7 80.52     Uninstalling nvidia-curand-cu12-10.3.7.77:
+#7 80.55       Successfully uninstalled nvidia-curand-cu12-10.3.7.77
+#7 80.86   Attempting uninstall: nvidia-cufile-cu12
+#7 80.86     Found existing installation: nvidia-cufile-cu12 1.11.1.6
+#7 80.86     Uninstalling nvidia-cufile-cu12-1.11.1.6:
+#7 80.87       Successfully uninstalled nvidia-cufile-cu12-1.11.1.6
+#7 80.89   Attempting uninstall: nvidia-cuda-runtime-cu12
+#7 80.89     Found existing installation: nvidia-cuda-runtime-cu12 12.6.77
+#7 80.89     Uninstalling nvidia-cuda-runtime-cu12-12.6.77:
+#7 80.91       Successfully uninstalled nvidia-cuda-runtime-cu12-12.6.77
+#7 80.94   Attempting uninstall: nvidia-cuda-nvrtc-cu12
+#7 80.94     Found existing installation: nvidia-cuda-nvrtc-cu12 12.6.77
+#7 80.94     Uninstalling nvidia-cuda-nvrtc-cu12-12.6.77:
+#7 80.96       Successfully uninstalled nvidia-cuda-nvrtc-cu12-12.6.77
+#7 81.23   Attempting uninstall: nvidia-cuda-cupti-cu12
+#7 81.23     Found existing installation: nvidia-cuda-cupti-cu12 12.6.80
+#7 81.23     Uninstalling nvidia-cuda-cupti-cu12-12.6.80:
+#7 81.25       Successfully uninstalled nvidia-cuda-cupti-cu12-12.6.80
+#7 81.38   Attempting uninstall: nvidia-cublas-cu12
+#7 81.38     Found existing installation: nvidia-cublas-cu12 12.6.4.1
+#7 81.38     Uninstalling nvidia-cublas-cu12-12.6.4.1:
+#7 81.91       Successfully uninstalled nvidia-cublas-cu12-12.6.4.1
+#7 85.36   Attempting uninstall: numpy
+#7 85.36     Found existing installation: numpy 1.24.3
+#7 85.46     Uninstalling numpy-1.24.3:
+#7 85.65       Successfully uninstalled numpy-1.24.3
+#7 87.11   Attempting uninstall: networkx
+#7 87.11     Found existing installation: networkx 3.4.2
+#7 87.22     Uninstalling networkx-3.4.2:
+#7 87.36       Successfully uninstalled networkx-3.4.2
+#7 88.11   Attempting uninstall: MarkupSafe
+#7 88.11     Found existing installation: MarkupSafe 3.0.2
+#7 88.11     Uninstalling MarkupSafe-3.0.2:
+#7 88.11       Successfully uninstalled MarkupSafe-3.0.2
+#7 88.12   Attempting uninstall: fsspec
+#7 88.12     Found existing installation: fsspec 2025.5.1
+#7 88.13     Uninstalling fsspec-2025.5.1:
+#7 88.15       Successfully uninstalled fsspec-2025.5.1
+#7 88.25   Attempting uninstall: filelock
+#7 88.25     Found existing installation: filelock 3.13.1
+#7 88.25     Uninstalling filelock-3.13.1:
+#7 88.26       Successfully uninstalled filelock-3.13.1
+#7 88.27   Attempting uninstall: triton
+#7 88.27     Found existing installation: triton 3.3.1
+#7 88.29     Uninstalling triton-3.3.1:
+#7 88.54       Successfully uninstalled triton-3.3.1
+#7 90.85   Attempting uninstall: nvidia-cusparse-cu12
+#7 90.85     Found existing installation: nvidia-cusparse-cu12 12.5.4.2
+#7 90.85     Uninstalling nvidia-cusparse-cu12-12.5.4.2:
+#7 90.93       Successfully uninstalled nvidia-cusparse-cu12-12.5.4.2
+#7 92.76   Attempting uninstall: nvidia-cufft-cu12
+#7 92.77     Found existing installation: nvidia-cufft-cu12 11.3.0.4
+#7 92.77     Uninstalling nvidia-cufft-cu12-11.3.0.4:
+#7 92.86       Successfully uninstalled nvidia-cufft-cu12-11.3.0.4
+#7 94.71   Attempting uninstall: nvidia-cudnn-cu12
+#7 94.71     Found existing installation: nvidia-cudnn-cu12 9.5.1.17
+#7 94.72     Uninstalling nvidia-cudnn-cu12-9.5.1.17:
+#7 95.49       Successfully uninstalled nvidia-cudnn-cu12-9.5.1.17
+#7 100.8   Attempting uninstall: jinja2
+#7 100.8     Found existing installation: Jinja2 3.1.6
+#7 100.8     Uninstalling Jinja2-3.1.6:
+#7 100.8       Successfully uninstalled Jinja2-3.1.6
+#7 100.9   Attempting uninstall: nvidia-cusolver-cu12
+#7 100.9     Found existing installation: nvidia-cusolver-cu12 11.7.1.2
+#7 100.9     Uninstalling nvidia-cusolver-cu12-11.7.1.2:
+#7 101.0       Successfully uninstalled nvidia-cusolver-cu12-11.7.1.2
+#7 102.5   Attempting uninstall: torch
+#7 102.5     Found existing installation: torch 2.7.1
+#7 103.3     Uninstalling torch-2.7.1:
+#7 107.3       Successfully uninstalled torch-2.7.1
+#7 120.3   Attempting uninstall: xformers
+#7 120.3     Found existing installation: xformers 0.0.23.post1
+#7 120.3     Uninstalling xformers-0.0.23.post1:
+#7 120.8       Successfully uninstalled xformers-0.0.23.post1
+#7 123.3 ERROR: pip's dependency resolver does not currently take into account all the packages that are installed. This behaviour is the source of the following dependency conflicts.
+#7 123.3 torchvision 0.16.2+cu121 requires torch==2.1.2, but you have torch 2.7.1 which is incompatible.
+#7 123.3 torchaudio 2.1.2+cu121 requires torch==2.1.2, but you have torch 2.7.1 which is incompatible.
+#7 123.3 scipy 1.11.4 requires numpy<1.28.0,>=1.21.6, but you have numpy 2.2.6 which is incompatible.
+#7 123.3 Successfully installed MarkupSafe-3.0.2 filelock-3.18.0 fsspec-2025.5.1 jinja2-3.1.6 mpmath-1.3.0 networkx-3.4.2 numpy-2.2.6 nvidia-cublas-cu12-12.6.4.1 nvidia-cuda-cupti-cu12-12.6.80 nvidia-cuda-nvrtc-cu12-12.6.77 nvidia-cuda-runtime-cu12-12.6.77 nvidia-cudnn-cu12-9.5.1.17 nvidia-cufft-cu12-11.3.0.4 nvidia-cufile-cu12-1.11.1.6 nvidia-curand-cu12-10.3.7.77 nvidia-cusolver-cu12-11.7.1.2 nvidia-cusparse-cu12-12.5.4.2 nvidia-cusparselt-cu12-0.6.3 nvidia-nccl-cu12-2.26.2 nvidia-nvjitlink-cu12-12.6.85 nvidia-nvtx-cu12-12.6.77 setuptools-80.9.0 sympy-1.14.0 torch-2.7.1 triton-3.3.1 typing-extensions-4.14.1 xformers-0.0.31.post1
+#7 123.3 WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv
+#7 123.4 
+#7 123.4 [notice] A new release of pip is available: 23.0.1 -> 25.1.1
+#7 123.4 [notice] To update, run: pip install --upgrade pip
+#7 DONE 123.9s
+
+#8 [4/6] COPY handler_v74.py /app/handler.py
+#8 DONE 0.1s
+
+#9 [5/6] COPY multitalk_v74_official_wrapper.py /app/multitalk_v74_official_wrapper.py
+#9 DONE 0.0s
+
+#10 [6/6] RUN chmod +x /app/handler.py
+#10 DONE 0.1s
+
+#11 exporting to image
+#11 exporting layers
+#11 exporting layers 8.1s done
+#11 writing image sha256:c0a900e1604d3324a22668648b5b45c61d118244a361092927abb5b35fa10eec done
+#11 naming to docker.io/berrylands/multitalk-v74:gcc-install done
+#11 DONE 8.1s
+
+ [33m1 warning found (use docker --debug to expand):
+[0m - InvalidBaseImagePlatform: Base image berrylands/multitalk-v72:complete-official was pulled with platform "linux/amd64", expected "linux/arm64" for current build (line 2)
+
+View build details: docker-desktop://dashboard/build/desktop-linux/desktop-linux/xjuj1gy3odp6mqjrdjw7394tg

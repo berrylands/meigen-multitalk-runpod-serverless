@@ -1,0 +1,25 @@
+# MultiTalk V75.0 - Lightweight JSON Input Format
+FROM berrylands/multitalk-runpod:complete
+
+# Version and build info
+ENV VERSION=75.0.0
+ENV BUILD_ID=multitalk-v75-json-input-lightweight
+ENV BUILD_TIME=2025-07-14T19:00:00Z
+ENV IMPLEMENTATION=JSON_INPUT_FORMAT
+
+# Working directory
+WORKDIR /app
+
+# Copy new implementation files
+COPY multitalk_v75_0_json_input.py .
+COPY handler_v75.py handler.py
+COPY generate_multitalk_v75.py /app/multitalk_official/generate_multitalk.py
+
+# Make the script executable
+RUN chmod +x /app/multitalk_official/generate_multitalk.py
+
+# Update Python path
+ENV PYTHONPATH=/app/multitalk_official:/app:/runpod-volume/models:$PYTHONPATH
+
+# Entry point
+CMD ["python", "-u", "handler.py"]

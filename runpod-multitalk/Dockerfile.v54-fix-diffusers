@@ -1,0 +1,19 @@
+# V54 - Fix Diffusers and WAN Model Path
+FROM berrylands/multitalk-v53:wan-diffusion
+
+# Install diffusers with correct version
+RUN pip install --no-cache-dir \
+    diffusers==0.21.4 \
+    accelerate==0.25.0 \
+    xformers==0.0.23
+
+# Fix the WAN model path issue by creating a symlink
+RUN ln -s /runpod-volume/models/Wan2.1-I2V-14B-480P /runpod-volume/models/wan2.1-i2v-14b-480p || true
+
+# Update version info
+ENV VERSION="54.0.0"
+ENV BUILD_TIME="2025-07-12T16:00:00Z"
+ENV BUILD_ID="multitalk-v54-fix-diffusers"
+
+WORKDIR /app
+CMD ["python", "-u", "/app/handler.py"]

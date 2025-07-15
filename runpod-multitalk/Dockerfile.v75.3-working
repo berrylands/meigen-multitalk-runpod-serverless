@@ -1,0 +1,35 @@
+# MultiTalk V75.3 - Working Implementation
+FROM berrylands/multitalk-v74:gcc-install
+
+# Version info
+ENV VERSION=75.3.0
+ENV BUILD_ID=multitalk-v75-3-working
+ENV BUILD_TIME=2025-07-14T20:30:00Z
+ENV IMPLEMENTATION=JSON_INPUT_WORKING
+
+# Working directory
+WORKDIR /app
+
+# Copy implementation files
+COPY multitalk_v75_0_json_input.py .
+COPY handler_v75.py handler.py
+COPY generate_multitalk_v75_fixed.py /app/multitalk_official/generate_multitalk.py
+
+# Make executable
+RUN chmod +x /app/multitalk_official/generate_multitalk.py
+
+# Create necessary directories
+RUN mkdir -p /app/multitalk_official/wan/utils && \
+    mkdir -p /app/multitalk_official/src/audio_analysis && \
+    mkdir -p /app/multitalk_official/kokoro
+
+# Create minimal modules
+RUN echo "# wan module" > /app/multitalk_official/wan/__init__.py && \
+    echo "# src module" > /app/multitalk_official/src/__init__.py && \
+    echo "# kokoro module" > /app/multitalk_official/kokoro/__init__.py
+
+# Update Python path
+ENV PYTHONPATH=/app/multitalk_official:/app:/runpod-volume/models:$PYTHONPATH
+
+# Entry point
+CMD ["python", "-u", "handler.py"]

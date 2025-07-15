@@ -1,0 +1,26 @@
+# MultiTalk V75.0 - Using Correct JSON Input Format
+FROM berrylands/multitalk-v74:gcc-install
+
+# Version and build info
+ENV VERSION=75.0.0
+ENV BUILD_ID=multitalk-v75-json-input
+ENV BUILD_TIME=2025-07-14T18:00:00Z
+ENV IMPLEMENTATION=JSON_INPUT_FORMAT
+
+# Working directory
+WORKDIR /app
+
+# Copy new implementation files
+COPY multitalk_v75_0_json_input.py .
+COPY handler_v75.py handler.py
+COPY setup_v75_0_json_input.sh setup_official_multitalk.sh
+
+# Make setup script executable and run it
+RUN chmod +x setup_official_multitalk.sh && \
+    ./setup_official_multitalk.sh
+
+# Update Python path to include new modules
+ENV PYTHONPATH=/app/multitalk_official:/app:/runpod-volume/models:$PYTHONPATH
+
+# Entry point
+CMD ["python", "-u", "handler.py"]

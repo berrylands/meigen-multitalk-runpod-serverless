@@ -1,0 +1,9 @@
+Build Started: Fri 11 Jul 2025 10:12:47 BST
+Image: berrylands/multitalk-pytorch:latest
+PID: 326
+Log: /Users/jasonedge/CODEHOME/meigen-multitalk/runpod-multitalk/pytorch_build.log
+
+Commands:
+  Monitor: tail -f pytorch_build.log
+  Check: ps -p 326
+  Push: docker push berrylands/multitalk-pytorch:latest

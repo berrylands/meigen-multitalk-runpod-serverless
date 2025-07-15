@@ -19,17 +19,35 @@ RUN pip install --no-cache-dir \
     ffmpeg-python \
     torch \
     torchaudio \
-    transformers
+    transformers \
+    boto3
 
 # Copy all handler files
 COPY complete_multitalk_handler.py /app/handler.py
 COPY handler_with_download.py /app/handler_with_download.py
+COPY s3_handler.py /app/s3_handler.py
 
 # Set environment variables
 ENV PYTHONUNBUFFERED=1
 ENV MODEL_PATH=/runpod-volume/models
 ENV HF_HOME=/runpod-volume/huggingface
 ENV CUDA_VISIBLE_DEVICES=0
+
+# Build arguments for versioning
+ARG BUILD_TIME="unknown"
+ARG BUILD_ID="unknown"
+
+# S3 environment variables (will be overridden by RunPod secrets if set)
+# These are placeholders to document what variables the container expects
+ENV AWS_ACCESS_KEY_ID=""
+ENV AWS_SECRET_ACCESS_KEY=""
+ENV AWS_REGION="us-east-1"
+ENV AWS_S3_BUCKET_NAME=""
+ENV BUCKET_ENDPOINT_URL=""
+
+# Build info
+ENV BUILD_TIME=${BUILD_TIME}
+ENV BUILD_ID=${BUILD_ID}
 
 # Run the complete handler
 CMD ["python", "-u", "handler.py"]

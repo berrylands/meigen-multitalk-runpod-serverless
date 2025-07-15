@@ -1,0 +1,13 @@
+# Simple fix - just list what's in the bucket when files aren't found
+FROM berrylands/multitalk-v17:list-bucket
+
+# Add a patch to also try with comfy_outputs prefix
+RUN sed -i '/bucket, key = self.parse_s3_url/a\        # Also try with comfy_outputs prefix\n        prefixes = ["", "comfy_outputs/", f"comfy_outputs/{bucket}/"]\n        original_key = key\n        for prefix in prefixes:\n            try:\n                test_key = f"{prefix}{original_key}" if prefix else original_key\n                self.s3_client.head_object(Bucket=bucket, Key=test_key)\n                key = test_key\n                logger.info(f"[S3_PREFIX] Found file with prefix: {test_key}")\n                break\n            except:\n                continue' /app/s3_handler.py
+
+# Update version
+ENV VERSION="18.0.0"
+ENV BUILD_TIME="2025-01-11T19:10:00Z"
+ENV BUILD_ID="multitalk-v18-simple"
+
+WORKDIR /app
+CMD ["python", "-u", "/app/handler.py"]

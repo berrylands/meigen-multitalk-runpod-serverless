@@ -1,0 +1,17 @@
+# Use debug wrapper approach
+FROM berrylands/multitalk-v14:working
+
+# Copy debug wrapper
+COPY debug_wrapper.py /app/debug_wrapper.py
+
+# Make it executable
+RUN chmod +x /app/debug_wrapper.py
+
+# Update version
+ENV VERSION="31.0.0"
+ENV BUILD_TIME="2025-01-11T22:30:00Z"
+ENV BUILD_ID="multitalk-v31-wrapper"
+
+WORKDIR /app
+# Use the debug wrapper as entrypoint
+CMD ["python", "-u", "/app/debug_wrapper.py"]

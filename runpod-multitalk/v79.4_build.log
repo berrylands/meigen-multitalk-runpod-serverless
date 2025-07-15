@@ -1,0 +1,16 @@
+#0 building with "desktop-linux" instance using docker driver
+
+#1 [internal] load build definition from Dockerfile.v79.4
+#1 transferring dockerfile: 4.28kB 0.0s done
+#1 DONE 0.0s
+Dockerfile.v79.4:42
+--------------------
+  40 |     # Create a proper xfuser patch script
+  41 |     RUN cat > /app/fix_xfuser.py << 'EOF'
+  42 | >>> import os
+  43 |     import re
+  44 |     
+--------------------
+ERROR: failed to solve: dockerfile parse error on line 42: unknown instruction: import
+
+View build details: docker-desktop://dashboard/build/desktop-linux/desktop-linux/jezzv78k4x3p54lj7zx9foa6s

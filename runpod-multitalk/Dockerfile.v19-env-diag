@@ -1,0 +1,16 @@
+# Add environment variable diagnostics
+FROM berrylands/multitalk-v18:simple
+
+# Add environment diagnostics to the handler startup
+RUN sed -i '/Complete MultiTalk Handler Starting/a\        # Log environment variables for debugging\n        log_message("="*60)\n        log_message("Environment Variables:")\n        for key in sorted(os.environ.keys()):\n            value = os.environ[key]\n            if "SECRET" in key or "PASSWORD" in key or "KEY" in key:\n                if len(value) > 10:\n                    value = value[:10] + "..." + value[-4:]\n                else:\n                    value = "***"\n            elif "BUCKET" in key or "REGION" in key or "ENDPOINT" in key:\n                # Show these in full\n                pass\n            elif len(value) > 50:\n                value = value[:50] + "..."\n            log_message(f"  {key}={value}")\n        log_message("="*60)' /app/handler.py
+
+# Also add S3-specific environment check
+RUN sed -i '/S3 integration enabled/a\        logger.info(f"[S3_ENV] AWS_REGION={os.environ.get(\"AWS_REGION\", \"NOT_SET\")}")\n        logger.info(f"[S3_ENV] AWS_S3_BUCKET_NAME={os.environ.get(\"AWS_S3_BUCKET_NAME\", \"NOT_SET\")}")\n        logger.info(f"[S3_ENV] BUCKET_ENDPOINT_URL={os.environ.get(\"BUCKET_ENDPOINT_URL\", \"NOT_SET\")}")\n        logger.info(f"[S3_ENV] S3_KEY_PREFIX={os.environ.get(\"S3_KEY_PREFIX\", \"NOT_SET\")}")' /app/s3_handler.py
+
+# Update version
+ENV VERSION="19.0.0"
+ENV BUILD_TIME="2025-01-11T19:35:00Z"
+ENV BUILD_ID="multitalk-v19-env-diag"
+
+WORKDIR /app
+CMD ["python", "-u", "/app/handler.py"]

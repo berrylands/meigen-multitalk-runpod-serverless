@@ -1,0 +1,17 @@
+# Version without any dummy/test code
+FROM berrylands/multitalk-v14:working
+
+# Copy the fixed multitalk inference
+COPY multitalk_inference_fixed.py /app/multitalk_inference.py
+
+# Remove the fallback test video generation from the handler
+RUN sed -i '/# Fallback to test video with FFmpeg/,/return {"video_data": video_data, \*\*generation_result}/d' /app/handler.py && \
+    sed -i '/log_message("Using fallback FFmpeg test video generation...")/i\            return {"error": "MultiTalk inference failed and no fallback available", "details": result.get("error")}' /app/handler.py
+
+# Update version
+ENV VERSION="32.0.0"
+ENV BUILD_TIME="2025-01-11T23:00:00Z"
+ENV BUILD_ID="multitalk-v32-no-dummy"
+
+WORKDIR /app
+CMD ["python", "-u", "/app/handler.py"]

@@ -1,0 +1,18 @@
+# V73 - Minimal Fix for Runtime Dependencies
+FROM berrylands/multitalk-v72:complete-official
+
+# Set environment variables to fix runtime issues
+ENV CC=gcc
+ENV CXX=g++
+ENV CUDA_HOME=/usr/local/cuda
+
+# Copy our V73 implementation
+COPY multitalk_v73_official_wrapper.py /app/multitalk_v73_official_wrapper.py
+COPY handler_v73.py /app/handler.py
+
+# Update version info
+ENV VERSION="73.0.0"
+ENV BUILD_TIME="2025-07-13T20:30:00Z"
+ENV BUILD_ID="multitalk-v73-minimal"
+
+CMD ["python", "-u", "/app/handler.py"]

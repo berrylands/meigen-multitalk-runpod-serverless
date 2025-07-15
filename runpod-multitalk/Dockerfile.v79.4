@@ -1,0 +1,111 @@
+# MultiTalk V79.4 - Simple fix without xfuser patching
+# Based on V79.3 but removing the problematic xfuser patch
+FROM pytorch/pytorch:2.1.2-cuda12.1-cudnn8-devel
+
+# System dependencies (single layer)
+ENV DEBIAN_FRONTEND=noninteractive
+ENV TZ=UTC
+RUN apt-get update && apt-get install -y \
+    git \
+    ffmpeg \
+    gcc \
+    g++ \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
+# Version info
+ENV VERSION=79.4.0
+ENV BUILD_ID=multitalk-v79.4-simple
+ENV BUILD_TIME=2025-07-15T09:00:00Z
+ENV IMPLEMENTATION=REPLICATE_NO_XFUSER
+ENV PYTHONPATH=/app/multitalk_official:/app:/runpod-volume/models
+ENV HF_HOME=/runpod-volume/huggingface
+ENV TRANSFORMERS_CACHE=/runpod-volume/huggingface
+ENV HF_DATASETS_CACHE=/runpod-volume/huggingface/datasets
+
+# Create all necessary cache directories with proper permissions
+RUN mkdir -p /runpod-volume && \
+    mkdir -p /runpod-volume/huggingface && \
+    mkdir -p /runpod-volume/huggingface/hub && \
+    mkdir -p /runpod-volume/huggingface/datasets && \
+    mkdir -p /runpod-volume/huggingface/modules && \
+    chmod -R 777 /runpod-volume
+
+WORKDIR /app
+
+# Copy our files
+COPY multitalk_v75_0_json_input.py .
+COPY handler_v75.py handler.py
+COPY setup_official_multitalk_v78.sh .
+
+# Python dependencies (single layer, without flash-attn or xfuser)
+RUN pip install --no-cache-dir \
+    # CRITICAL: RunPod SDK
+    runpod==1.7.3 \
+    # Core numerical libraries (with our proven fix)
+    numpy==1.24.3 \
+    scipy==1.10.1 \
+    # ML frameworks 
+    transformers==4.43.3 \
+    tokenizers==0.19.1 \
+    # Audio processing
+    librosa==0.10.2 \
+    soundfile==0.12.1 \
+    # Diffusion and acceleration
+    diffusers>=0.31.0 \
+    accelerate>=1.1.1 \
+    safetensors>=0.4.3 \
+    # Computer vision
+    opencv-python>=4.9.0 \
+    imageio>=2.30.0 \
+    # Additional dependencies from Replicate
+    huggingface-hub==0.23.5 \
+    einops \
+    rotary-embedding-torch \
+    tensorboardX \
+    omegaconf \
+    easydict \
+    ftfy \
+    xformers>=0.0.28 \
+    # Additional dependencies (no flash-attn, no xfuser)
+    timm \
+    sentencepiece \
+    peft \
+    bitsandbytes \
+    # AWS S3 support
+    boto3 \
+    # Video processing
+    moviepy \
+    imageio-ffmpeg
+
+# Setup MultiTalk (single layer)
+RUN chmod +x setup_official_multitalk_v78.sh && \
+    ./setup_official_multitalk_v78.sh
+
+# NO xfuser patching - let it fail if it needs xfuser
+
+# Create additional cache directories
+RUN mkdir -p /tmp/.cache && \
+    mkdir -p /root/.cache && \
+    mkdir -p /app/.cache && \
+    chmod -R 777 /tmp/.cache /root/.cache /app/.cache
+
+# Ensure the cache directory exists at runtime
+RUN echo '#!/bin/bash' > /app/ensure_cache.sh && \
+    echo 'mkdir -p /runpod-volume/huggingface/hub' >> /app/ensure_cache.sh && \
+    echo 'chmod -R 777 /runpod-volume/huggingface' >> /app/ensure_cache.sh && \
+    echo 'python /app/handler.py' >> /app/ensure_cache.sh && \
+    chmod +x /app/ensure_cache.sh
+
+# Validation (single layer)
+RUN python -c "import runpod; print('✅ RunPod imports')" && \
+    python -c "import scipy.stats; print('✅ SciPy imports')" && \
+    python -c "import torch; print('✅ PyTorch imports')" && \
+    python -c "import transformers; print('✅ Transformers imports')" && \
+    python -c "import diffusers; print('✅ Diffusers imports')" && \
+    python -c "import cv2; print('✅ OpenCV imports')" && \
+    python -c "import moviepy; print('✅ MoviePy imports')" && \
+    echo "✅ All critical imports successful!"
+
+# Use the wrapper script to ensure cache exists
+CMD ["/app/ensure_cache.sh"]

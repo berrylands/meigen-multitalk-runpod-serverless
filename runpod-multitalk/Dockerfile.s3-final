@@ -1,0 +1,17 @@
+# Final S3-enabled image with all fixes
+FROM berrylands/multitalk-s3-working:latest
+
+# Copy the corrected S3 handler
+COPY s3_handler.py /app/s3_handler.py
+
+# Build info
+ARG BUILD_TIME="unknown"
+ARG BUILD_ID="unknown"
+ENV BUILD_TIME=${BUILD_TIME}
+ENV BUILD_ID=${BUILD_ID}
+
+# Ensure BUCKET_ENDPOINT_URL is not set (remove it)
+ENV BUCKET_ENDPOINT_URL=
+
+# Same entrypoint
+CMD ["python", "-u", "/app/handler.py"]

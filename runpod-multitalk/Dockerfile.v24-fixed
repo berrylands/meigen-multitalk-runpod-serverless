@@ -1,0 +1,20 @@
+# Fixed version with working prefix helper
+FROM berrylands/multitalk-v14:working
+
+# Copy the fixed prefix helper
+COPY s3_prefix_helper_fixed.py /app/s3_prefix_helper.py
+
+# Patch s3_handler.py to use the helper
+RUN sed -i '/from botocore.exceptions import ClientError/a\import sys\nsys.path.insert(0, "/app")\nfrom s3_prefix_helper import try_with_prefixes' /app/s3_handler.py && \
+    sed -i 's/bucket, key = self.parse_s3_url(s3_url)/bucket, key = self.parse_s3_url(s3_url)\n        key = try_with_prefixes(self.s3_client, bucket, key)/' /app/s3_handler.py
+
+# Also add debug to see the exact S3 error
+RUN sed -i '/error_code = e.response/a\            logger.error(f"[S3_DEBUG] Error details - Code: {error_code}, Bucket: {bucket}, Key: {key}")' /app/s3_handler.py
+
+# Update version
+ENV VERSION="24.0.0"
+ENV BUILD_TIME="2025-01-11T20:45:00Z"
+ENV BUILD_ID="multitalk-v24-fixed"
+
+WORKDIR /app
+CMD ["python", "-u", "/app/handler.py"]

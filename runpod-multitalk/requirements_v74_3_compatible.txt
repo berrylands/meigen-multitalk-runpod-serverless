@@ -1,0 +1,53 @@
+# MultiTalk V74.3 - Compatible Dependencies
+# Addresses NumPy/SciPy binary incompatibility and other version conflicts
+
+# Core scientific computing - compatible versions
+numpy>=1.21.0,<2.0.0
+scipy>=1.7.0,<1.15.0
+
+# PyTorch ecosystem - compatible versions
+torch>=2.4.0,<2.6.0
+torchvision>=0.19.0,<0.21.0
+torchaudio>=2.4.0,<2.6.0
+# Use compatible xformers - let pip resolve the version
+xformers>=0.0.26
+
+# CUDA acceleration
+triton>=2.0.0
+
+# Diffusion models and transformers
+diffusers>=0.30.0
+transformers>=4.44.0
+
+# Audio processing
+librosa>=0.9.0
+soundfile>=0.12.0
+
+# Image processing
+Pillow>=10.0.0
+opencv-python>=4.8.0
+
+# ML utilities
+safetensors>=0.4.0
+accelerate>=0.33.0
+
+# Hugging Face
+huggingface-hub>=0.24.0
+
+# System monitoring
+psutil>=5.9.0
+
+# AWS and cloud
+boto3>=1.34.0
+botocore>=1.34.0
+
+# RunPod
+runpod>=1.7.0
+
+# Other utilities
+requests>=2.31.0
+tqdm>=4.66.0
+
+# Video processing
+imageio>=2.31.0
+imageio-ffmpeg>=0.4.9

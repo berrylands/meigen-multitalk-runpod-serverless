@@ -1,0 +1,63 @@
+# Real MultiTalk Implementation Dockerfile
+# Based on official MeiGen-AI/MultiTalk
+
+FROM pytorch/pytorch:2.2.0-cuda12.1-cudnn8-devel
+
+# Set environment variables
+ENV DEBIAN_FRONTEND=noninteractive
+ENV PYTHONUNBUFFERED=1
+ENV CUDA_HOME=/usr/local/cuda
+ENV PATH=$CUDA_HOME/bin:$PATH
+ENV LD_LIBRARY_PATH=$CUDA_HOME/lib64:$LD_LIBRARY_PATH
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    git \
+    wget \
+    curl \
+    build-essential \
+    cmake \
+    ffmpeg \
+    libsm6 \
+    libxext6 \
+    libxrender-dev \
+    libglib2.0-0 \
+    libgl1-mesa-glx \
+    && rm -rf /var/lib/apt/lists/*
+
+# Set working directory
+WORKDIR /app
+
+# Copy requirements first for better caching
+COPY requirements_real.txt /app/requirements_real.txt
+
+# Install Python dependencies
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r requirements_real.txt
+
+# Try to install xformers and flash-attn (optional but recommended)
+RUN pip install --no-cache-dir xformers || echo "xformers installation failed, continuing..." && \
+    pip install --no-cache-dir flash-attn || echo "flash-attn installation failed, continuing..."
+
+# Copy application files
+COPY multitalk_real_implementation.py /app/multitalk_real_implementation.py
+COPY multitalk_handler_real.py /app/handler.py
+
+# Create directories
+RUN mkdir -p /app/models /app/output
+
+# Set environment variables for the application
+ENV MODEL_PATH="/runpod-volume/models"
+ENV PYTHONPATH="/app:$PYTHONPATH"
+
+# Version information
+ENV VERSION="real-1.0.0"
+ENV BUILD_TIME="2025-01-12T11:00:00Z"
+ENV BUILD_ID="multitalk-real-implementation"
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD python -c "import torch; print(f'CUDA available: {torch.cuda.is_available()}')" || exit 1
+
+# Command to run the application
+CMD ["python", "-u", "/app/handler.py"]

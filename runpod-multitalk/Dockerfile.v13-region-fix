@@ -1,0 +1,21 @@
+# Fix the region issue in s3_handler
+FROM berrylands/multitalk-v6:latest
+
+# The s3_handler.py uses AWS_REGION but defaults to us-east-1
+# User's bucket is in eu-west-1 according to diagnostic logs
+ENV AWS_REGION=eu-west-1
+
+# Copy verification script
+COPY verify_env.py /app/verify_env.py
+
+# Use our verification script as the entry point
+RUN mv /app/handler.py /app/handler_orig.py && \
+    sed 's/from handler import \*/from handler_orig import \*/' /app/verify_env.py > /app/handler.py
+
+# Update version
+ENV VERSION="13.0.0"
+ENV BUILD_TIME="2025-01-11T17:25:00Z"
+ENV BUILD_ID="multitalk-v13-region-fix"
+
+WORKDIR /app
+CMD ["python", "-u", "/app/handler.py"]

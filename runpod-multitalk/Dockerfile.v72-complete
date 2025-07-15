@@ -1,0 +1,41 @@
+# V72 - Complete Official MultiTalk Implementation with All Dependencies
+FROM berrylands/multitalk-v67:official-integration-v3
+
+# Install git and wget for official code download
+RUN apt-get update && apt-get install -y git wget && rm -rf /var/lib/apt/lists/*
+
+# Pre-install all MultiTalk dependencies to avoid runtime disk space issues
+COPY requirements_multitalk_official.txt /tmp/requirements_multitalk_official.txt
+RUN pip install --no-cache-dir -r /tmp/requirements_multitalk_official.txt && \
+    rm /tmp/requirements_multitalk_official.txt
+
+# Install flash-attn if possible
+RUN pip install flash-attn --no-build-isolation || echo "flash-attn installation failed, continuing..."
+
+# Create app directory for official code
+RUN mkdir -p /app/multitalk_official
+
+# Copy and run complete setup script
+COPY setup_official_multitalk_v72.sh /app/setup_official_multitalk_v72.sh
+RUN chmod +x /app/setup_official_multitalk_v72.sh
+
+# Pre-download complete official MultiTalk code at build time
+RUN /app/setup_official_multitalk_v72.sh
+
+# Copy our V72 implementation
+COPY multitalk_v72_official_wrapper.py /app/multitalk_v72_official_wrapper.py
+COPY handler_v72.py /app/handler.py
+
+# Update Python path
+ENV PYTHONPATH="/app:/app/multitalk_official:${PYTHONPATH}"
+
+# Update version info
+ENV VERSION="72.0.0"
+ENV BUILD_TIME="2025-07-13T19:00:00Z"
+ENV BUILD_ID="multitalk-v72-complete"
+
+# Set memory optimization environment variables
+ENV PYTORCH_CUDA_ALLOC_CONF="max_split_size_mb:512"
+ENV CUDA_LAUNCH_BLOCKING="0"
+
+CMD ["python", "-u", "/app/handler.py"]

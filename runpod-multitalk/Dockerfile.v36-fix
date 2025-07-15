@@ -1,0 +1,13 @@
+# Fix MultiTalk initialization
+FROM berrylands/multitalk-v35:real
+
+# Copy the fixed inference module
+COPY real_multitalk_inference.py /app/real_multitalk_inference.py
+
+# Update version
+ENV VERSION="36.0.0"
+ENV BUILD_TIME="2025-01-12T00:15:00Z"
+ENV BUILD_ID="multitalk-v36-fix"
+
+WORKDIR /app
+CMD ["python", "-u", "/app/handler.py"]

@@ -1,0 +1,16 @@
+# Working version - just set the region correctly
+FROM berrylands/multitalk-v6:latest
+
+# Set the correct AWS region
+ENV AWS_REGION=eu-west-1
+
+# Also set the transformers cache to avoid the warning
+ENV TRANSFORMERS_CACHE=/runpod-volume/transformers-cache
+
+# Update version
+ENV VERSION="14.0.0"
+ENV BUILD_TIME="2025-01-11T18:00:00Z"
+ENV BUILD_ID="multitalk-v14-working"
+
+WORKDIR /app
+CMD ["python", "-u", "/app/handler.py"]

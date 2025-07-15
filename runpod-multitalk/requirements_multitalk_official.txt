@@ -1,0 +1,25 @@
+# Official MultiTalk dependencies
+# Based on https://github.com/MeiGen-AI/MultiTalk/blob/main/requirements.txt
+# Pre-install to avoid disk space issues at runtime
+
+opencv-python>=4.9.0.80
+diffusers>=0.31.0
+transformers>=4.49.0
+tokenizers>=0.20.3
+accelerate>=1.1.1
+tqdm
+imageio
+easydict
+ftfy
+dashscope
+imageio-ffmpeg
+scikit-image
+loguru
+gradio>=5.0.0
+numpy<2,>=1.23.5
+xfuser>=0.4.1
+pyloudnorm
+optimum-quanto==0.2.6
+# Skip torch as it's already installed in base image
+# torch>=2.4.0
+ninja

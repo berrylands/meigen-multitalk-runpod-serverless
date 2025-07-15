@@ -1,0 +1,57 @@
+# MultiTalk V74.6 - Fixed src directory for successful lip-sync generation
+FROM berrylands/multitalk-v72:complete-official
+
+# Install system dependencies including curl for downloads
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    ffmpeg \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Set environment variables for compilation
+ENV CC=gcc
+ENV CXX=g++
+ENV CUDA_HOME=/usr/local/cuda
+
+# Install compatible dependencies first to prevent conflicts
+COPY requirements_v74_3_compatible.txt /tmp/requirements_compatible.txt
+RUN pip install --no-cache-dir -r /tmp/requirements_compatible.txt
+
+# Force rebuild of xformers and triton with compatible versions
+RUN pip install --no-cache-dir --force-reinstall \
+    "xformers==0.0.28.post3" \
+    "triton>=2.0.0"
+
+# Copy and run the FIXED setup script
+COPY setup_v74_6_fixed_src.sh /tmp/setup_fixed_src.sh
+RUN chmod +x /tmp/setup_fixed_src.sh && /tmp/setup_fixed_src.sh
+
+# Create the models directory structure for volume mounting
+RUN mkdir -p /runpod-volume/models
+
+# Copy the adaptive handler and wrapper for high-quality lip-sync
+COPY handler_v74_5_adaptive.py /app/handler.py
+COPY multitalk_v74_5_adaptive.py /app/multitalk_v74_5_adaptive.py
+COPY diagnostic_wan_model.py /app/diagnostic_wan_model.py
+
+# Ensure handler is executable
+RUN chmod +x /app/handler.py
+
+# Add the official MultiTalk to Python path
+ENV PYTHONPATH="/app/multitalk_official:${PYTHONPATH}"
+
+# Set additional environment variables for stability and performance
+ENV PYTORCH_CUDA_ALLOC_CONF=max_split_size_mb:512
+ENV CUDA_LAUNCH_BLOCKING=0
+
+# Quality-focused build metadata
+ENV VERSION=74.6.0
+ENV BUILD_ID=multitalk-v74-6-fixed-src
+ENV IMPLEMENTATION=FIXED_SRC_HIGH_QUALITY_MULTITALK
+ENV BUILD_TIME=2025-07-14T14:00:00Z
+
+LABEL version="74.6.0"
+LABEL description="MeiGen MultiTalk with fixed src directory for successful lip-sync generation"
+LABEL maintainer="MultiTalk V74.6 Fixed src"
+
+CMD ["python", "-u", "/app/handler.py"]

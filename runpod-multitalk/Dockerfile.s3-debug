@@ -1,0 +1,17 @@
+# S3 Debug Dockerfile
+FROM berrylands/multitalk-s3-endpoint-fix:latest
+
+# Copy the debug handler
+COPY s3_debug_handler.py /app/s3_debug_handler.py
+
+# Also ensure we have the latest s3_handler
+COPY s3_handler.py /app/s3_handler.py
+
+# Build info
+ARG BUILD_TIME="unknown"
+ARG BUILD_ID="unknown"
+ENV BUILD_TIME=${BUILD_TIME}
+ENV BUILD_ID=${BUILD_ID}
+
+# Use debug handler
+CMD ["python", "-u", "/app/s3_debug_handler.py"]

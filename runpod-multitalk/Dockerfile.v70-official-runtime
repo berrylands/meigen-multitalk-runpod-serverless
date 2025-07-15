@@ -1,0 +1,34 @@
+# V70 - Official MultiTalk Implementation with Runtime Setup
+FROM berrylands/multitalk-v67:official-integration-v3
+
+# Install git and wget for runtime setup
+RUN apt-get update && apt-get install -y git wget && rm -rf /var/lib/apt/lists/*
+
+# Install additional dependencies for official MultiTalk
+RUN pip install flash-attn --no-build-isolation || echo "flash-attn installation failed, continuing..."
+
+# Create app directory for official code
+RUN mkdir -p /app/multitalk_official
+
+# Copy setup scripts
+COPY setup_official_multitalk.sh /app/setup_official_multitalk.sh
+COPY setup_official_multitalk_runtime.sh /app/setup_official_multitalk_runtime.sh
+RUN chmod +x /app/setup_official_multitalk.sh /app/setup_official_multitalk_runtime.sh
+
+# Copy our V70 implementation
+COPY multitalk_v70_official_wrapper.py /app/multitalk_v70_official_wrapper.py
+COPY handler_v70.py /app/handler.py
+
+# Update Python path
+ENV PYTHONPATH="/app:/app/multitalk_official:${PYTHONPATH}"
+
+# Update version info
+ENV VERSION="70.0.0"
+ENV BUILD_TIME="2025-07-13T17:00:00Z"
+ENV BUILD_ID="multitalk-v70-official-runtime"
+
+# Set memory optimization environment variables
+ENV PYTORCH_CUDA_ALLOC_CONF="max_split_size_mb:512"
+ENV CUDA_LAUNCH_BLOCKING="0"
+
+CMD ["python", "-u", "/app/handler.py"]

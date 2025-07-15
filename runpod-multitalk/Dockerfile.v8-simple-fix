@@ -1,0 +1,13 @@
+# Simple fix - just use the known bucket name
+FROM berrylands/multitalk-v6:latest
+
+# Replace the handler to use hardcoded bucket
+RUN sed -i 's/s3_handler.default_bucket/"760572149-framepack"/g' /app/handler.py
+
+# Update version
+ENV VERSION="8.0.0"
+ENV BUILD_TIME="2025-01-11T15:35:00Z"
+ENV BUILD_ID="multitalk-v8-hardcoded-bucket"
+
+WORKDIR /app
+CMD ["python", "-u", "/app/handler.py"]

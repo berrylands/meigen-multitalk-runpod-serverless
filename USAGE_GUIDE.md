@@ -147,6 +147,12 @@ if sample_rate != 16000:
 **1. Health Check**:
 ```python
 job = endpoint.run({"health_check": True})
+# Returns S3 integration status in response:
+# "s3_integration": {
+#     "enabled": true,
+#     "default_bucket": "my-bucket",
+#     "can_write": true
+# }
 ```
 
 **2. List Models**:
@@ -158,6 +164,113 @@ job = endpoint.run({"action": "list_models"})
 ```python
 job = endpoint.run({"action": "load_models"})
 ```
+
+## 🌐 S3 Integration (New!)
+
+The MultiTalk handler now supports S3 for storing audio inputs, reference images, and video outputs. This is ideal for:
+- Large files that exceed API payload limits
+- Direct cloud-to-cloud workflows
+- Batch processing pipelines
+- Long-term storage of results
+
+### S3 Configuration
+
+Set these environment variables in your RunPod endpoint:
+- `AWS_ACCESS_KEY_ID` - Your AWS access key
+- `AWS_SECRET_ACCESS_KEY` - Your AWS secret key
+- `AWS_REGION` - AWS region (default: us-east-1)
+- `AWS_S3_BUCKET_NAME` - Default S3 bucket for outputs
+- `BUCKET_ENDPOINT_URL` - (Optional) For S3-compatible services
+
+### Using S3 for Inputs
+
+Instead of base64 encoding, you can provide S3 URLs:
+
+```python
+# S3 URLs for input
+job = endpoint.run({
+    "action": "generate",
+    "audio": "s3://my-bucket/audio/speech.wav",
+    "reference_image": "s3://my-bucket/images/face.jpg",
+    "duration": 5.0
+})
+
+# Also supports HTTPS S3 URLs
+job = endpoint.run({
+    "action": "generate",
+    "audio": "https://my-bucket.s3.us-east-1.amazonaws.com/audio/speech.wav"
+})
+```
+
+### Using S3 for Outputs
+
+Request S3 output instead of base64:
+
+```python
+job = endpoint.run({
+    "action": "generate",
+    "audio": audio_b64,  # Can still use base64 for input
+    "output_format": "s3",
+    "s3_output_key": "videos/my_video.mp4",  # Optional custom key
+    "duration": 5.0
+})
+
+# Result will contain S3 URL instead of base64
+result = job.output()
+if result["success"]:
+    s3_url = result["video"]  # s3://bucket/videos/my_video.mp4
+    s3_bucket = result["s3_bucket"]
+    s3_key = result["s3_key"]
+```
+
+### Mixed Mode Examples
+
+```python
+# S3 input, base64 output
+job = endpoint.run({
+    "action": "generate",
+    "audio": "s3://my-bucket/audio.wav",
+    "output_format": "base64"  # Default
+})
+
+# Base64 input, S3 output
+job = endpoint.run({
+    "action": "generate",
+    "audio": base64_audio,
+    "output_format": "s3"
+})
+
+# Everything via S3
+job = endpoint.run({
+    "action": "generate",
+    "audio": "s3://input-bucket/audio.wav",
+    "reference_image": "s3://input-bucket/face.jpg",
+    "output_format": "s3",
+    "s3_output_key": "results/video_001.mp4"
+})
+```
+
+### S3 Batch Processing
+
+See `examples/s3_video_generator.py` for a complete S3 workflow example:
+
+```bash
+# Process local file, output to S3
+python s3_video_generator.py audio.wav
+
+# Process S3 file, output to S3
+python s3_video_generator.py s3://bucket/audio.wav
+
+# Batch processing with S3
+USE_S3=true python batch_processor.py ./audio_files
+```
+
+### Cost Considerations
+
+- **S3 Storage**: ~$0.023/GB/month
+- **S3 Transfer**: ~$0.09/GB (out of AWS)
+- **API Payload**: Reduced from MB to KB when using S3 URLs
+- **Processing**: Same GPU costs, but faster job submission
 
 ## 📊 Advanced Usage
 

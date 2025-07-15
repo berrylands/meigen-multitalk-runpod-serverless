@@ -89,14 +89,13 @@ RUN mkdir -p /tmp/.cache && \
     mkdir -p /app/.cache && \
     chmod -R 777 /tmp/.cache /root/.cache /app/.cache
 
-# Validation (single layer, skip xfuser if it fails)
+# Validation (single layer)
 RUN python -c "import runpod; print('✅ RunPod imports')" && \
     python -c "import scipy.stats; print('✅ SciPy imports')" && \
     python -c "import torch; print('✅ PyTorch imports')" && \
     python -c "import transformers; print('✅ Transformers imports')" && \
     python -c "import diffusers; print('✅ Diffusers imports')" && \
     python -c "import cv2; print('✅ OpenCV imports')" && \
-    python -c "try: import xfuser; print('✅ xfuser imports'); except: print('⚠️ xfuser not available')" && \
     python -c "import moviepy; print('✅ MoviePy imports')" && \
     echo "✅ All critical imports successful!"
 

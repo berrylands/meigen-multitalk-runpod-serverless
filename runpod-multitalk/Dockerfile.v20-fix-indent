@@ -1,0 +1,20 @@
+# Fix indentation error from v19
+FROM berrylands/multitalk-v18:simple
+
+# Copy the environment diagnostics module
+COPY env_diagnostics.py /app/env_diagnostics.py
+
+# Add import and call to environment diagnostics
+RUN sed -i '/import logging/a\from env_diagnostics import log_environment_variables' /app/handler.py && \
+    sed -i '/Complete MultiTalk Handler Starting/a\        log_environment_variables(log_message)' /app/handler.py
+
+# Also add S3-specific environment check (this worked fine in v19)
+RUN sed -i '/S3 integration enabled/a\        logger.info(f"[S3_ENV] AWS_REGION={os.environ.get(\"AWS_REGION\", \"NOT_SET\")}")\n        logger.info(f"[S3_ENV] AWS_S3_BUCKET_NAME={os.environ.get(\"AWS_S3_BUCKET_NAME\", \"NOT_SET\")}")\n        logger.info(f"[S3_ENV] BUCKET_ENDPOINT_URL={os.environ.get(\"BUCKET_ENDPOINT_URL\", \"NOT_SET\")}")\n        logger.info(f"[S3_ENV] S3_KEY_PREFIX={os.environ.get(\"S3_KEY_PREFIX\", \"NOT_SET\")}")' /app/s3_handler.py
+
+# Update version
+ENV VERSION="20.0.0"
+ENV BUILD_TIME="2025-01-11T19:45:00Z"
+ENV BUILD_ID="multitalk-v20-fix-indent"
+
+WORKDIR /app
+CMD ["python", "-u", "/app/handler.py"]

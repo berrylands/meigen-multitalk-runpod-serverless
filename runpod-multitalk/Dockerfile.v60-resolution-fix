@@ -1,0 +1,19 @@
+# V60 - Resolution/Attention Fix
+FROM berrylands/multitalk-v59:shape-fix
+
+# Copy the resolution-fixed implementation
+COPY multitalk_v60_resolution_fix.py /app/multitalk_v60_resolution_fix.py
+
+# Update handler to use v60
+RUN sed -i 's/multitalk_v59_shape_fix/multitalk_v60_resolution_fix/g' /app/handler.py && \
+    sed -i 's/MultiTalkV59Pipeline/MultiTalkV60Pipeline/g' /app/handler.py && \
+    sed -i 's/MultiTalk V59/MultiTalk V60/g' /app/handler.py && \
+    sed -i 's/multitalk-v59-shape-fix/multitalk-v60-resolution-fix/g' /app/handler.py && \
+    sed -i 's/v59_output/v60_output/g' /app/handler.py
+
+# Update version info
+ENV VERSION="60.0.0"
+ENV BUILD_TIME="2025-07-12T22:40:00Z"
+ENV BUILD_ID="multitalk-v60-resolution-fix"
+
+CMD ["python", "-u", "/app/handler.py"]

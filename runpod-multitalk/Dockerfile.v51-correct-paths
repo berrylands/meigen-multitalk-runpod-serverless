@@ -1,0 +1,22 @@
+# V51 - Using Correct Model Paths from Debug
+FROM berrylands/multitalk-v49:meigen-official
+
+# Install missing diffusers with compatible version
+RUN pip install --no-cache-dir \
+    diffusers==0.21.4 \
+    librosa==0.10.2
+
+# Copy V51 implementation
+COPY multitalk_v51_implementation.py /app/multitalk_v51_implementation.py
+COPY multitalk_handler_v51.py /app/handler.py
+
+# Update version info
+ENV VERSION="51.0.0"
+ENV BUILD_TIME="2025-07-12T13:00:00Z"
+ENV BUILD_ID="multitalk-v51-correct-paths"
+
+# Set Python path to include model directories
+ENV PYTHONPATH=/app:/runpod-volume/models:/runpod-volume/models/meigen-multitalk:/runpod-volume/models/wan2.1-i2v-14b-480p:$PYTHONPATH
+
+WORKDIR /app
+CMD ["python", "-u", "/app/handler.py"]

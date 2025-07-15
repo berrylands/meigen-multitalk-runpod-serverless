@@ -1,0 +1,39 @@
+# V55 - Full MultiTalk Implementation with All Dependencies
+FROM berrylands/multitalk-v54:proper-architecture
+
+# Install all required dependencies - this WILL take time
+RUN pip install --no-cache-dir \
+    diffusers==0.21.4 \
+    accelerate==0.25.0 \
+    xformers==0.0.23 \
+    transformers==4.36.2 \
+    einops==0.7.0 \
+    omegaconf==2.3.0 \
+    scipy==1.11.4 \
+    torchvision==0.16.1
+
+# Create symlink for WAN model path (handles both naming conventions)
+RUN mkdir -p /runpod-volume/models && \
+    ln -sf /runpod-volume/models/Wan2.1-I2V-14B-480P /runpod-volume/models/wan2.1-i2v-14b-480p || true
+
+# Copy the full implementation
+COPY multitalk_v55_full_implementation.py /app/multitalk_v55_full_implementation.py
+
+# Update handler to use V55
+RUN sed -i 's/from multitalk_v54_proper_architecture import MultiTalkV54Pipeline/from multitalk_v55_full_implementation import MultiTalkV55Pipeline/g' /app/handler.py && \
+    sed -i 's/MultiTalkV54Pipeline/MultiTalkV55Pipeline/g' /app/handler.py && \
+    sed -i 's/MultiTalk V54/MultiTalk V55/g' /app/handler.py && \
+    sed -i 's/multitalk-v54-proper-architecture/multitalk-v55-full-implementation/g' /app/handler.py && \
+    sed -i 's/v54_output/v55_output/g' /app/handler.py
+
+# Update version info
+ENV VERSION="55.0.0"
+ENV BUILD_TIME="2025-07-12T17:00:00Z"
+ENV BUILD_ID="multitalk-v55-full-implementation"
+
+# Set environment for optimal performance
+ENV PYTORCH_CUDA_ALLOC_CONF=max_split_size_mb:512
+ENV CUDA_VISIBLE_DEVICES=0
+
+WORKDIR /app
+CMD ["python", "-u", "/app/handler.py"]

@@ -1,0 +1,21 @@
+# Simplified Neural MultiTalk - Quick Deploy
+FROM berrylands/multitalk-v40:pronounced
+
+# Copy the simplified neural implementation
+COPY multitalk_simplified.py /app/multitalk_simplified.py
+
+# Update the handler to use simplified version
+RUN sed -i 's/real_multitalk_inference/multitalk_simplified/g' /app/handler.py && \
+    sed -i 's/RealMultiTalkInference/SimplifiedMultiTalkPipeline/g' /app/handler.py && \
+    sed -i 's/multitalk-real-v4-pronounced/simplified-multitalk-neural/g' /app/handler.py
+
+# Install imageio for video creation
+RUN pip install --no-cache-dir imageio imageio-ffmpeg
+
+# Update version
+ENV VERSION="41.0.0"
+ENV BUILD_TIME="2025-01-12T11:30:00Z"
+ENV BUILD_ID="multitalk-v41-simplified-neural"
+
+WORKDIR /app
+CMD ["python", "-u", "/app/handler.py"]

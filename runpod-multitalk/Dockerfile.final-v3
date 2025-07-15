@@ -1,0 +1,24 @@
+# Final complete image with real MultiTalk inference
+FROM berrylands/multitalk-pytorch:latest
+
+# Remove old handler and replace with complete implementation
+RUN rm -f /app/handler.py
+
+# Copy all necessary files
+COPY complete_multitalk_handler.py /app/handler.py
+COPY multitalk_inference.py /app/multitalk_inference.py
+COPY s3_handler.py /app/s3_handler.py
+
+# Ensure permissions
+RUN chmod +x /app/handler.py
+
+# Add unique version info to force new deployment
+ENV BUILD_TIME="2025-01-11T13:20:00Z"
+ENV BUILD_ID="multitalk-v3-real-inference"
+ENV VERSION="3.0.0"
+ENV IMPLEMENTATION="REAL_MULTITALK_INFERENCE"
+
+WORKDIR /app
+
+# Explicitly set the handler
+CMD ["python", "-u", "/app/handler.py"]

@@ -1,0 +1,25 @@
+# Comprehensive debug version with extensive S3 logging
+FROM berrylands/multitalk-v14:working
+
+# Copy debug modules
+COPY s3_debug.py /app/s3_debug.py
+COPY s3_handler_debug.py /app/s3_handler_debug.py
+
+# Replace s3_handler import with debug version
+RUN mv /app/s3_handler.py /app/s3_handler_original.py && \
+    mv /app/s3_handler_debug.py /app/s3_handler.py
+
+# Add comprehensive logging to the main handler
+RUN sed -i '/S3 handler imported successfully/i\        logger.error("STARTING S3 HANDLER IMPORT DEBUG...")' /app/handler.py && \
+    sed -i '/S3 handler imported successfully/a\        logger.error("S3 HANDLER IMPORT COMPLETE")' /app/handler.py
+
+# Add debug info to the audio processing
+RUN sed -i '/Processing audio input/a\        logger.error(f"AUDIO DEBUG: S3_AVAILABLE={S3_AVAILABLE}, s3_handler_enabled={s3_handler.enabled if S3_AVAILABLE else \"N/A\"}")' /app/handler.py
+
+# Update version
+ENV VERSION="28.0.0"
+ENV BUILD_TIME="2025-01-11T21:45:00Z"
+ENV BUILD_ID="multitalk-v28-comprehensive-debug"
+
+WORKDIR /app
+CMD ["python", "-u", "/app/handler.py"]

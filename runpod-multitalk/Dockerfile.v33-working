@@ -1,0 +1,47 @@
+# Working version with proper S3 and audio handling
+FROM nvidia/cuda:11.8.0-cudnn8-runtime-ubuntu22.04
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    python3-pip \
+    python3-dev \
+    ffmpeg \
+    git \
+    wget \
+    && rm -rf /var/lib/apt/lists/*
+
+# Set Python 3 as default
+RUN update-alternatives --install /usr/bin/python python /usr/bin/python3 1
+
+# Install Python packages
+RUN pip install --no-cache-dir \
+    runpod==1.7.3 \
+    torch==2.0.1 \
+    torchvision==0.15.2 \
+    torchaudio==2.0.2 \
+    transformers==4.30.2 \
+    opencv-python-headless==4.8.0.74 \
+    numpy==1.24.3 \
+    scipy==1.10.1 \
+    soundfile==0.12.1 \
+    librosa==0.10.0 \
+    boto3==1.26.137 \
+    Pillow==9.5.0
+
+# Create app directory
+WORKDIR /app
+
+# Copy the working handler
+COPY working_handler.py /app/handler.py
+
+# Set environment variables
+ENV PYTHONUNBUFFERED=1
+ENV MODEL_PATH=/runpod-volume/models
+ENV AWS_REGION=eu-west-1
+
+# Version info
+ENV VERSION="33.0.0"
+ENV BUILD_TIME="2025-01-11T23:30:00Z"
+ENV BUILD_ID="multitalk-v33-working"
+
+CMD ["python", "-u", "/app/handler.py"]

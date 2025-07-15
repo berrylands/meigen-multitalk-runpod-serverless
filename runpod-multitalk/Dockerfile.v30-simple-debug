@@ -1,0 +1,21 @@
+# Simple debug version - just add logging to existing handler
+FROM berrylands/multitalk-v14:working
+
+# Add simple debug logging to the handler's S3 processing section
+RUN sed -i '/Processing audio input/a\        logger.error(f"S3_AVAILABLE={S3_AVAILABLE}")' /app/handler.py && \
+    sed -i '/Processing audio input/a\        if S3_AVAILABLE: logger.error(f"s3_handler.enabled={s3_handler.enabled}")' /app/handler.py && \
+    sed -i '/Processing audio input/a\        logger.error(f"Audio input type: {type(audio_input)}")' /app/handler.py && \
+    sed -i '/Processing audio input/a\        logger.error(f"Audio input value: {audio_input!r}")' /app/handler.py
+
+# Add environment variable logging at startup
+RUN sed -i '/Complete MultiTalk Handler Starting/a\        logger.info(f"AWS_REGION={os.environ.get(\"AWS_REGION\", \"NOT_SET\")}")' /app/handler.py && \
+    sed -i '/Complete MultiTalk Handler Starting/a\        logger.info(f"AWS_S3_BUCKET_NAME={os.environ.get(\"AWS_S3_BUCKET_NAME\", \"NOT_SET\")}")' /app/handler.py && \
+    sed -i '/Complete MultiTalk Handler Starting/a\        logger.info(f"AWS_ACCESS_KEY_ID exists: {\"AWS_ACCESS_KEY_ID\" in os.environ}")' /app/handler.py
+
+# Update version
+ENV VERSION="30.0.0"
+ENV BUILD_TIME="2025-01-11T22:15:00Z"
+ENV BUILD_ID="multitalk-v30-simple-debug"
+
+WORKDIR /app
+CMD ["python", "-u", "/app/handler.py"]

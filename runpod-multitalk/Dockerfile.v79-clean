@@ -1,0 +1,65 @@
+# MultiTalk V79 - Clean Build with Minimal Layers
+# Fresh start to avoid Docker layer depth issues
+FROM pytorch/pytorch:2.1.2-cuda12.1-cudnn8-devel
+
+# Install system dependencies in one layer
+RUN apt-get update && apt-get install -y \
+    git \
+    ffmpeg \
+    gcc \
+    g++ \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
+# Version info
+ENV VERSION=79.0.0
+ENV BUILD_ID=multitalk-v79-clean
+ENV BUILD_TIME=2025-07-14T23:00:00Z
+ENV IMPLEMENTATION=REPLICATE_CLEAN
+
+# Working directory
+WORKDIR /app
+
+# Copy our files
+COPY multitalk_v75_0_json_input.py .
+COPY handler_v75.py handler.py
+COPY setup_official_multitalk_v78.sh .
+
+# Install Python dependencies in optimized order
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir \
+    numpy==1.24.3 \
+    scipy==1.10.1 \
+    torch==2.1.2 \
+    torchvision==0.16.2 \
+    torchaudio==2.1.2 \
+    transformers==4.43.3 \
+    tokenizers==0.19.1 \
+    librosa==0.10.2 \
+    soundfile==0.12.1 \
+    diffusers>=0.31.0 \
+    accelerate>=1.1.1 \
+    opencv-python>=4.9.0 \
+    imageio>=2.30.0 \
+    huggingface-hub==0.23.5 \
+    einops \
+    rotary-embedding-torch \
+    tensorboardX \
+    omegaconf \
+    easydict \
+    ftfy \
+    safetensors>=0.4.3 \
+    xformers>=0.0.28
+
+# Setup MultiTalk implementation
+RUN chmod +x setup_official_multitalk_v78.sh && \
+    ./setup_official_multitalk_v78.sh
+
+# Update Python path
+ENV PYTHONPATH=/app/multitalk_official:/app:/runpod-volume/models:$PYTHONPATH
+
+# Validate installation
+RUN python -c "import scipy.stats; import torch; import transformers; import diffusers; import cv2; print('✅ All imports successful')"
+
+# Entry point
+CMD ["python", "-u", "handler.py"]

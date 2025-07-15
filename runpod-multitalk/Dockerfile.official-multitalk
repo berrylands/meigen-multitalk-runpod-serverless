@@ -1,0 +1,50 @@
+# Official MultiTalk Implementation
+FROM pytorch/pytorch:2.2.0-cuda12.1-cudnn8-devel
+
+# Set environment variables
+ENV DEBIAN_FRONTEND=noninteractive
+ENV PYTHONUNBUFFERED=1
+ENV CUDA_HOME=/usr/local/cuda
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    git \
+    wget \
+    curl \
+    build-essential \
+    ffmpeg \
+    libsm6 \
+    libxext6 \
+    libxrender-dev \
+    libglib2.0-0 \
+    libgl1-mesa-glx \
+    && rm -rf /var/lib/apt/lists/*
+
+# Set working directory
+WORKDIR /app
+
+# Clone official MultiTalk repository
+RUN git clone https://github.com/MeiGen-AI/MultiTalk.git /app/MultiTalk
+
+# Install Python dependencies
+COPY requirements_official.txt /app/requirements_official.txt
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install torch==2.4.1 torchvision==0.19.1 torchaudio==2.4.1 --index-url https://download.pytorch.org/whl/cu121 && \
+    pip install --no-cache-dir xformers==0.0.28 && \
+    pip install --no-cache-dir -r requirements_official.txt
+
+# Copy our wrapper
+COPY multitalk_official_wrapper.py /app/multitalk_official_wrapper.py
+COPY multitalk_handler_official.py /app/handler.py
+
+# Set Python path to include MultiTalk
+ENV PYTHONPATH="/app/MultiTalk:/app:$PYTHONPATH"
+
+# Set environment variables
+ENV MODEL_PATH="/runpod-volume/models"
+ENV VERSION="official-1.0.0"
+ENV BUILD_TIME="2025-01-12T12:00:00Z"
+ENV BUILD_ID="multitalk-official"
+
+# Command to run
+CMD ["python", "-u", "/app/handler.py"]

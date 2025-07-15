@@ -1,0 +1,58 @@
+The push refers to repository [docker.io/berrylands/multitalk-pytorch]
+9d19e2af4f26: Preparing
+cc1f7521780e: Preparing
+ffa879246596: Preparing
+42eff1e991eb: Preparing
+2a591724d2bf: Preparing
+9146a4c06e7c: Preparing
+42e7f83f46db: Preparing
+507a7f356f62: Preparing
+507a7f356f62: Preparing
+fd2624509087: Preparing
+fcc52023673c: Preparing
+9dc3390a612a: Preparing
+5f70bf18a086: Preparing
+6aec3da0b4e9: Preparing
+bdba5dd695b2: Preparing
+e89c9b557d23: Preparing
+25bd216b708c: Preparing
+31abbb538de0: Preparing
+a2ccf7527b3c: Preparing
+abd92ba2021e: Preparing
+1bb35e8b4de1: Preparing
+9146a4c06e7c: Waiting
+42e7f83f46db: Waiting
+507a7f356f62: Waiting
+fd2624509087: Waiting
+fcc52023673c: Waiting
+9dc3390a612a: Waiting
+5f70bf18a086: Waiting
+a2ccf7527b3c: Waiting
+abd92ba2021e: Waiting
+6aec3da0b4e9: Waiting
+bdba5dd695b2: Waiting
+e89c9b557d23: Waiting
+25bd216b708c: Waiting
+1bb35e8b4de1: Waiting
+31abbb538de0: Waiting
+42eff1e991eb: Layer already exists
+2a591724d2bf: Layer already exists
+ffa879246596: Layer already exists
+9d19e2af4f26: Layer already exists
+507a7f356f62: Layer already exists
+42e7f83f46db: Layer already exists
+9146a4c06e7c: Layer already exists
+fd2624509087: Layer already exists
+fcc52023673c: Layer already exists
+9dc3390a612a: Layer already exists
+5f70bf18a086: Layer already exists
+6aec3da0b4e9: Layer already exists
+e89c9b557d23: Layer already exists
+25bd216b708c: Layer already exists
+bdba5dd695b2: Layer already exists
+31abbb538de0: Layer already exists
+1bb35e8b4de1: Layer already exists
+a2ccf7527b3c: Layer already exists
+abd92ba2021e: Layer already exists
+cc1f7521780e: Pushed
+latest: digest: sha256:0a91dfbee7450302f2242eaffb0ac3d55f78a959332a1fa1d202d8a85762e6bd size: 4710

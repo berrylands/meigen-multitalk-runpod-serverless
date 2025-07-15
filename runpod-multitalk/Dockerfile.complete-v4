@@ -1,0 +1,25 @@
+# Complete MultiTalk image with all dependencies
+FROM berrylands/multitalk-v3:latest
+
+# Install missing dependencies for MultiTalk inference
+RUN pip install --no-cache-dir \
+    opencv-python==4.10.0.84 \
+    soundfile==0.12.1 \
+    opencv-python-headless==4.10.0.84
+
+# Verify all imports work
+RUN python -c "import cv2; print('OpenCV installed:', cv2.__version__)"
+RUN python -c "import soundfile; print('Soundfile installed')"
+RUN python -c "from transformers import Wav2Vec2Processor; print('Transformers working')"
+RUN python -c "import librosa; print('Librosa working')"
+
+# Test that MultiTalk inference can be imported
+RUN python -c "from multitalk_inference import MultiTalkInference; print('✅ MultiTalk inference imports successfully')" || echo "❌ Import failed"
+
+# Update version
+ENV VERSION="4.0.0"
+ENV BUILD_TIME="2025-01-11T13:30:00Z"
+ENV BUILD_ID="multitalk-complete-v4"
+
+WORKDIR /app
+CMD ["python", "-u", "/app/handler.py"]

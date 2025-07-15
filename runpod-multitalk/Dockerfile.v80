@@ -1,4 +1,4 @@
-# MultiTalk V80 - Complete fix with proper xfuser handling
+# MultiTalk V80.1 - Fixed dependencies and xfuser handling
 FROM pytorch/pytorch:2.1.2-cuda12.1-cudnn8-devel
 
 # System dependencies
@@ -13,8 +13,8 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Version info
-ENV VERSION=80.0.0
-ENV BUILD_ID=multitalk-v80-complete
+ENV VERSION=80.1.0
+ENV BUILD_ID=multitalk-v80-1-fixed
 ENV BUILD_TIME=2025-07-15T11:00:00Z
 ENV IMPLEMENTATION=COMPLETE_FIX
 ENV PYTHONPATH=/app/multitalk_official:/app:/runpod-volume/models
@@ -105,7 +105,7 @@ EOF
 
 RUN chmod +x setup_multitalk_v80.sh
 
-# Python dependencies (all in one layer)
+# Python dependencies (all in one layer, optimized for compatibility)
 RUN pip install --no-cache-dir \
     runpod==1.7.3 \
     numpy==1.24.3 \
@@ -126,11 +126,9 @@ RUN pip install --no-cache-dir \
     omegaconf \
     easydict \
     ftfy \
-    xformers>=0.0.28 \
     timm \
     sentencepiece \
     peft \
-    bitsandbytes \
     boto3 \
     moviepy \
     imageio-ffmpeg

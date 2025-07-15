@@ -1,0 +1,19 @@
+# V63 - Debug Model Inspector
+FROM berrylands/multitalk-v62:complete-implementation
+
+# Copy the debug inspector
+COPY multitalk_v63_debug_models.py /app/multitalk_v63_debug_models.py
+
+# Update handler to use v63
+RUN sed -i 's/multitalk_v62_complete_implementation/multitalk_v63_debug_models/g' /app/handler.py && \
+    sed -i 's/MultiTalkV62Pipeline/MultiTalkV63Pipeline/g' /app/handler.py && \
+    sed -i 's/MultiTalk V62/MultiTalk V63 Debug/g' /app/handler.py && \
+    sed -i 's/multitalk-v62-complete-implementation/multitalk-v63-debug-models/g' /app/handler.py && \
+    sed -i 's/v62_output/v63_debug_output/g' /app/handler.py
+
+# Update version info
+ENV VERSION="63.0.0"
+ENV BUILD_TIME="2025-07-13T08:00:00Z"
+ENV BUILD_ID="multitalk-v63-debug-models"
+
+CMD ["python", "-u", "/app/handler.py"]

@@ -1,0 +1,38 @@
+# V73 - Complete Official MultiTalk with Runtime Dependencies Fixed
+FROM berrylands/multitalk-v72:complete-official
+
+# Install build tools for runtime compilation
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    gcc \
+    g++ \
+    && rm -rf /var/lib/apt/lists/*
+
+# Set C compiler environment variable
+ENV CC=gcc
+ENV CXX=g++
+
+# Install compatible xformers for PyTorch 2.7.1
+RUN pip uninstall -y xformers || true
+RUN pip install xformers --no-deps --force-reinstall
+
+# Install newer triton that can work with runtime compilation
+RUN pip install --upgrade triton
+
+# Copy our V73 implementation
+COPY multitalk_v73_official_wrapper.py /app/multitalk_v73_official_wrapper.py
+COPY handler_v73.py /app/handler.py
+
+# Update Python path
+ENV PYTHONPATH="/app:/app/multitalk_official:${PYTHONPATH}"
+
+# Update version info
+ENV VERSION="73.0.0"
+ENV BUILD_TIME="2025-07-13T20:00:00Z"
+ENV BUILD_ID="multitalk-v73-runtime-deps"
+
+# Set memory optimization environment variables
+ENV PYTORCH_CUDA_ALLOC_CONF="max_split_size_mb:512"
+ENV CUDA_LAUNCH_BLOCKING="0"
+
+CMD ["python", "-u", "/app/handler.py"]

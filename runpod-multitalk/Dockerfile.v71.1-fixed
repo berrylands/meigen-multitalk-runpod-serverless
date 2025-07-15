@@ -1,0 +1,20 @@
+# V71.1 - Fixed Input Handling for Official MultiTalk Implementation
+FROM berrylands/multitalk-v71:preinstalled-deps
+
+# Copy our V71.1 implementation with fixes
+COPY multitalk_v71_1_official_wrapper.py /app/multitalk_v71_1_official_wrapper.py
+COPY handler_v71_1.py /app/handler.py
+
+# Update version info
+ENV VERSION="71.1.0"
+ENV BUILD_TIME="2025-07-13T18:30:00Z"
+ENV BUILD_ID="multitalk-v71.1-fixed"
+
+# Ensure Python path is set
+ENV PYTHONPATH="/app:/app/multitalk_official:${PYTHONPATH}"
+
+# Set memory optimization environment variables
+ENV PYTORCH_CUDA_ALLOC_CONF="max_split_size_mb:512"
+ENV CUDA_LAUNCH_BLOCKING="0"
+
+CMD ["python", "-u", "/app/handler.py"]

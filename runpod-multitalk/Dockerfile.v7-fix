@@ -1,0 +1,20 @@
+# Fix S3 region issue
+FROM berrylands/multitalk-v6:latest
+
+# Patch the S3 handler to force eu-west-1
+RUN sed -i "s/region = os.environ.get('AWS_REGION', 'us-east-1')/region = 'eu-west-1'  # HARDCODED FIX/" /app/s3_handler.py
+
+# Also add debug output
+RUN sed -i '/logger.info(f"Downloading from S3:/a\        logger.info(f"[DEBUG] S3 client region: {self.s3_client.meta.region_name}")' /app/s3_handler.py
+
+# Force environment
+ENV AWS_REGION=eu-west-1
+ENV AWS_DEFAULT_REGION=eu-west-1
+
+# Update version  
+ENV VERSION="7.0.0"
+ENV BUILD_TIME="2025-01-11T15:10:00Z"
+ENV BUILD_ID="multitalk-v7-region-fix"
+
+WORKDIR /app
+CMD ["python", "-u", "/app/handler.py"]

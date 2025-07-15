@@ -11,6 +11,38 @@ import numpy as np
 from pathlib import Path
 from typing import Dict, Any, Optional, List
 
+# Import S3 handler
+S3_AVAILABLE = False
+s3_handler = None
+try:
+    from s3_handler import s3_handler, download_input, prepare_output
+    S3_AVAILABLE = True
+    print(f"[{time.strftime('%Y-%m-%d %H:%M:%S')}] [INFO] S3 handler imported successfully")
+except ImportError as e:
+    print(f"[{time.strftime('%Y-%m-%d %H:%M:%S')}] [WARNING] S3 handler import failed: {e}")
+except Exception as e:
+    print(f"[{time.strftime('%Y-%m-%d %H:%M:%S')}] [ERROR] Unexpected error importing S3 handler: {e}")
+
+# Import S3 utilities
+try:
+    from s3_utils import process_input_data
+    S3_UTILS_AVAILABLE = True
+except ImportError:
+    S3_UTILS_AVAILABLE = False
+    print(f"[{time.strftime('%Y-%m-%d %H:%M:%S')}] [WARNING] S3 utils not available, using fallback")
+
+# Import MultiTalk inference
+MULTITALK_AVAILABLE = False
+multitalk_inference = None
+try:
+    from multitalk_inference import MultiTalkInference
+    MULTITALK_AVAILABLE = True
+    print(f"[{time.strftime('%Y-%m-%d %H:%M:%S')}] [INFO] MultiTalk inference imported successfully")
+except ImportError as e:
+    print(f"[{time.strftime('%Y-%m-%d %H:%M:%S')}] [WARNING] MultiTalk inference import failed: {e}")
+except Exception as e:
+    print(f"[{time.strftime('%Y-%m-%d %H:%M:%S')}] [ERROR] Unexpected error importing MultiTalk inference: {e}")
+
 # Model paths based on our current inventory
 MODEL_BASE = Path(os.environ.get("MODEL_PATH", "/runpod-volume/models"))
 MODELS = {
@@ -53,7 +85,7 @@ def check_gpu_availability():
 
 def load_models():
     """Load all required models into memory."""
-    global models_cache, MODEL_LOAD_STATUS
+    global models_cache, MODEL_LOAD_STATUS, multitalk_inference
     
     if MODEL_LOAD_STATUS["loaded"]:
         return True
@@ -82,8 +114,23 @@ def load_models():
         if not available_models:
             raise Exception("No models found on volume")
         
-        # For now, just mark models as "loaded" without actually loading into memory
-        # This avoids memory issues and allows us to test the pipeline
+        # Initialize MultiTalk inference if available
+        if MULTITALK_AVAILABLE:
+            try:
+                log_message("Initializing MultiTalk inference engine...")
+                multitalk_inference = MultiTalkInference(MODEL_BASE)
+                if multitalk_inference.load_models():
+                    log_message("✓ MultiTalk inference engine ready")
+                    models_cache["multitalk_engine"] = "loaded"
+                else:
+                    log_message("⚠️ MultiTalk models partially loaded - using fallback mode")
+            except Exception as e:
+                log_message(f"Failed to initialize MultiTalk inference: {e}", "WARNING")
+                multitalk_inference = None
+        else:
+            log_message("MultiTalk inference not available - using dummy implementation")
+        
+        # Store available model paths
         models_cache.update(available_models)
         
         MODEL_LOAD_STATUS["loaded"] = True
@@ -133,16 +180,18 @@ def process_audio_with_wav2vec(audio_data: bytes, model_name: str = "wav2vec_bas
         return {"error": str(e), "features_extracted": False}
 
 def generate_video_with_multitalk(
-    audio_features: Dict[str, Any],
+    audio_data: bytes,
     reference_image: Optional[bytes] = None,
     **kwargs
 ) -> Dict[str, Any]:
     """Generate video using MultiTalk and Wan2.1 models."""
+    global multitalk_inference
+    
     try:
         log_message("Starting MultiTalk video generation...")
         
         # Extract parameters
-        duration = kwargs.get('duration', audio_features.get('duration', 5.0))
+        duration = kwargs.get('duration', 5.0)
         fps = kwargs.get('fps', 30)
         width = kwargs.get('width', 480)
         height = kwargs.get('height', 480)
@@ -151,8 +200,42 @@ def generate_video_with_multitalk(
         
         log_message(f"Generation params: {duration}s, {fps}fps, {width}x{height}, {num_frames} frames")
         
-        # For now, create a test video with FFmpeg
-        # In production, this would use the actual MultiTalk models
+        # Use real MultiTalk inference if available
+        if MULTITALK_AVAILABLE and multitalk_inference is not None:
+            log_message("Using real MultiTalk inference engine...")
+            
+            # Process with MultiTalk
+            result = multitalk_inference.process_audio_to_video(
+                audio_data=audio_data,
+                reference_image=reference_image,
+                duration=duration,
+                fps=fps,
+                width=width,
+                height=height
+            )
+            
+            if result.get("success"):
+                video_data = result["video_data"]
+                generation_result = {
+                    "success": True,
+                    "video_size": len(video_data),
+                    "duration": result.get("duration", duration),
+                    "fps": result.get("fps", fps),
+                    "resolution": result.get("resolution", f"{width}x{height}"),
+                    "frames": result.get("frames", num_frames),
+                    "models_used": result.get("models_used", ["MultiTalk"]),
+                    "audio_features_shape": result.get("audio_features_shape", []),
+                    "processing_note": "Real MultiTalk inference"
+                }
+                
+                log_message(f"MultiTalk video generation completed: {len(video_data)} bytes")
+                return {"video_data": video_data, **generation_result}
+            else:
+                log_message(f"MultiTalk inference failed: {result.get('error')}", "WARNING")
+                # Fall through to dummy implementation
+        
+        # Fallback to test video with FFmpeg
+        log_message("Using fallback FFmpeg test video generation...")
         output_path = tempfile.mktemp(suffix=".mp4")
         
         # Create test pattern video
@@ -187,8 +270,8 @@ def generate_video_with_multitalk(
             "fps": fps,
             "resolution": f"{width}x{height}",
             "frames": num_frames,
-            "models_used": ["MultiTalk", "Wan2.1"],
-            "processing_note": "Test implementation - will be replaced with actual MultiTalk inference"
+            "models_used": ["FFmpeg"],
+            "processing_note": "Fallback test implementation - MultiTalk not available"
         }
         
         log_message(f"Video generation completed: {len(video_data)} bytes")
@@ -210,14 +293,31 @@ def handler(job: Dict[str, Any]) -> Dict[str, Any]:
         # Health check
         if job_input.get('health_check'):
             gpu_info = check_gpu_availability()
+            
+            # Check S3 status
+            s3_status = {}
+            if S3_AVAILABLE:
+                s3_status = s3_handler.check_s3_access()
+            else:
+                s3_status = {"enabled": False, "error": "S3 handler not available"}
+            
             return {
                 "status": "healthy",
                 "message": "Complete MultiTalk handler ready!",
-                "version": "2.0.0",
+                "version": "2.2.0", "build_id": "1752220071", "image_tag": "v2.2.0-20250711-multitalk",
+                "build_time": os.environ.get("BUILD_TIME", "unknown"),
+                "build_id": os.environ.get("BUILD_ID", "unknown"),
+                "container_id": os.environ.get("HOSTNAME", "unknown"),
                 "models_loaded": MODEL_LOAD_STATUS["loaded"],
                 "models_available": {name: path.exists() for name, path in MODELS.items()},
                 "models_in_cache": len(models_cache),
+                "multitalk_inference": {
+                    "available": MULTITALK_AVAILABLE,
+                    "loaded": "multitalk_engine" in models_cache,
+                    "engine": "Real MultiTalk" if multitalk_inference is not None else "Fallback FFmpeg"
+                },
                 "gpu_info": gpu_info,
+                "s3_integration": s3_status,
                 "python_version": sys.version,
                 "worker_id": os.environ.get('RUNPOD_POD_ID', 'unknown'),
                 "volume_mounted": os.path.exists('/runpod-volume'),
@@ -284,36 +384,76 @@ def handler(job: Dict[str, Any]) -> Dict[str, Any]:
             if not audio_input:
                 return {"error": "No audio data provided"}
             
-            # Decode audio
-            if isinstance(audio_input, str):
-                try:
-                    audio_data = base64.b64decode(audio_input)
-                except Exception as e:
-                    return {"error": f"Failed to decode audio: {e}"}
-            else:
-                audio_data = audio_input
+            # Process audio input (S3 URL, S3 filename, or base64)
+            try:
+                log_message(f"Processing audio input. S3_AVAILABLE: {S3_AVAILABLE}, Input type: {type(audio_input)}, Input preview: {str(audio_input)[:100]}...")
+                
+                if S3_UTILS_AVAILABLE and isinstance(audio_input, str):
+                    # Use smart detection
+                    audio_data = process_input_data(
+                        audio_input, 
+                        "audio",
+                        s3_handler if S3_AVAILABLE else None,
+                        s3_handler.default_bucket if S3_AVAILABLE else None
+                    )
+                elif isinstance(audio_input, str):
+                    # Fallback to original logic
+                    if audio_input.startswith('s3://') or 'amazonaws.com' in audio_input:
+                        if not S3_AVAILABLE:
+                            return {"error": "S3 URL provided but S3 integration is not available."}
+                        log_message(f"Detected S3 URL, downloading from: {audio_input}")
+                        audio_data = s3_handler.download_from_s3(audio_input)
+                    elif S3_AVAILABLE and not audio_input.startswith('/') and len(audio_input) < 100:
+                        # Likely a filename - try S3
+                        log_message(f"Treating as S3 key in default bucket: {audio_input}")
+                        s3_url = f"s3://{s3_handler.default_bucket}/{audio_input}"
+                        audio_data = s3_handler.download_from_s3(s3_url)
+                    else:
+                        # Try base64
+                        audio_data = base64.b64decode(audio_input)
+                else:
+                    audio_data = audio_input
+                    
+            except Exception as e:
+                return {"error": f"Failed to process audio input: {e}", "input_preview": str(audio_input)[:200]}
             
-            # Get parameters
+            # Process reference image (S3 URL, S3 filename, or base64)
             reference_image = job_input.get('reference_image')
             if reference_image and isinstance(reference_image, str):
-                reference_image = base64.b64decode(reference_image)
+                try:
+                    if S3_UTILS_AVAILABLE:
+                        # Use smart detection
+                        reference_image = process_input_data(
+                            reference_image,
+                            "reference_image", 
+                            s3_handler if S3_AVAILABLE else None,
+                            s3_handler.default_bucket if S3_AVAILABLE else None
+                        )
+                    else:
+                        # Fallback logic
+                        if reference_image.startswith('s3://') or 'amazonaws.com' in reference_image:
+                            log_message(f"Downloading reference image from S3: {reference_image}")
+                            reference_image = s3_handler.download_from_s3(reference_image)
+                        elif S3_AVAILABLE and not reference_image.startswith('/') and len(reference_image) < 100:
+                            # Likely a filename - try S3
+                            log_message(f"Treating reference image as S3 key: {reference_image}")
+                            s3_url = f"s3://{s3_handler.default_bucket}/{reference_image}"
+                            reference_image = s3_handler.download_from_s3(s3_url)
+                        else:
+                            reference_image = base64.b64decode(reference_image)
+                except Exception as e:
+                    log_message(f"Failed to process reference image: {e}", "WARNING")
+                    reference_image = None
             
             duration = job_input.get('duration', 5.0)
             fps = job_input.get('fps', 30)
             width = job_input.get('width', 480)
             height = job_input.get('height', 480)
             
-            # Step 1: Process audio
-            log_message("Step 1: Processing audio...")
-            audio_features = process_audio_with_wav2vec(audio_data)
-            
-            if not audio_features.get('features_extracted'):
-                return {"error": "Audio processing failed", "details": audio_features.get('error')}
-            
-            # Step 2: Generate video
-            log_message("Step 2: Generating video...")
+            # Generate video directly with audio data
+            log_message("Processing audio and generating video...")
             video_result = generate_video_with_multitalk(
-                audio_features,
+                audio_data,
                 reference_image,
                 duration=duration,
                 fps=fps,
@@ -324,16 +464,43 @@ def handler(job: Dict[str, Any]) -> Dict[str, Any]:
             if not video_result.get('success'):
                 return {"error": "Video generation failed", "details": video_result.get('error')}
             
-            # Step 3: Encode response
+            # Step 3: Prepare output
             video_data = video_result.pop('video_data')
-            video_b64 = base64.b64encode(video_data).decode('utf-8')
+            
+            # Get output format preferences
+            output_format = job_input.get('output_format', 'base64')
+            s3_output_key = job_input.get('s3_output_key')
+            
+            # Handle output based on format
+            if output_format == 's3' and S3_AVAILABLE:
+                if not s3_output_key:
+                    # Generate default key
+                    timestamp = time.strftime("%Y%m%d_%H%M%S")
+                    s3_output_key = f"multitalk/videos/output_{timestamp}.mp4"
+                
+                try:
+                    log_message(f"Uploading video to S3 with key: {s3_output_key}")
+                    video_output = s3_handler.upload_to_s3(
+                        video_data, 
+                        s3_output_key, 
+                        content_type='video/mp4'
+                    )
+                    output_type = "s3_url"
+                except Exception as e:
+                    log_message(f"S3 upload failed, falling back to base64: {e}", "WARNING")
+                    video_output = base64.b64encode(video_data).decode('utf-8')
+                    output_type = "base64"
+            else:
+                # Default to base64
+                video_output = base64.b64encode(video_data).decode('utf-8')
+                output_type = "base64"
             
             processing_time = time.time() - start_time
             
             result = {
                 "success": True,
-                "video": video_b64,
-                "audio_features": audio_features,
+                "video": video_output,
+                "output_type": output_type,
                 "video_info": video_result,
                 "processing_time": f"{processing_time:.1f}s",
                 "models_used": video_result.get('models_used', []),
@@ -342,9 +509,22 @@ def handler(job: Dict[str, Any]) -> Dict[str, Any]:
                     "fps": fps,
                     "resolution": f"{width}x{height}",
                     "audio_size": len(audio_data),
-                    "video_size": len(video_data)
+                    "video_size": len(video_data),
+                    "output_format": output_format
                 }
             }
+            
+            # Add audio features if present in video result
+            if 'audio_features_shape' in video_result:
+                result["audio_features"] = {
+                    "shape": video_result["audio_features_shape"],
+                    "extracted": True
+                }
+            
+            # Add S3-specific info if applicable
+            if output_type == "s3_url":
+                result["s3_key"] = s3_output_key
+                result["s3_bucket"] = s3_handler.default_bucket
             
             log_message(f"Complete pipeline finished in {processing_time:.1f}s")
             return result
@@ -360,17 +540,8 @@ def handler(job: Dict[str, Any]) -> Dict[str, Any]:
                 return {"error": "Download functionality not available"}
         
         # Default response
-        return {
-            "message": "Complete MultiTalk handler ready!",
-            "version": "2.0.0",
-            "supported_actions": [
-                "health_check",
-                "load_models", 
-                "list_models",
-                "generate",
-                "download_models"
-            ],
-            "example_request": {
+        example_requests = [
+            {
                 "action": "generate",
                 "audio": "<base64_encoded_audio>",
                 "reference_image": "<optional_base64_image>",
@@ -378,7 +549,40 @@ def handler(job: Dict[str, Any]) -> Dict[str, Any]:
                 "fps": 30,
                 "width": 480,
                 "height": 480
+            }
+        ]
+        
+        # Add S3 example if available
+        if S3_AVAILABLE and s3_handler.enabled:
+            example_requests.append({
+                "action": "generate",
+                "audio": "s3://bucket/audio/speech.wav",
+                "reference_image": "s3://bucket/images/face.jpg",
+                "output_format": "s3",
+                "s3_output_key": "videos/generated.mp4",
+                "duration": 5.0
+            })
+        
+        return {
+            "message": "Complete MultiTalk handler ready!",
+            "version": "2.2.0", "build_id": "1752220071", "image_tag": "v2.2.0-20250711-multitalk",
+            "supported_actions": [
+                "health_check",
+                "load_models", 
+                "list_models",
+                "generate",
+                "download_models"
+            ],
+            "s3_integration": {
+                "available": S3_AVAILABLE,
+                "enabled": S3_AVAILABLE and s3_handler.enabled,
+                "default_bucket": s3_handler.default_bucket if S3_AVAILABLE else None
             },
+            "multitalk_inference": {
+                "available": MULTITALK_AVAILABLE,
+                "implementation": "Real MultiTalk" if MULTITALK_AVAILABLE else "Fallback FFmpeg"
+            },
+            "example_requests": example_requests,
             "models_status": {
                 "loaded": MODEL_LOAD_STATUS["loaded"],
                 "available": len([p for p in MODELS.values() if p.exists()]),
@@ -424,6 +628,16 @@ def initialize():
     # Check GPU
     gpu_info = check_gpu_availability()
     log_message(f"GPU: {gpu_info}")
+    
+    # Check S3 integration
+    if S3_AVAILABLE:
+        s3_status = s3_handler.check_s3_access()
+        if s3_status["enabled"]:
+            log_message(f"✓ S3 integration enabled (bucket: {s3_status['default_bucket']})")
+        else:
+            log_message("✗ S3 integration disabled (no credentials)")
+    else:
+        log_message("✗ S3 handler not available")
     
     if available >= 3:  # Need at least 3 models for basic functionality
         log_message("✅ Ready for MultiTalk video generation!")

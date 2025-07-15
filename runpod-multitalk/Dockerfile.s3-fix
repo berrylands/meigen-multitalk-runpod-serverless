@@ -1,0 +1,38 @@
+# S3 Fix Dockerfile - Fixes handler mapping issue
+FROM berrylands/multitalk-test:latest
+
+# Install boto3
+RUN pip install --no-cache-dir boto3==1.35.0
+
+# Create app directory if it doesn't exist
+WORKDIR /app
+
+# Copy the handlers with correct naming
+COPY complete_multitalk_handler.py /app/handler.py
+COPY s3_handler.py /app/s3_handler.py
+COPY debug_handler.py /app/debug_handler.py
+
+# Verify files are in place
+RUN ls -la /app/
+
+# Build arguments for versioning
+ARG BUILD_TIME="unknown"
+ARG BUILD_ID="unknown"
+
+# Update environment variables
+ENV BUILD_TIME=${BUILD_TIME}
+ENV BUILD_ID=${BUILD_ID}
+ENV PYTHONUNBUFFERED=1
+
+# S3 environment variables (will be overridden by RunPod secrets)
+ENV AWS_ACCESS_KEY_ID=""
+ENV AWS_SECRET_ACCESS_KEY=""
+ENV AWS_REGION="us-east-1"
+ENV AWS_S3_BUCKET_NAME=""
+ENV BUCKET_ENDPOINT_URL=""
+
+# Debug: Show Python path
+RUN python -c "import sys; print('Python:', sys.version); print('Path:', sys.path)"
+
+# Set the handler
+CMD ["python", "-u", "/app/handler.py"]

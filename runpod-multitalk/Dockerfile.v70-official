@@ -1,0 +1,91 @@
+# V70 - Official MultiTalk Implementation
+FROM nvidia/cuda:11.8.0-cudnn8-devel-ubuntu22.04
+
+# Set environment variables
+ENV DEBIAN_FRONTEND=noninteractive
+ENV PYTHONUNBUFFERED=1
+ENV CUDA_HOME=/usr/local/cuda
+ENV PATH="${CUDA_HOME}/bin:${PATH}"
+ENV LD_LIBRARY_PATH="${CUDA_HOME}/lib64:${LD_LIBRARY_PATH}"
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    python3.10 \
+    python3-pip \
+    git \
+    wget \
+    ffmpeg \
+    libsm6 \
+    libxext6 \
+    libgl1-mesa-glx \
+    libglib2.0-0 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create symlinks for python
+RUN ln -s /usr/bin/python3.10 /usr/bin/python
+
+# Upgrade pip
+RUN python -m pip install --upgrade pip
+
+# Install PyTorch with CUDA 11.8
+RUN pip install torch==2.1.2 torchvision==0.16.2 torchaudio==2.1.2 --index-url https://download.pytorch.org/whl/cu118
+
+# Install core dependencies
+RUN pip install \
+    numpy==1.24.3 \
+    opencv-python==4.8.1.78 \
+    Pillow==10.1.0 \
+    imageio==2.31.6 \
+    imageio-ffmpeg==0.4.9 \
+    soundfile==0.12.1 \
+    librosa==0.10.1 \
+    boto3==1.28.62 \
+    runpod==1.4.2
+
+# Install ML dependencies
+RUN pip install \
+    transformers==4.36.2 \
+    diffusers==0.25.0 \
+    accelerate==0.25.0 \
+    safetensors==0.4.1 \
+    einops==0.7.0 \
+    omegaconf==2.3.0 \
+    huggingface-hub==0.20.1
+
+# Try to install flash-attn (may fail on some systems)
+RUN pip install flash-attn --no-build-isolation || echo "flash-attn installation failed, continuing..."
+
+# Create app directory
+WORKDIR /app
+
+# Copy setup script and make it executable
+COPY setup_official_multitalk.sh /app/setup_official_multitalk.sh
+RUN chmod +x /app/setup_official_multitalk.sh
+
+# Run setup script to download official MultiTalk
+RUN /app/setup_official_multitalk.sh
+
+# Copy our wrapper implementation
+COPY multitalk_v70_official_wrapper.py /app/multitalk_v70_official_wrapper.py
+COPY handler_v70.py /app/handler.py
+
+# Set up model directory
+RUN mkdir -p /runpod-volume/models
+
+# Environment variables for RunPod
+ENV MODEL_PATH="/runpod-volume/models"
+ENV TRANSFORMERS_CACHE="/runpod-volume/huggingface"
+ENV HF_HOME="/runpod-volume/huggingface"
+ENV PYTHONPATH="/app:/app/multitalk_official:${PYTHONPATH}"
+
+# Version info
+ENV VERSION="70.0.0"
+ENV BUILD_TIME="2025-07-13T16:30:00Z"
+ENV BUILD_ID="multitalk-v70-official"
+
+# Memory optimization
+ENV PYTORCH_CUDA_ALLOC_CONF="max_split_size_mb:512"
+ENV CUDA_LAUNCH_BLOCKING="0"
+
+# Command
+CMD ["python", "-u", "/app/handler.py"]

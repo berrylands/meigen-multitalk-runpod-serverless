@@ -1,0 +1,15 @@
+# V58 - Minimal build to save space
+FROM berrylands/multitalk-v57:preserve-runpod
+
+# Just copy the fixed file
+COPY multitalk_v58_device_fix.py /app/multitalk_v58_device_fix.py
+
+# Simple sed to update imports
+RUN sed -i 's/multitalk_v57_preserve_runpod/multitalk_v58_device_fix/g' /app/handler.py && \
+    sed -i 's/MultiTalkV56Pipeline/MultiTalkV58Pipeline/g' /app/handler.py
+
+# Update version
+ENV VERSION="58.0.0"
+ENV BUILD_ID="multitalk-v58-device-fix"
+
+CMD ["python", "-u", "/app/handler.py"]

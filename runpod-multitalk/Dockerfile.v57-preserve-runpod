@@ -1,0 +1,79 @@
+# V57 - Fix Dependencies While Preserving RunPod SDK
+FROM berrylands/multitalk-v54:proper-architecture
+
+# First, backup RunPod and other critical packages
+RUN pip freeze | grep -E "(runpod|fastapi|uvicorn|pydantic|boto3|botocore)" > /tmp/preserve_packages.txt
+
+# Remove conflicting ML packages only
+RUN pip uninstall -y \
+    torch torchvision torchaudio \
+    transformers tokenizers \
+    diffusers accelerate \
+    huggingface-hub \
+    safetensors \
+    xformers \
+    einops \
+    scipy \
+    --yes || true
+
+# Install compatible ML package versions
+RUN pip install --no-cache-dir \
+    torch==2.1.2+cu121 \
+    torchvision==0.16.2+cu121 \
+    torchaudio==2.1.2+cu121 \
+    --index-url https://download.pytorch.org/whl/cu121
+
+# Install core dependencies with compatible versions
+RUN pip install --no-cache-dir \
+    numpy==1.24.3 \
+    huggingface-hub==0.20.3 \
+    safetensors==0.4.2 \
+    filelock==3.13.1
+
+# Install transformers ecosystem
+RUN pip install --no-cache-dir \
+    transformers==4.37.2 \
+    tokenizers==0.15.1 \
+    accelerate==0.26.1
+
+# Install diffusers and related (the critical fix)
+RUN pip install --no-cache-dir \
+    diffusers==0.25.1 \
+    xformers==0.0.23.post1 \
+    einops==0.7.0 \
+    scipy==1.11.4 \
+    omegaconf==2.3.0
+
+# Ensure RunPod SDK is still working
+RUN python -c "import runpod; print(f'✓ RunPod SDK working')" || \
+    (echo "RunPod SDK broken, reinstalling..." && pip install runpod)
+
+# Verify all critical imports work
+RUN python -c "import torch; print(f'✓ torch {torch.__version__}')" && \
+    python -c "import transformers; print(f'✓ transformers {transformers.__version__}')" && \
+    python -c "import diffusers; print(f'✓ diffusers {diffusers.__version__}')" && \
+    python -c "from diffusers import AutoencoderKL, UNet2DConditionModel; print('✓ Core diffusers classes')" && \
+    python -c "import runpod; print('✓ RunPod SDK working')" && \
+    python -c "import boto3; print('✓ boto3 working')"
+
+# Copy the no-fallback implementation
+COPY multitalk_v56_fixed_diffusers.py /app/multitalk_v57_preserve_runpod.py
+
+# Update handler to use v57
+RUN sed -i 's/from multitalk_v54_proper_architecture import MultiTalkV54Pipeline/from multitalk_v57_preserve_runpod import MultiTalkV56Pipeline/g' /app/handler.py && \
+    sed -i 's/MultiTalkV54Pipeline/MultiTalkV56Pipeline/g' /app/handler.py && \
+    sed -i 's/MultiTalk V54/MultiTalk V57/g' /app/handler.py && \
+    sed -i 's/multitalk-v54-proper-architecture/multitalk-v57-preserve-runpod/g' /app/handler.py && \
+    sed -i 's/v54_output/v57_output/g' /app/handler.py
+
+# Update version info
+ENV VERSION="57.0.0"
+ENV BUILD_TIME="2025-07-12T20:00:00Z"
+ENV BUILD_ID="multitalk-v57-preserve-runpod"
+
+# Ensure CUDA is properly configured
+ENV PYTORCH_CUDA_ALLOC_CONF=max_split_size_mb:512
+ENV CUDA_VISIBLE_DEVICES=0
+
+WORKDIR /app
+CMD ["python", "-u", "/app/handler.py"]

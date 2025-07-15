@@ -1,0 +1,16 @@
+# Fix the handler issues by replacing with working version
+FROM berrylands/multitalk-v14:working
+
+# Copy the working handler
+COPY working_handler.py /app/handler.py
+
+# Ensure boto3 is installed (in case it's missing)
+RUN pip install boto3==1.26.137 || true
+
+# Update version
+ENV VERSION="34.0.0"
+ENV BUILD_TIME="2025-01-11T23:45:00Z"
+ENV BUILD_ID="multitalk-v34-fix"
+
+WORKDIR /app
+CMD ["python", "-u", "/app/handler.py"]

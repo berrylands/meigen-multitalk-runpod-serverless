@@ -1,0 +1,27 @@
+# Official MultiTalk dependencies for V73 - Compatible versions
+# Based on https://github.com/MeiGen-AI/MultiTalk/blob/main/requirements.txt
+# Fixed to work with PyTorch 2.7.1+cu126
+
+opencv-python>=4.9.0.80
+diffusers>=0.31.0
+transformers>=4.49.0
+tokenizers>=0.20.3
+accelerate>=1.1.1
+tqdm
+imageio
+easydict
+ftfy
+dashscope
+imageio-ffmpeg
+scikit-image
+loguru
+gradio>=5.0.0
+numpy<2,>=1.23.5
+xfuser>=0.4.1
+pyloudnorm
+optimum-quanto==0.2.6
+# Compatible PyTorch version (already installed in base)
+# torch>=2.4.0
+ninja
+# Triton for compilation (should work with build-essential)
+triton

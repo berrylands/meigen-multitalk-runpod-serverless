@@ -1,0 +1,24 @@
+# Debug version to force region and add logging
+FROM berrylands/multitalk-v6:latest
+
+# Create a debug wrapper script
+RUN echo 'import os' > /app/debug_wrapper.py && \
+    echo 'os.environ["AWS_REGION"] = "eu-west-1"' >> /app/debug_wrapper.py && \
+    echo 'os.environ["AWS_DEFAULT_REGION"] = "eu-west-1"' >> /app/debug_wrapper.py && \
+    echo 'print(f"[DEBUG] Forcing AWS_REGION to: {os.environ['AWS_REGION']}")' >> /app/debug_wrapper.py && \
+    echo 'import handler' >> /app/debug_wrapper.py
+
+# Update handler to use patched version
+RUN sed -i '1i import s3_handler_patch' /app/handler.py
+
+# Force region in environment
+ENV AWS_REGION=eu-west-1
+ENV AWS_DEFAULT_REGION=eu-west-1
+
+# Update version
+ENV VERSION="7.0.0"
+ENV BUILD_TIME="2025-01-11T15:00:00Z"
+ENV BUILD_ID="multitalk-v7-s3-debug"
+
+WORKDIR /app
+CMD ["python", "-u", "/app/handler.py"]

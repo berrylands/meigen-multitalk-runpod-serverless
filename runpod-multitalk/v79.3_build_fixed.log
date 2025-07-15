@@ -1,0 +1,101 @@
+#0 building with "desktop-linux" instance using docker driver
+
+#1 [internal] load build definition from Dockerfile.v79.3
+#1 transferring dockerfile: 3.38kB 0.0s done
+#1 DONE 0.0s
+
+#2 [internal] load metadata for docker.io/pytorch/pytorch:2.1.2-cuda12.1-cudnn8-devel
+#2 ...
+
+#3 [auth] pytorch/pytorch:pull token for registry-1.docker.io
+#3 DONE 0.0s
+
+#2 [internal] load metadata for docker.io/pytorch/pytorch:2.1.2-cuda12.1-cudnn8-devel
+#2 DONE 0.9s
+
+#4 [internal] load .dockerignore
+#4 transferring context: 2B done
+#4 DONE 0.0s
+
+#5 [ 1/12] FROM docker.io/pytorch/pytorch:2.1.2-cuda12.1-cudnn8-devel@sha256:a5de097b482f5927baf2322f4419f11044bfe4f08c7b7593dbaff8e41d03a204
+#5 DONE 0.0s
+
+#6 [internal] load build context
+#6 transferring context: 248B done
+#6 DONE 0.0s
+
+#7 [ 3/12] RUN mkdir -p /runpod-volume/huggingface/hub &&     chmod -R 777 /runpod-volume/huggingface
+#7 CACHED
+
+#8 [ 8/12] RUN pip install --no-cache-dir     runpod==1.7.3     numpy==1.24.3     scipy==1.10.1     transformers==4.43.3     tokenizers==0.19.1     librosa==0.10.2     soundfile==0.12.1     diffusers>=0.31.0     accelerate>=1.1.1     safetensors>=0.4.3     opencv-python>=4.9.0     imageio>=2.30.0     huggingface-hub==0.23.5     einops     rotary-embedding-torch     tensorboardX     omegaconf     easydict     ftfy     xformers>=0.0.28     xfuser     timm     sentencepiece     peft     bitsandbytes     boto3     moviepy     imageio-ffmpeg
+#8 CACHED
+
+#9 [ 7/12] COPY setup_official_multitalk_v78.sh .
+#9 CACHED
+
+#10 [ 6/12] COPY handler_v75.py handler.py
+#10 CACHED
+
+#11 [ 9/12] RUN chmod +x setup_official_multitalk_v78.sh &&     ./setup_official_multitalk_v78.sh
+#11 CACHED
+
+#12 [10/12] RUN if [ -f /app/multitalk_official/wan/utils/multitalk_utils.py ]; then         sed -i 's/from xfuser.core.distributed import/# from xfuser.core.distributed import/g' /app/multitalk_official/wan/utils/multitalk_utils.py || true;     fi
+#12 CACHED
+
+#13 [ 5/12] COPY multitalk_v75_0_json_input.py .
+#13 CACHED
+
+#14 [ 4/12] WORKDIR /app
+#14 CACHED
+
+#15 [ 2/12] RUN apt-get update && apt-get install -y     git     ffmpeg     gcc     g++     build-essential     && rm -rf /var/lib/apt/lists/*
+#15 CACHED
+
+#16 [11/12] RUN mkdir -p /tmp/.cache &&     mkdir -p /root/.cache &&     mkdir -p /app/.cache &&     chmod -R 777 /tmp/.cache /root/.cache /app/.cache
+#16 CACHED
+
+#17 [12/12] RUN python -c "import runpod; print('✅ RunPod imports')" &&     python -c "import scipy.stats; print('✅ SciPy imports')" &&     python -c "import torch; print('✅ PyTorch imports')" &&     python -c "import transformers; print('✅ Transformers imports')" &&     python -c "import diffusers; print('✅ Diffusers imports')" &&     python -c "import cv2; print('✅ OpenCV imports')" &&     python -c "try: import xfuser; print('✅ xfuser imports')\nexcept: print('⚠️ xfuser not available')" &&     python -c "import moviepy; print('✅ MoviePy imports')" &&     echo "✅ All critical imports successful!"
+#17 2.727 ✅ RunPod imports
+#17 3.940 ✅ SciPy imports
+#17 7.034 ✅ PyTorch imports
+#17 10.15 ✅ Transformers imports
+#17 13.10 ✅ Diffusers imports
+#17 13.84 ✅ OpenCV imports
+#17 13.95   File "<string>", line 1
+#17 13.95     try: import xfuser; print('✅ xfuser imports')\nexcept: print('⚠️ xfuser not available')
+#17 13.95                                                   ^
+#17 13.95 SyntaxError: unexpected character after line continuation character
+#17 ERROR: process "/bin/sh -c python -c \"import runpod; print('✅ RunPod imports')\" &&     python -c \"import scipy.stats; print('✅ SciPy imports')\" &&     python -c \"import torch; print('✅ PyTorch imports')\" &&     python -c \"import transformers; print('✅ Transformers imports')\" &&     python -c \"import diffusers; print('✅ Diffusers imports')\" &&     python -c \"import cv2; print('✅ OpenCV imports')\" &&     python -c \"try: import xfuser; print('✅ xfuser imports')\\nexcept: print('⚠️ xfuser not available')\" &&     python -c \"import moviepy; print('✅ MoviePy imports')\" &&     echo \"✅ All critical imports successful!\"" did not complete successfully: exit code: 1
+------
+ > [12/12] RUN python -c "import runpod; print('✅ RunPod imports')" &&     python -c "import scipy.stats; print('✅ SciPy imports')" &&     python -c "import torch; print('✅ PyTorch imports')" &&     python -c "import transformers; print('✅ Transformers imports')" &&     python -c "import diffusers; print('✅ Diffusers imports')" &&     python -c "import cv2; print('✅ OpenCV imports')" &&     python -c "try: import xfuser; print('✅ xfuser imports')\nexcept: print('⚠️ xfuser not available')" &&     python -c "import moviepy; print('✅ MoviePy imports')" &&     echo "✅ All critical imports successful!":
+2.727 ✅ RunPod imports
+3.940 ✅ SciPy imports
+7.034 ✅ PyTorch imports
+10.15 ✅ Transformers imports
+13.10 ✅ Diffusers imports
+13.84 ✅ OpenCV imports
+13.95   File "<string>", line 1
+13.95     try: import xfuser; print('✅ xfuser imports')\nexcept: print('⚠️ xfuser not available')
+13.95                                                   ^
+13.95 SyntaxError: unexpected character after line continuation character
+------
+
+ [33m1 warning found (use docker --debug to expand):
+[0m - InvalidBaseImagePlatform: Base image pytorch/pytorch:2.1.2-cuda12.1-cudnn8-devel was pulled with platform "linux/amd64", expected "linux/arm64" for current build (line 3)
+Dockerfile.v79.3:93
+--------------------
+  92 |     # Validation (single layer, skip xfuser if it fails)
+  93 | >>> RUN python -c "import runpod; print('✅ RunPod imports')" && \
+  94 | >>>     python -c "import scipy.stats; print('✅ SciPy imports')" && \
+  95 | >>>     python -c "import torch; print('✅ PyTorch imports')" && \
+  96 | >>>     python -c "import transformers; print('✅ Transformers imports')" && \
+  97 | >>>     python -c "import diffusers; print('✅ Diffusers imports')" && \
+  98 | >>>     python -c "import cv2; print('✅ OpenCV imports')" && \
+  99 | >>>     python -c "try: import xfuser; print('✅ xfuser imports')\nexcept: print('⚠️ xfuser not available')" && \
+ 100 | >>>     python -c "import moviepy; print('✅ MoviePy imports')" && \
+ 101 | >>>     echo "✅ All critical imports successful!"
+ 102 |     
+--------------------
+ERROR: failed to solve: process "/bin/sh -c python -c \"import runpod; print('✅ RunPod imports')\" &&     python -c \"import scipy.stats; print('✅ SciPy imports')\" &&     python -c \"import torch; print('✅ PyTorch imports')\" &&     python -c \"import transformers; print('✅ Transformers imports')\" &&     python -c \"import diffusers; print('✅ Diffusers imports')\" &&     python -c \"import cv2; print('✅ OpenCV imports')\" &&     python -c \"try: import xfuser; print('✅ xfuser imports')\\nexcept: print('⚠️ xfuser not available')\" &&     python -c \"import moviepy; print('✅ MoviePy imports')\" &&     echo \"✅ All critical imports successful!\"" did not complete successfully: exit code: 1
+
+View build details: docker-desktop://dashboard/build/desktop-linux/desktop-linux/y2wambvhexecmon8yfwi17dq6

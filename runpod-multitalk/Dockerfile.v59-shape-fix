@@ -1,0 +1,19 @@
+# V59 - Shape/Dimension Fix  
+FROM berrylands/multitalk-v58:device-fix
+
+# Copy the shape-fixed implementation
+COPY multitalk_v59_shape_fix.py /app/multitalk_v59_shape_fix.py
+
+# Update handler to use v59
+RUN sed -i 's/multitalk_v58_device_fix/multitalk_v59_shape_fix/g' /app/handler.py && \
+    sed -i 's/MultiTalkV58Pipeline/MultiTalkV59Pipeline/g' /app/handler.py && \
+    sed -i 's/MultiTalk V58/MultiTalk V59/g' /app/handler.py && \
+    sed -i 's/multitalk-v58-device-fix/multitalk-v59-shape-fix/g' /app/handler.py && \
+    sed -i 's/v58_output/v59_output/g' /app/handler.py
+
+# Update version info
+ENV VERSION="59.0.0"
+ENV BUILD_TIME="2025-07-12T22:30:00Z"
+ENV BUILD_ID="multitalk-v59-shape-fix"
+
+CMD ["python", "-u", "/app/handler.py"]

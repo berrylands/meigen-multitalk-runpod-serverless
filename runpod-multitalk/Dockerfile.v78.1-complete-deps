@@ -1,0 +1,82 @@
+# MultiTalk V78.1 - Complete Dependencies Following Replicate
+# Based on zsxkib's working implementation with ALL required dependencies
+FROM berrylands/multitalk-v74:gcc-install
+
+# Install git and system dependencies
+RUN apt-get update && apt-get install -y git ffmpeg && \
+    rm -rf /var/lib/apt/lists/*
+
+# Version info
+ENV VERSION=78.1.0
+ENV BUILD_ID=multitalk-v78.1-complete-deps
+ENV BUILD_TIME=2025-07-14T22:30:00Z
+ENV IMPLEMENTATION=REPLICATE_COMPLETE
+
+# Working directory
+WORKDIR /app
+
+# Copy handler and wrapper
+COPY multitalk_v75_0_json_input.py .
+COPY handler_v75.py handler.py
+
+# Copy and run the setup script that downloads implementation WITHOUT kokoro
+COPY setup_official_multitalk_v78.sh .
+RUN chmod +x setup_official_multitalk_v78.sh && \
+    ./setup_official_multitalk_v78.sh
+
+# FIX NUMPY/SCIPY BINARY INCOMPATIBILITY (carrying forward from V77)
+RUN pip uninstall -y numpy scipy && \
+    pip install --no-cache-dir numpy==1.24.3 scipy==1.10.1
+
+# Install COMPLETE set of dependencies following Replicate
+# Based on zsxkib/cog-MultiTalk requirements.txt
+# Install core dependencies first (avoid version conflicts)
+RUN pip install --no-cache-dir \
+    transformers==4.43.3 \
+    tokenizers==0.19.1 \
+    librosa==0.10.2 \
+    soundfile==0.12.1 \
+    huggingface-hub==0.23.5
+
+# Install compatible versions for diffusion/acceleration
+RUN pip install --no-cache-dir \
+    diffusers>=0.31.0 \
+    accelerate>=1.1.1 \
+    safetensors>=0.4.3
+
+# Install remaining dependencies  
+RUN pip install --no-cache-dir \
+    opencv-python==4.9.0.80 \
+    imageio==2.34.0 \
+    imageio-ffmpeg==0.5.1 \
+    pyloudnorm==0.1.1 \
+    tqdm==4.66.2 \
+    easydict==1.11 \
+    ftfy==6.1.3 \
+    einops==0.8.0 \
+    ninja==1.11.1.1 \
+    packaging==24.0
+
+# Update Python path to include the official implementation
+ENV PYTHONPATH=/app/multitalk_official:/app:/runpod-volume/models:$PYTHONPATH
+
+# Verify the implementation was downloaded (without kokoro check)
+RUN if [ ! -f /app/multitalk_official/generate_multitalk.py ]; then \
+        echo "ERROR: Official generate_multitalk.py not found!"; \
+        exit 1; \
+    fi && \
+    if [ ! -d /app/multitalk_official/wan ]; then \
+        echo "ERROR: Official wan module not found!"; \
+        exit 1; \
+    fi
+
+# Test critical imports
+RUN python -c "import scipy.stats; print('✅ SciPy imports successfully')"
+RUN python -c "import transformers; print('✅ Transformers imports successfully')"
+RUN python -c "import librosa; print('✅ Librosa imports successfully')"
+RUN python -c "import diffusers; print('✅ Diffusers imports successfully')"
+RUN python -c "import cv2; print('✅ OpenCV imports successfully')"
+RUN python -c "import torch; print('✅ PyTorch imports successfully')"
+
+# Entry point
+CMD ["python", "-u", "handler.py"]

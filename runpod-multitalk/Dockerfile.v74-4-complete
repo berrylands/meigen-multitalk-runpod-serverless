@@ -1,0 +1,46 @@
+# MultiTalk V74.4 - Complete Official Implementation
+FROM berrylands/multitalk-v72:complete-official
+
+# Install system dependencies including curl for downloads
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    ffmpeg \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Set environment variables for compilation
+ENV CC=gcc
+ENV CXX=g++
+ENV CUDA_HOME=/usr/local/cuda
+
+# Install compatible dependencies first to prevent conflicts
+COPY requirements_v74_3_compatible.txt /tmp/requirements_compatible.txt
+RUN pip install --no-cache-dir -r /tmp/requirements_compatible.txt
+
+# Force rebuild of xformers and triton with compatible versions
+RUN pip install --no-cache-dir --force-reinstall \
+    "xformers==0.0.28.post3" \
+    "triton>=2.0.0"
+
+# Copy and run the complete setup script
+COPY setup_v74_4_complete.sh /tmp/setup_complete.sh
+RUN chmod +x /tmp/setup_complete.sh && /tmp/setup_complete.sh
+
+# Create the models directory structure for volume mounting
+RUN mkdir -p /runpod-volume/models
+
+# Copy the comprehensive handler and wrapper
+COPY handler_v74_4_comprehensive.py /app/handler.py
+COPY multitalk_v74_4_comprehensive.py /app/multitalk_v74_4_comprehensive.py
+
+# Ensure handler is executable
+RUN chmod +x /app/handler.py
+
+# Add the official MultiTalk to Python path
+ENV PYTHONPATH="/app/multitalk_official:${PYTHONPATH}"
+
+# Set additional environment variables for stability
+ENV PYTORCH_CUDA_ALLOC_CONF=max_split_size_mb:512
+ENV CUDA_LAUNCH_BLOCKING=0
+
+CMD ["python", "-u", "/app/handler.py"]

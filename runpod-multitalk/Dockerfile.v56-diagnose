@@ -1,0 +1,39 @@
+# V56 - Diagnose and Fix Diffusers
+FROM berrylands/multitalk-v55:full-implementation
+
+# Copy diagnostic script
+COPY diagnose_diffusers.py /app/diagnose_diffusers.py
+
+# Run diagnostic
+RUN python /app/diagnose_diffusers.py
+
+# Try to fix based on common issues
+# 1. Ensure compatible versions
+RUN pip uninstall -y diffusers transformers accelerate torch torchvision && \
+    pip install --no-cache-dir \
+    torch==2.1.1 \
+    torchvision==0.16.1 \
+    transformers==4.36.2 \
+    accelerate==0.25.0 \
+    diffusers==0.21.4
+
+# 2. Test import again
+RUN python -c "import diffusers; print(f'diffusers {diffusers.__version__} loaded successfully')"
+
+# Copy updated implementation
+COPY multitalk_v56_fixed_diffusers.py /app/multitalk_v56_fixed_diffusers.py
+
+# Update handler
+RUN sed -i 's/from multitalk_v55_full_implementation import MultiTalkV55Pipeline/from multitalk_v56_fixed_diffusers import MultiTalkV56Pipeline/g' /app/handler.py && \
+    sed -i 's/MultiTalkV55Pipeline/MultiTalkV56Pipeline/g' /app/handler.py && \
+    sed -i 's/MultiTalk V55/MultiTalk V56/g' /app/handler.py && \
+    sed -i 's/multitalk-v55-full-implementation/multitalk-v56-fixed-diffusers/g' /app/handler.py && \
+    sed -i 's/v55_output/v56_output/g' /app/handler.py
+
+# Update version info
+ENV VERSION="56.0.0"
+ENV BUILD_TIME="2025-07-12T18:00:00Z"
+ENV BUILD_ID="multitalk-v56-fixed-diffusers"
+
+WORKDIR /app
+CMD ["python", "-u", "/app/handler.py"]

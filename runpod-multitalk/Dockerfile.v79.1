@@ -1,0 +1,73 @@
+# MultiTalk V79.1 - Fixed with RunPod SDK
+# Based on our proven V79 approach but with critical runpod package
+FROM pytorch/pytorch:2.1.2-cuda12.1-cudnn8-devel
+
+# System dependencies (single layer)
+ENV DEBIAN_FRONTEND=noninteractive
+ENV TZ=UTC
+RUN apt-get update && apt-get install -y \
+    git \
+    ffmpeg \
+    gcc \
+    g++ \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
+# Version info
+ENV VERSION=79.1.0
+ENV BUILD_ID=multitalk-v79.1-fixed
+ENV BUILD_TIME=2025-07-15T07:00:00Z
+ENV IMPLEMENTATION=REPLICATE_WITH_RUNPOD
+ENV PYTHONPATH=/app/multitalk_official:/app:/runpod-volume/models
+
+WORKDIR /app
+
+# Copy our files
+COPY multitalk_v75_0_json_input.py .
+COPY handler_v75.py handler.py
+COPY setup_official_multitalk_v78.sh .
+
+# Python dependencies (single layer, in dependency order)
+RUN pip install --no-cache-dir \
+    # CRITICAL: RunPod SDK (was missing in V79!)
+    runpod==1.7.3 \
+    # Core numerical libraries (with our proven fix)
+    numpy==1.24.3 \
+    scipy==1.10.1 \
+    # ML frameworks 
+    transformers==4.43.3 \
+    tokenizers==0.19.1 \
+    # Audio processing
+    librosa==0.10.2 \
+    soundfile==0.12.1 \
+    # Diffusion and acceleration
+    diffusers \
+    accelerate \
+    safetensors \
+    # Computer vision
+    opencv-python \
+    imageio \
+    # Additional dependencies from Replicate
+    huggingface-hub==0.23.5 \
+    einops \
+    rotary-embedding-torch \
+    tensorboardX \
+    omegaconf \
+    easydict \
+    ftfy \
+    xformers
+
+# Setup MultiTalk (single layer)
+RUN chmod +x setup_official_multitalk_v78.sh && \
+    ./setup_official_multitalk_v78.sh
+
+# Validation (single layer)
+RUN python -c "import runpod; print('✅ RunPod imports')" && \
+    python -c "import scipy.stats; print('✅ SciPy imports')" && \
+    python -c "import torch; print('✅ PyTorch imports')" && \
+    python -c "import transformers; print('✅ Transformers imports')" && \
+    python -c "import diffusers; print('✅ Diffusers imports')" && \
+    python -c "import cv2; print('✅ OpenCV imports')" && \
+    echo "✅ All critical imports successful (including RunPod!)"
+
+CMD ["python", "-u", "handler.py"]

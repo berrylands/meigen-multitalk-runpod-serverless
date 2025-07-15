@@ -1,0 +1,21 @@
+# Add PyTorch to our working S3 image
+FROM berrylands/multitalk-s3-final:latest
+
+# Install PyTorch and other ML dependencies
+RUN pip install --no-cache-dir \
+    torch==2.4.1 \
+    transformers==4.47.1 \
+    accelerate==1.2.1 \
+    librosa==0.10.2
+
+# Verify PyTorch is installed
+RUN python -c "import torch; print('PyTorch installed:', torch.__version__)"
+
+# Build info
+ARG BUILD_TIME="unknown"
+ARG BUILD_ID="unknown"
+ENV BUILD_TIME=${BUILD_TIME}
+ENV BUILD_ID=${BUILD_ID}
+
+# Same entrypoint
+CMD ["python", "-u", "/app/handler.py"]

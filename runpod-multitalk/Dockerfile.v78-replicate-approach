@@ -1,0 +1,61 @@
+# MultiTalk V78 - Following Replicate/Cog Implementation Approach
+# Based on zsxkib's working implementation that doesn't use kokoro/misaki
+FROM berrylands/multitalk-v74:gcc-install
+
+# Install git for cloning the official repo
+RUN apt-get update && apt-get install -y git && \
+    rm -rf /var/lib/apt/lists/*
+
+# Version info
+ENV VERSION=78.0.0
+ENV BUILD_ID=multitalk-v78-replicate-approach
+ENV BUILD_TIME=2025-07-14T22:00:00Z
+ENV IMPLEMENTATION=REPLICATE_COMPATIBLE
+
+# Working directory
+WORKDIR /app
+
+# Copy handler and wrapper
+COPY multitalk_v75_0_json_input.py .
+COPY handler_v75.py handler.py
+
+# Copy and run the setup script that downloads implementation WITHOUT kokoro
+COPY setup_official_multitalk_v78.sh .
+RUN chmod +x setup_official_multitalk_v78.sh && \
+    ./setup_official_multitalk_v78.sh
+
+# FIX NUMPY/SCIPY BINARY INCOMPATIBILITY (carrying forward from V77)
+RUN pip uninstall -y numpy scipy && \
+    pip install --no-cache-dir numpy==1.24.3 scipy==1.10.1
+
+# Install additional dependencies that Replicate uses
+# Based on zsxkib/cog-MultiTalk requirements
+RUN pip install --no-cache-dir \
+    transformers==4.43.3 \
+    tokenizers==0.19.1 \
+    librosa==0.10.2 \
+    soundfile==0.12.1 \
+    huggingface-hub==0.23.5
+
+# Update Python path to include the official implementation
+ENV PYTHONPATH=/app/multitalk_official:/app:/runpod-volume/models:$PYTHONPATH
+
+# Verify the implementation was downloaded (without kokoro check)
+RUN if [ ! -f /app/multitalk_official/generate_multitalk.py ]; then \
+        echo "ERROR: Official generate_multitalk.py not found!"; \
+        exit 1; \
+    fi && \
+    if [ ! -d /app/multitalk_official/wan ]; then \
+        echo "ERROR: Official wan module not found!"; \
+        exit 1; \
+    fi
+
+# Test that scipy imports correctly
+RUN python -c "import scipy.stats; print('✅ SciPy imports successfully')"
+
+# Test other critical imports
+RUN python -c "import transformers; print('✅ Transformers imports successfully')"
+RUN python -c "import librosa; print('✅ Librosa imports successfully')"
+
+# Entry point
+CMD ["python", "-u", "handler.py"]

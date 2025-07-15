@@ -1,0 +1,172 @@
+#0 building with "desktop-linux" instance using docker driver
+
+#1 [internal] load build definition from Dockerfile.add-torch
+#1 transferring dockerfile: 616B done
+#1 DONE 0.0s
+
+#2 [internal] load metadata for docker.io/berrylands/multitalk-s3-final:latest
+#2 DONE 0.0s
+
+#3 [internal] load .dockerignore
+#3 transferring context: 2B done
+#3 DONE 0.0s
+
+#4 [1/3] FROM docker.io/berrylands/multitalk-s3-final:latest
+#4 CACHED
+
+#5 [2/3] RUN pip install --no-cache-dir     torch==2.4.1     transformers==4.47.1     accelerate==1.2.1     librosa==0.10.2
+#5 0.943 Collecting torch==2.4.1
+#5 1.017   Downloading torch-2.4.1-cp310-cp310-manylinux1_x86_64.whl (797.1 MB)
+#5 25.27      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 797.1/797.1 MB 36.7 MB/s eta 0:00:00
+#5 27.83 Collecting transformers==4.47.1
+#5 27.85   Downloading transformers-4.47.1-py3-none-any.whl (10.1 MB)
+#5 28.17      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 10.1/10.1 MB 31.7 MB/s eta 0:00:00
+#5 28.26 Collecting accelerate==1.2.1
+#5 28.27   Downloading accelerate-1.2.1-py3-none-any.whl (336 kB)
+#5 28.28      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 336.4/336.4 kB 32.6 MB/s eta 0:00:00
+#5 28.31 Collecting librosa==0.10.2
+#5 28.31   Downloading librosa-0.10.2-py3-none-any.whl (260 kB)
+#5 28.33      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 260.0/260.0 kB 28.6 MB/s eta 0:00:00
+#5 28.38 Collecting nvidia-cufft-cu12==11.0.2.54
+#5 28.39   Downloading nvidia_cufft_cu12-11.0.2.54-py3-none-manylinux1_x86_64.whl (121.6 MB)
+#5 32.46      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 121.6/121.6 MB 19.7 MB/s eta 0:00:00
+#5 32.84 Collecting nvidia-cusparse-cu12==12.1.0.106
+#5 32.85   Downloading nvidia_cusparse_cu12-12.1.0.106-py3-none-manylinux1_x86_64.whl (196.0 MB)
+#5 38.82      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 196.0/196.0 MB 35.6 MB/s eta 0:00:00
+#5 39.42 Collecting nvidia-nvtx-cu12==12.1.105
+#5 39.43   Downloading nvidia_nvtx_cu12-12.1.105-py3-none-manylinux1_x86_64.whl (99 kB)
+#5 39.44      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 99.1/99.1 kB 37.8 MB/s eta 0:00:00
+#5 39.48 Collecting filelock
+#5 39.49   Downloading filelock-3.18.0-py3-none-any.whl (16 kB)
+#5 39.52 Collecting triton==3.0.0
+#5 39.53   Downloading triton-3.0.0-1-cp310-cp310-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (209.4 MB)
+#5 45.79      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 209.4/209.4 MB 38.7 MB/s eta 0:00:00
+#5 46.46 Collecting nvidia-cuda-cupti-cu12==12.1.105
+#5 46.47   Downloading nvidia_cuda_cupti_cu12-12.1.105-py3-none-manylinux1_x86_64.whl (14.1 MB)
+#5 46.94      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 14.1/14.1 MB 31.3 MB/s eta 0:00:00
+#5 47.01 Collecting nvidia-nccl-cu12==2.20.5
+#5 47.02   Downloading nvidia_nccl_cu12-2.20.5-py3-none-manylinux2014_x86_64.whl (176.2 MB)
+#5 52.78      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 176.2/176.2 MB 32.4 MB/s eta 0:00:00
+#5 53.29 Requirement already satisfied: jinja2 in /usr/local/lib/python3.10/site-packages (from torch==2.4.1) (3.1.6)
+#5 53.32 Collecting nvidia-cusolver-cu12==11.4.5.107
+#5 53.33   Downloading nvidia_cusolver_cu12-11.4.5.107-py3-none-manylinux1_x86_64.whl (124.2 MB)
+#5 56.96      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 124.2/124.2 MB 36.4 MB/s eta 0:00:00
+#5 57.37 Collecting nvidia-cudnn-cu12==9.1.0.70
+#5 57.38   Downloading nvidia_cudnn_cu12-9.1.0.70-py3-none-manylinux2014_x86_64.whl (664.8 MB)
+#5 77.48      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 664.8/664.8 MB 38.6 MB/s eta 0:00:00
+#5 79.43 Collecting sympy
+#5 79.44   Downloading sympy-1.14.0-py3-none-any.whl (6.3 MB)
+#5 79.64      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 6.3/6.3 MB 33.0 MB/s eta 0:00:00
+#5 79.72 Collecting networkx
+#5 79.74   Downloading networkx-3.4.2-py3-none-any.whl (1.7 MB)
+#5 79.80      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.7/1.7 MB 27.5 MB/s eta 0:00:00
+#5 79.84 Collecting nvidia-curand-cu12==10.3.2.106
+#5 79.85   Downloading nvidia_curand_cu12-10.3.2.106-py3-none-manylinux1_x86_64.whl (56.5 MB)
+#5 81.34      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 56.5/56.5 MB 40.5 MB/s eta 0:00:00
+#5 81.55 Collecting nvidia-cuda-nvrtc-cu12==12.1.105
+#5 81.55   Downloading nvidia_cuda_nvrtc_cu12-12.1.105-py3-none-manylinux1_x86_64.whl (23.7 MB)
+#5 82.25      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 23.7/23.7 MB 33.1 MB/s eta 0:00:00
+#5 82.43 Collecting fsspec
+#5 82.44   Downloading fsspec-2025.5.1-py3-none-any.whl (199 kB)
+#5 82.45      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 199.1/199.1 kB 63.1 MB/s eta 0:00:00
+#5 82.45 Requirement already satisfied: typing-extensions>=4.8.0 in /usr/local/lib/python3.10/site-packages (from torch==2.4.1) (4.14.1)
+#5 82.48 Collecting nvidia-cuda-runtime-cu12==12.1.105
+#5 82.49   Downloading nvidia_cuda_runtime_cu12-12.1.105-py3-none-manylinux1_x86_64.whl (823 kB)
+#5 82.52      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 823.6/823.6 kB 31.4 MB/s eta 0:00:00
+#5 82.55 Collecting nvidia-cublas-cu12==12.1.3.1
+#5 82.56   Downloading nvidia_cublas_cu12-12.1.3.1-py3-none-manylinux1_x86_64.whl (410.6 MB)
+#5 94.32      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 410.6/410.6 MB 34.7 MB/s eta 0:00:00
+#5 95.94 Collecting huggingface-hub<1.0,>=0.24.0
+#5 95.95   Downloading huggingface_hub-0.33.3-py3-none-any.whl (515 kB)
+#5 95.97      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 515.4/515.4 kB 40.1 MB/s eta 0:00:00
+#5 95.97 Requirement already satisfied: requests in /usr/local/lib/python3.10/site-packages (from transformers==4.47.1) (2.32.4)
+#5 95.97 Requirement already satisfied: numpy>=1.17 in /usr/local/lib/python3.10/site-packages (from transformers==4.47.1) (1.26.4)
+#5 95.97 Requirement already satisfied: tqdm>=4.27 in /usr/local/lib/python3.10/site-packages (from transformers==4.47.1) (4.67.1)
+#5 96.01 Collecting packaging>=20.0
+#5 96.02   Downloading packaging-25.0-py3-none-any.whl (66 kB)
+#5 96.02      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 66.5/66.5 kB 247.4 MB/s eta 0:00:00
+#5 96.91 Collecting regex!=2019.12.17
+#5 96.93   Downloading regex-2024.11.6-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (781 kB)
+#5 96.96      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 781.7/781.7 kB 25.5 MB/s eta 0:00:00
+#5 97.43 Collecting tokenizers<0.22,>=0.21
+#5 97.44   Downloading tokenizers-0.21.2-cp39-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (3.1 MB)
+#5 97.53      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.1/3.1 MB 34.3 MB/s eta 0:00:00
+#5 97.55 Requirement already satisfied: pyyaml>=5.1 in /usr/local/lib/python3.10/site-packages (from transformers==4.47.1) (6.0.2)
+#5 97.90 Collecting safetensors>=0.4.1
+#5 97.91   Downloading safetensors-0.5.3-cp38-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (471 kB)
+#5 97.92      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 471.6/471.6 kB 43.4 MB/s eta 0:00:00
+#5 98.15 Collecting psutil
+#5 98.16   Downloading psutil-7.0.0-cp36-abi3-manylinux_2_12_x86_64.manylinux2010_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl (277 kB)
+#5 98.17      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 278.0/278.0 kB 52.5 MB/s eta 0:00:00
+#5 98.23 Collecting joblib>=0.14
+#5 98.24   Downloading joblib-1.5.1-py3-none-any.whl (307 kB)
+#5 98.25      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 307.7/307.7 kB 28.1 MB/s eta 0:00:00
+#5 98.43 Collecting msgpack>=1.0
+#5 98.44   Downloading msgpack-1.1.1-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (408 kB)
+#5 98.45      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 408.6/408.6 kB 44.3 MB/s eta 0:00:00
+#5 98.67 Collecting scikit-learn>=0.20.0
+#5 98.69   Downloading scikit_learn-1.7.0-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (12.9 MB)
+#5 99.04      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 12.9/12.9 MB 36.2 MB/s eta 0:00:00
+#5 99.11 Collecting decorator>=4.3.0
+#5 99.12   Downloading decorator-5.2.1-py3-none-any.whl (9.2 kB)
+#5 99.22 Collecting audioread>=2.1.9
+#5 99.23   Downloading audioread-3.0.1-py3-none-any.whl (23 kB)
+#5 99.27 Collecting pooch>=1.1
+#5 99.28   Downloading pooch-1.8.2-py3-none-any.whl (64 kB)
+#5 99.28      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 64.6/64.6 kB 220.5 MB/s eta 0:00:00
+#5 99.28 Requirement already satisfied: scipy>=1.2.0 in /usr/local/lib/python3.10/site-packages (from librosa==0.10.2) (1.14.1)
+#5 99.35 Collecting soundfile>=0.12.1
+#5 99.36   Downloading soundfile-0.13.1-py2.py3-none-manylinux_2_28_x86_64.whl (1.3 MB)
+#5 99.40      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.3/1.3 MB 42.3 MB/s eta 0:00:00
+#5 99.57 Collecting soxr>=0.3.2
+#5 99.59   Downloading soxr-0.5.0.post1-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (252 kB)
+#5 99.59      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 252.8/252.8 kB 160.8 MB/s eta 0:00:00
+#5 99.86 Collecting numba>=0.51.0
+#5 99.88   Downloading numba-0.61.2-cp310-cp310-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (3.8 MB)
+#5 99.99      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.8/3.8 MB 34.8 MB/s eta 0:00:00
+#5 100.0 Collecting lazy-loader>=0.1
+#5 100.1   Downloading lazy_loader-0.4-py3-none-any.whl (12 kB)
+#5 100.1 Collecting nvidia-nvjitlink-cu12
+#5 100.1   Downloading nvidia_nvjitlink_cu12-12.9.86-py3-none-manylinux2010_x86_64.manylinux_2_12_x86_64.whl (39.7 MB)
+#5 101.2      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 39.7/39.7 MB 26.9 MB/s eta 0:00:00
+#5 101.6 Collecting hf-xet<2.0.0,>=1.1.2
+#5 101.6   Downloading hf_xet-1.1.5-cp37-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (3.1 MB)
+#5 101.6      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.1/3.1 MB 41.4 MB/s eta 0:00:00
+#5 101.9 Collecting llvmlite<0.45,>=0.44.0dev0
+#5 101.9   Downloading llvmlite-0.44.0-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (42.4 MB)
+#5 103.2      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 42.4/42.4 MB 24.0 MB/s eta 0:00:00
+#5 103.4 Collecting platformdirs>=2.5.0
+#5 103.4   Downloading platformdirs-4.3.8-py3-none-any.whl (18 kB)
+#5 103.4 Requirement already satisfied: idna<4,>=2.5 in /usr/local/lib/python3.10/site-packages (from requests->transformers==4.47.1) (3.10)
+#5 103.4 Requirement already satisfied: certifi>=2017.4.17 in /usr/local/lib/python3.10/site-packages (from requests->transformers==4.47.1) (2025.7.9)
+#5 103.4 Requirement already satisfied: urllib3<3,>=1.21.1 in /usr/local/lib/python3.10/site-packages (from requests->transformers==4.47.1) (2.5.0)
+#5 103.4 Requirement already satisfied: charset_normalizer<4,>=2 in /usr/local/lib/python3.10/site-packages (from requests->transformers==4.47.1) (3.4.2)
+#5 103.5 Collecting threadpoolctl>=3.1.0
+#5 103.5   Downloading threadpoolctl-3.6.0-py3-none-any.whl (18 kB)
+#5 103.5 Requirement already satisfied: cffi>=1.0 in /usr/local/lib/python3.10/site-packages (from soundfile>=0.12.1->librosa==0.10.2) (1.17.1)
+#5 103.6 Requirement already satisfied: MarkupSafe>=2.0 in /usr/local/lib/python3.10/site-packages (from jinja2->torch==2.4.1) (3.0.2)
+#5 103.7 Collecting mpmath<1.4,>=1.1.0
+#5 103.7   Downloading mpmath-1.3.0-py3-none-any.whl (536 kB)
+#5 103.7      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 536.2/536.2 kB 29.4 MB/s eta 0:00:00
+#5 103.7 Requirement already satisfied: pycparser in /usr/local/lib/python3.10/site-packages (from cffi>=1.0->soundfile>=0.12.1->librosa==0.10.2) (2.22)
+#5 104.8 Installing collected packages: mpmath, threadpoolctl, sympy, soxr, safetensors, regex, psutil, platformdirs, packaging, nvidia-nvtx-cu12, nvidia-nvjitlink-cu12, nvidia-nccl-cu12, nvidia-curand-cu12, nvidia-cufft-cu12, nvidia-cuda-runtime-cu12, nvidia-cuda-nvrtc-cu12, nvidia-cuda-cupti-cu12, nvidia-cublas-cu12, networkx, msgpack, llvmlite, joblib, hf-xet, fsspec, filelock, decorator, audioread, triton, soundfile, scikit-learn, pooch, nvidia-cusparse-cu12, nvidia-cudnn-cu12, numba, lazy-loader, huggingface-hub, tokenizers, nvidia-cusolver-cu12, librosa, transformers, torch, accelerate
+#5 157.3 Successfully installed accelerate-1.2.1 audioread-3.0.1 decorator-5.2.1 filelock-3.18.0 fsspec-2025.5.1 hf-xet-1.1.5 huggingface-hub-0.33.3 joblib-1.5.1 lazy-loader-0.4 librosa-0.10.2 llvmlite-0.44.0 mpmath-1.3.0 msgpack-1.1.1 networkx-3.4.2 numba-0.61.2 nvidia-cublas-cu12-12.1.3.1 nvidia-cuda-cupti-cu12-12.1.105 nvidia-cuda-nvrtc-cu12-12.1.105 nvidia-cuda-runtime-cu12-12.1.105 nvidia-cudnn-cu12-9.1.0.70 nvidia-cufft-cu12-11.0.2.54 nvidia-curand-cu12-10.3.2.106 nvidia-cusolver-cu12-11.4.5.107 nvidia-cusparse-cu12-12.1.0.106 nvidia-nccl-cu12-2.20.5 nvidia-nvjitlink-cu12-12.9.86 nvidia-nvtx-cu12-12.1.105 packaging-25.0 platformdirs-4.3.8 pooch-1.8.2 psutil-7.0.0 regex-2024.11.6 safetensors-0.5.3 scikit-learn-1.7.0 soundfile-0.13.1 soxr-0.5.0.post1 sympy-1.14.0 threadpoolctl-3.6.0 tokenizers-0.21.2 torch-2.4.1 transformers-4.47.1 triton-3.0.0
+#5 157.3 WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv
+#5 157.4 
+#5 157.4 [notice] A new release of pip is available: 23.0.1 -> 25.1.1
+#5 157.4 [notice] To update, run: pip install --upgrade pip
+#5 DONE 158.4s
+
+#6 [3/3] RUN python -c "import torch; print('PyTorch installed:', torch.__version__)"
+#6 2.760 PyTorch installed: 2.4.1+cu121
+#6 DONE 3.0s
+
+#7 exporting to image
+#7 exporting layers
+#7 exporting layers 7.9s done
+#7 writing image sha256:fd8e9e2d2fcb796eb019a6fc81682ad9041b6e43e20e856f9577a3f51a4f64e9
+#7 writing image sha256:fd8e9e2d2fcb796eb019a6fc81682ad9041b6e43e20e856f9577a3f51a4f64e9 done
+#7 naming to docker.io/berrylands/multitalk-pytorch:latest done
+#7 DONE 7.9s
+
+View build details: docker-desktop://dashboard/build/desktop-linux/desktop-linux/ntevjf29wamqj39h2vt3r8xil

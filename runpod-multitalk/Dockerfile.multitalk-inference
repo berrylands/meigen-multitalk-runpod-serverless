@@ -1,0 +1,19 @@
+# Build on top of our working PyTorch image
+FROM berrylands/multitalk-pytorch:latest
+
+# Copy the new MultiTalk inference module
+COPY multitalk_inference.py /app/multitalk_inference.py
+COPY complete_multitalk_handler.py /app/complete_multitalk_handler.py
+
+# Add version info
+ENV BUILD_TIME="2025-01-11T09:00:00Z"
+ENV BUILD_ID="multitalk-inference-v1"
+ENV VERSION="2.2.0"
+
+# Ensure the handler is available
+RUN chmod +x /app/complete_multitalk_handler.py
+
+WORKDIR /app
+
+# Use the complete handler as the main handler
+CMD ["python", "-u", "complete_multitalk_handler.py"]

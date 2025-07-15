@@ -1,0 +1,38 @@
+# Fix the s3_handler initialization issue
+FROM berrylands/multitalk-v6:latest
+
+# Create a simpler initialization fix
+RUN cat > /app/s3_init_fix.py << 'EOF'
+import os
+import sys
+
+# Force reload s3_handler if it exists
+if 's3_handler' in sys.modules:
+    del sys.modules['s3_handler']
+
+# Import handler which will import s3_handler
+import handler
+
+# Patch s3_handler with debugging
+if hasattr(handler, 's3_handler') and hasattr(handler.s3_handler, 's3_handler'):
+    s3h = handler.s3_handler.s3_handler
+    if s3h and hasattr(s3h, 's3_client'):
+        print(f"[S3_INIT_FIX] s3_handler initialized: enabled={s3h.enabled}, bucket={s3h.default_bucket}")
+        # Force reinit if needed
+        if not s3h.enabled and os.environ.get('AWS_ACCESS_KEY_ID'):
+            print("[S3_INIT_FIX] Forcing s3_handler reinitialization...")
+            handler.s3_handler.s3_handler = handler.s3_handler.S3Handler()
+            print(f"[S3_INIT_FIX] After reinit: enabled={handler.s3_handler.s3_handler.enabled}")
+EOF
+
+# Modify handler.py to use the fix
+RUN sed -i '1i import s3_init_fix' /app/handler.py
+
+# Force fresh initialization
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV VERSION="10.0.0"
+ENV BUILD_TIME="2025-01-11T16:30:00Z"
+ENV BUILD_ID="multitalk-v10-s3-fix"
+
+WORKDIR /app
+CMD ["python", "-u", "/app/handler.py"]

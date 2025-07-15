@@ -1,0 +1,20 @@
+# V54 - Proper MultiTalk Architecture with DiT
+FROM berrylands/multitalk-v52:safetensors
+
+# Copy V54 implementation
+COPY multitalk_v54_proper_architecture.py /app/multitalk_v54_proper_architecture.py
+
+# Update handler to use V54
+RUN sed -i 's/from multitalk_v52_safetensors import MultiTalkV52Pipeline/from multitalk_v54_proper_architecture import MultiTalkV54Pipeline/g' /app/handler.py && \
+    sed -i 's/MultiTalkV52Pipeline/MultiTalkV54Pipeline/g' /app/handler.py && \
+    sed -i 's/MultiTalk V52/MultiTalk V54/g' /app/handler.py && \
+    sed -i 's/multitalk-v52-safetensors/multitalk-v54-proper-architecture/g' /app/handler.py && \
+    sed -i 's/v52_output/v54_output/g' /app/handler.py
+
+# Update version info
+ENV VERSION="54.0.0"
+ENV BUILD_TIME="2025-07-12T16:30:00Z"
+ENV BUILD_ID="multitalk-v54-proper-architecture"
+
+WORKDIR /app
+CMD ["python", "-u", "/app/handler.py"]

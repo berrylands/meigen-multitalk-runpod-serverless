@@ -1,0 +1,25 @@
+# MultiTalk V78.1 - Simplified with Essential Dependencies
+FROM berrylands/multitalk-runpod:v78-replicate-approach
+
+# Version info
+ENV VERSION=78.1.1
+ENV BUILD_ID=multitalk-v78.1-simplified
+ENV BUILD_TIME=2025-07-14T22:45:00Z
+ENV IMPLEMENTATION=REPLICATE_ESSENTIAL
+
+# Install essential missing dependencies from Replicate
+RUN pip install --no-cache-dir \
+    diffusers>=0.31.0 \
+    accelerate>=1.1.1 \
+    opencv-python>=4.9.0 \
+    imageio>=2.30.0 \
+    easydict>=1.11 \
+    ftfy>=6.1.3
+
+# Test critical imports
+RUN python -c "import diffusers; print('✅ Diffusers imports successfully')" && \
+    python -c "import cv2; print('✅ OpenCV imports successfully')" && \
+    python -c "import accelerate; print('✅ Accelerate imports successfully')"
+
+# Entry point
+CMD ["python", "-u", "handler.py"]

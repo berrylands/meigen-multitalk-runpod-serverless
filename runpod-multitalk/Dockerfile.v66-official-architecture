@@ -1,0 +1,19 @@
+# V66 - Official MeiGen Architecture Implementation
+FROM berrylands/multitalk-v64:sharded-loader
+
+# Copy the official architecture implementation
+COPY multitalk_v66_official_architecture.py /app/multitalk_v66_official_architecture.py
+
+# Update handler to use v66
+RUN sed -i 's/multitalk_v64_sharded_loader/multitalk_v66_official_architecture/g' /app/handler.py && \
+    sed -i 's/MultiTalkV64Pipeline/MultiTalkV66Pipeline/g' /app/handler.py && \
+    sed -i 's/MultiTalk V64/MultiTalk V66/g' /app/handler.py && \
+    sed -i 's/multitalk-v64-sharded-loader/multitalk-v66-official-architecture/g' /app/handler.py && \
+    sed -i 's/v64_output/v66_output/g' /app/handler.py
+
+# Update version info
+ENV VERSION="66.0.0"
+ENV BUILD_TIME="2025-07-13T13:15:00Z"
+ENV BUILD_ID="multitalk-v66-official-architecture"
+
+CMD ["python", "-u", "/app/handler.py"]

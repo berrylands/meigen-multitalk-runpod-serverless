@@ -1,0 +1,29 @@
+# MultiTalk V79 - Minimal Clean Build
+FROM pytorch/pytorch:2.1.2-cuda12.1-cudnn8-runtime
+
+# Single layer for system packages
+RUN apt-get update && apt-get install -y git ffmpeg gcc g++ build-essential && rm -rf /var/lib/apt/lists/*
+
+ENV VERSION=79.0.0
+ENV BUILD_ID=multitalk-v79-minimal
+ENV PYTHONPATH=/app/multitalk_official:/app:/runpod-volume/models
+
+WORKDIR /app
+
+# Copy files
+COPY multitalk_v75_0_json_input.py handler_v75.py setup_official_multitalk_v78.sh ./
+RUN mv handler_v75.py handler.py
+
+# Single layer for all Python packages
+RUN pip install --no-cache-dir \
+    numpy==1.24.3 scipy==1.10.1 \
+    transformers==4.43.3 tokenizers==0.19.1 \
+    librosa==0.10.2 soundfile==0.12.1 huggingface-hub==0.23.5 \
+    diffusers accelerate opencv-python imageio \
+    einops rotary-embedding-torch tensorboardX omegaconf \
+    easydict ftfy safetensors xformers && \
+    chmod +x setup_official_multitalk_v78.sh && \
+    ./setup_official_multitalk_v78.sh && \
+    python -c "import scipy.stats; import torch; import transformers; print('✅ Core imports OK')"
+
+CMD ["python", "-u", "handler.py"]

@@ -1,0 +1,13 @@
+# Add bucket listing to debug S3 access
+FROM berrylands/multitalk-v16:working
+
+# Add bucket listing when file not found
+RUN sed -i '/raise FileNotFoundError/i\            # Debug: list bucket contents\n            try:\n                logger.error(f"[S3_DEBUG] Listing first 10 objects in {bucket}:")\n                response = self.s3_client.list_objects_v2(Bucket=bucket, MaxKeys=10)\n                if "Contents" in response:\n                    for obj in response["Contents"]:\n                        logger.error(f"[S3_DEBUG]   - {obj[\"Key\"]} ({obj[\"Size\"]} bytes)")\n                else:\n                    logger.error(f"[S3_DEBUG] No objects found in bucket")\n            except Exception as le:\n                logger.error(f"[S3_DEBUG] Cannot list bucket: {le}")' /app/s3_handler.py
+
+# Update version
+ENV VERSION="17.0.0"
+ENV BUILD_TIME="2025-01-11T18:45:00Z"
+ENV BUILD_ID="multitalk-v17-list-bucket"
+
+WORKDIR /app
+CMD ["python", "-u", "/app/handler.py"]

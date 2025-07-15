@@ -1,0 +1,16 @@
+# Simple working version - just the S3 fixes without diagnostics
+FROM berrylands/multitalk-v16:working
+
+# Add the prefix checking from v18
+RUN sed -i '/bucket, key = self.parse_s3_url/a\        # Also try with comfy_outputs prefix\n        prefixes = ["", "comfy_outputs/", f"comfy_outputs/{bucket}/"]\n        original_key = key\n        for prefix in prefixes:\n            try:\n                test_key = f"{prefix}{original_key}" if prefix else original_key\n                self.s3_client.head_object(Bucket=bucket, Key=test_key)\n                key = test_key\n                logger.info(f"[S3_PREFIX] Found file with prefix: {test_key}")\n                break\n            except:\n                continue' /app/s3_handler.py
+
+# Add simple logging for S3 settings
+RUN sed -i '/S3 integration enabled/s/\(.*\)/\1\n        logger.info(f"[S3_INFO] Region: {self.s3_client.meta.region_name}, Bucket: {self.default_bucket}")/' /app/s3_handler.py
+
+# Update version
+ENV VERSION="21.0.0"
+ENV BUILD_TIME="2025-01-11T20:00:00Z"
+ENV BUILD_ID="multitalk-v21-simple-working"
+
+WORKDIR /app
+CMD ["python", "-u", "/app/handler.py"]

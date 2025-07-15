@@ -1,0 +1,27 @@
+# V49 - MeiGen-MultiTalk Official Implementation
+FROM berrylands/multitalk-v46:robust-defensive
+
+# Install additional dependencies for MultiTalk
+RUN pip install --no-cache-dir \
+    librosa==0.10.2 \
+    xformers==0.0.28 \
+    einops==0.8.0 \
+    omegaconf==2.3.0 \
+    decord==0.6.0
+
+# Copy MeiGen implementation files
+COPY multitalk_meigen_implementation.py /app/multitalk_meigen_implementation.py
+COPY multitalk_handler_v49.py /app/handler.py
+
+# Set environment for MultiTalk
+ENV PYTHONPATH=/app:/runpod-volume/models/MultiTalk:$PYTHONPATH
+ENV CUDA_VISIBLE_DEVICES=0
+
+# Update version info
+ENV VERSION="49.0.0"
+ENV BUILD_TIME="2025-07-12T12:00:00Z"
+ENV BUILD_ID="multitalk-v49-meigen-official"
+ENV RUNPOD_DEBUG_LEVEL="INFO"
+
+WORKDIR /app
+CMD ["python", "-u", "/app/handler.py"]

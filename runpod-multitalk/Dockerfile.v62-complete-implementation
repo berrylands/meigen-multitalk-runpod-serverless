@@ -1,0 +1,19 @@
+# V62 - Complete Implementation with Wan2.1 Integration
+FROM berrylands/multitalk-v61:full-implementation-v3
+
+# Copy the complete implementation
+COPY multitalk_v62_complete_implementation.py /app/multitalk_v62_complete_implementation.py
+
+# Update handler to use v62
+RUN sed -i 's/multitalk_v61_full_implementation/multitalk_v62_complete_implementation/g' /app/handler.py && \
+    sed -i 's/MultiTalkV61Pipeline/MultiTalkV62Pipeline/g' /app/handler.py && \
+    sed -i 's/MultiTalk V61/MultiTalk V62/g' /app/handler.py && \
+    sed -i 's/multitalk-v61-full-implementation/multitalk-v62-complete-implementation/g' /app/handler.py && \
+    sed -i 's/v61_output/v62_output/g' /app/handler.py
+
+# Update version info
+ENV VERSION="62.0.0"
+ENV BUILD_TIME="2025-07-13T07:30:00Z"
+ENV BUILD_ID="multitalk-v62-complete-implementation"
+
+CMD ["python", "-u", "/app/handler.py"]

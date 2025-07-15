@@ -1,0 +1,28 @@
+# Patch s3_handler.py directly to fix the issue
+FROM berrylands/multitalk-v6:latest
+
+# Patch the s3_handler.py to add debugging and fix initialization
+RUN sed -i '/class S3Handler:/a\    _instance = None\n    \n    def __new__(cls):\n        if cls._instance is None:\n            cls._instance = super().__new__(cls)\n        return cls._instance' /app/s3_handler.py
+
+# Add debug logging to download_from_s3
+RUN sed -i '/def download_from_s3/a\        logger.info(f"[S3_DEBUG] Downloading with client: region={self.s3_client.meta.region_name if self.s3_client else None}, enabled={self.enabled}, bucket={self.default_bucket}")' /app/s3_handler.py
+
+# Force the s3_handler to reinitialize if it's not enabled
+RUN echo '
+# Force s3_handler reinitialization if needed
+import os
+if "s3_handler" in globals():
+    if not s3_handler.enabled and os.environ.get("AWS_ACCESS_KEY_ID"):
+        print("[S3_PATCH] Reinitializing s3_handler...")
+        from s3_handler import S3Handler
+        s3_handler = S3Handler()
+        print(f"[S3_PATCH] s3_handler reinitialized: enabled={s3_handler.enabled}")
+' >> /app/complete_multitalk_handler.py
+
+# Update version
+ENV VERSION="12.0.0"
+ENV BUILD_TIME="2025-01-11T17:15:00Z"
+ENV BUILD_ID="multitalk-v12-patch"
+
+WORKDIR /app
+CMD ["python", "-u", "/app/handler.py"]

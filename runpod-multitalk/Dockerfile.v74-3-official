@@ -1,0 +1,38 @@
+# MultiTalk V74.3 - Official Implementation with No Fallbacks
+FROM berrylands/multitalk-v72:complete-official
+
+# Install build-essential which includes gcc, g++, make
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    ffmpeg \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Set environment variables
+ENV CC=gcc
+ENV CXX=g++
+ENV CUDA_HOME=/usr/local/cuda
+
+# Force rebuild of xformers to match PyTorch version
+RUN pip install --no-cache-dir --force-reinstall \
+    xformers \
+    triton
+
+# Copy and run the official MultiTalk setup script
+COPY setup_official_multitalk_simple.sh /tmp/setup_multitalk.sh
+RUN chmod +x /tmp/setup_multitalk.sh && /tmp/setup_multitalk.sh
+
+# Create the models directory structure for volume mounting
+RUN mkdir -p /runpod-volume/models
+
+# Copy updated files with no fallback logic
+COPY multitalk_v74_2_official_wrapper.py /app/multitalk_v74_2_official_wrapper.py
+COPY handler_v74_2.py /app/handler.py
+
+# Ensure handler is executable
+RUN chmod +x /app/handler.py
+
+# Add the official MultiTalk to Python path
+ENV PYTHONPATH="/app/multitalk_official:${PYTHONPATH}"
+
+CMD ["python", "-u", "/app/handler.py"]

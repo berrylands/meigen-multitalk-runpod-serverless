@@ -1,0 +1,233 @@
+#0 building with "desktop-linux" instance using docker driver
+
+#1 [internal] load build definition from Dockerfile.v79.2
+#1 transferring dockerfile: 3.27kB 0.0s done
+#1 DONE 0.0s
+
+#2 [internal] load metadata for docker.io/pytorch/pytorch:2.1.2-cuda12.1-cudnn8-devel
+#2 ...
+
+#3 [auth] pytorch/pytorch:pull token for registry-1.docker.io
+#3 DONE 0.0s
+
+#2 [internal] load metadata for docker.io/pytorch/pytorch:2.1.2-cuda12.1-cudnn8-devel
+#2 DONE 1.1s
+
+#4 [internal] load .dockerignore
+#4 transferring context: 2B done
+#4 DONE 0.0s
+
+#5 [ 1/12] FROM docker.io/pytorch/pytorch:2.1.2-cuda12.1-cudnn8-devel@sha256:a5de097b482f5927baf2322f4419f11044bfe4f08c7b7593dbaff8e41d03a204
+#5 DONE 0.0s
+
+#6 [ 2/12] RUN apt-get update && apt-get install -y     git     ffmpeg     gcc     g++     build-essential     && rm -rf /var/lib/apt/lists/*
+#6 CACHED
+
+#7 [internal] load build context
+#7 transferring context: 248B done
+#7 DONE 0.0s
+
+#8 [ 3/12] RUN mkdir -p /runpod-volume/huggingface/hub &&     chmod -R 777 /runpod-volume/huggingface
+#8 DONE 0.2s
+
+#9 [ 4/12] WORKDIR /app
+#9 DONE 0.0s
+
+#10 [ 5/12] COPY multitalk_v75_0_json_input.py .
+#10 DONE 0.0s
+
+#11 [ 6/12] COPY handler_v75.py handler.py
+#11 DONE 0.0s
+
+#12 [ 7/12] COPY setup_official_multitalk_v78.sh .
+#12 DONE 0.0s
+
+#13 [ 8/12] RUN pip install --no-cache-dir     runpod==1.7.3     numpy==1.24.3     scipy==1.10.1     transformers==4.43.3     tokenizers==0.19.1     librosa==0.10.2     soundfile==0.12.1     diffusers>=0.31.0     accelerate>=1.1.1     safetensors>=0.4.3     opencv-python>=4.9.0     imageio>=2.30.0     huggingface-hub==0.23.5     einops     rotary-embedding-torch     tensorboardX     omegaconf     easydict     ftfy     xformers>=0.0.28     xfuser     flash-attn     timm     sentencepiece     peft     bitsandbytes     boto3     moviepy     imageio-ffmpeg
+#13 114.8   error: subprocess-exited-with-error
+#13 114.8   
+#13 114.8   × python setup.py bdist_wheel did not run successfully.
+#13 114.8   │ exit code: 1
+#13 114.8   ╰─> [179 lines of output]
+#13 114.8       No CUDA runtime is found, using CUDA_HOME='/usr/local/cuda'
+#13 114.8       
+#13 114.8       
+#13 114.8       torch.__version__  = 2.1.2
+#13 114.8       
+#13 114.8       
+#13 114.8       /opt/conda/lib/python3.10/site-packages/setuptools/__init__.py:80: _DeprecatedInstaller: setuptools.installer and fetch_build_eggs are deprecated.
+#13 114.8       !!
+#13 114.8       
+#13 114.8               ********************************************************************************
+#13 114.8               Requirements should be satisfied by a PEP 517 installer.
+#13 114.8               If you are using pip, you can try `pip install --use-pep517`.
+#13 114.8               ********************************************************************************
+#13 114.8       
+#13 114.8       !!
+#13 114.8         dist.fetch_build_eggs(dist.setup_requires)
+#13 114.8       running bdist_wheel
+#13 114.8       Guessing wheel URL:  https://github.com/Dao-AILab/flash-attention/releases/download/v2.8.1/flash_attn-2.8.1+cu12torch2.1cxx11abiFALSE-cp310-cp310-linux_x86_64.whl
+#13 114.8       Precompiled wheel not found. Building from source...
+#13 114.8       /opt/conda/lib/python3.10/site-packages/torch/utils/cpp_extension.py:502: UserWarning: Attempted to use ninja as the BuildExtension backend but we could not find ninja.. Falling back to using the slow distutils backend.
+#13 114.8         warnings.warn(msg.format('we could not find ninja.'))
+#13 114.8       running build
+#13 114.8       running build_py
+#13 114.8       creating build
+#13 114.8       creating build/lib.linux-x86_64-cpython-310
+#13 114.8       creating build/lib.linux-x86_64-cpython-310/hopper
+#13 114.8       copying hopper/benchmark_split_kv.py -> build/lib.linux-x86_64-cpython-310/hopper
+#13 114.8       copying hopper/test_util.py -> build/lib.linux-x86_64-cpython-310/hopper
+#13 114.8       copying hopper/flash_attn_interface.py -> build/lib.linux-x86_64-cpython-310/hopper
+#13 114.8       copying hopper/test_flash_attn.py -> build/lib.linux-x86_64-cpython-310/hopper
+#13 114.8       copying hopper/benchmark_flash_attention_fp8.py -> build/lib.linux-x86_64-cpython-310/hopper
+#13 114.8       copying hopper/test_kvcache.py -> build/lib.linux-x86_64-cpython-310/hopper
+#13 114.8       copying hopper/benchmark_attn.py -> build/lib.linux-x86_64-cpython-310/hopper
+#13 114.8       copying hopper/generate_kernels.py -> build/lib.linux-x86_64-cpython-310/hopper
+#13 114.8       copying hopper/setup.py -> build/lib.linux-x86_64-cpython-310/hopper
+#13 114.8       copying hopper/benchmark_mla_decode.py -> build/lib.linux-x86_64-cpython-310/hopper
+#13 114.8       copying hopper/test_attn_kvcache.py -> build/lib.linux-x86_64-cpython-310/hopper
+#13 114.8       copying hopper/__init__.py -> build/lib.linux-x86_64-cpython-310/hopper
+#13 114.8       copying hopper/padding.py -> build/lib.linux-x86_64-cpython-310/hopper
+#13 114.8       creating build/lib.linux-x86_64-cpython-310/flash_attn
+#13 114.8       copying flash_attn/bert_padding.py -> build/lib.linux-x86_64-cpython-310/flash_attn
+#13 114.8       copying flash_attn/fused_softmax.py -> build/lib.linux-x86_64-cpython-310/flash_attn
+#13 114.8       copying flash_attn/flash_attn_interface.py -> build/lib.linux-x86_64-cpython-310/flash_attn
+#13 114.8       copying flash_attn/flash_blocksparse_attention.py -> build/lib.linux-x86_64-cpython-310/flash_attn
+#13 114.8       copying flash_attn/flash_attn_triton.py -> build/lib.linux-x86_64-cpython-310/flash_attn
+#13 114.8       copying flash_attn/flash_attn_triton_og.py -> build/lib.linux-x86_64-cpython-310/flash_attn
+#13 114.8       copying flash_attn/__init__.py -> build/lib.linux-x86_64-cpython-310/flash_attn
+#13 114.8       copying flash_attn/flash_blocksparse_attn_interface.py -> build/lib.linux-x86_64-cpython-310/flash_attn
+#13 114.8       creating build/lib.linux-x86_64-cpython-310/flash_attn/ops
+#13 114.8       copying flash_attn/ops/rms_norm.py -> build/lib.linux-x86_64-cpython-310/flash_attn/ops
+#13 114.8       copying flash_attn/ops/fused_dense.py -> build/lib.linux-x86_64-cpython-310/flash_attn/ops
+#13 114.8       copying flash_attn/ops/layer_norm.py -> build/lib.linux-x86_64-cpython-310/flash_attn/ops
+#13 114.8       copying flash_attn/ops/__init__.py -> build/lib.linux-x86_64-cpython-310/flash_attn/ops
+#13 114.8       copying flash_attn/ops/activations.py -> build/lib.linux-x86_64-cpython-310/flash_attn/ops
+#13 114.8       creating build/lib.linux-x86_64-cpython-310/flash_attn/utils
+#13 114.8       copying flash_attn/utils/torch.py -> build/lib.linux-x86_64-cpython-310/flash_attn/utils
+#13 114.8       copying flash_attn/utils/library.py -> build/lib.linux-x86_64-cpython-310/flash_attn/utils
+#13 114.8       copying flash_attn/utils/pretrained.py -> build/lib.linux-x86_64-cpython-310/flash_attn/utils
+#13 114.8       copying flash_attn/utils/testing.py -> build/lib.linux-x86_64-cpython-310/flash_attn/utils
+#13 114.8       copying flash_attn/utils/generation.py -> build/lib.linux-x86_64-cpython-310/flash_attn/utils
+#13 114.8       copying flash_attn/utils/benchmark.py -> build/lib.linux-x86_64-cpython-310/flash_attn/utils
+#13 114.8       copying flash_attn/utils/__init__.py -> build/lib.linux-x86_64-cpython-310/flash_attn/utils
+#13 114.8       copying flash_attn/utils/distributed.py -> build/lib.linux-x86_64-cpython-310/flash_attn/utils
+#13 114.8       creating build/lib.linux-x86_64-cpython-310/flash_attn/models
+#13 114.8       copying flash_attn/models/gpt_neox.py -> build/lib.linux-x86_64-cpython-310/flash_attn/models
+#13 114.8       copying flash_attn/models/bigcode.py -> build/lib.linux-x86_64-cpython-310/flash_attn/models
+#13 114.8       copying flash_attn/models/llama.py -> build/lib.linux-x86_64-cpython-310/flash_attn/models
+#13 114.8       copying flash_attn/models/falcon.py -> build/lib.linux-x86_64-cpython-310/flash_attn/models
+#13 114.8       copying flash_attn/models/btlm.py -> build/lib.linux-x86_64-cpython-310/flash_attn/models
+#13 114.8       copying flash_attn/models/gpt.py -> build/lib.linux-x86_64-cpython-310/flash_attn/models
+#13 114.8       copying flash_attn/models/vit.py -> build/lib.linux-x86_64-cpython-310/flash_attn/models
+#13 114.8       copying flash_attn/models/baichuan.py -> build/lib.linux-x86_64-cpython-310/flash_attn/models
+#13 114.8       copying flash_attn/models/bert.py -> build/lib.linux-x86_64-cpython-310/flash_attn/models
+#13 114.8       copying flash_attn/models/__init__.py -> build/lib.linux-x86_64-cpython-310/flash_attn/models
+#13 114.8       copying flash_attn/models/gptj.py -> build/lib.linux-x86_64-cpython-310/flash_attn/models
+#13 114.8       copying flash_attn/models/opt.py -> build/lib.linux-x86_64-cpython-310/flash_attn/models
+#13 114.8       creating build/lib.linux-x86_64-cpython-310/flash_attn/modules
+#13 114.8       copying flash_attn/modules/block.py -> build/lib.linux-x86_64-cpython-310/flash_attn/modules
+#13 114.8       copying flash_attn/modules/mha.py -> build/lib.linux-x86_64-cpython-310/flash_attn/modules
+#13 114.8       copying flash_attn/modules/embedding.py -> build/lib.linux-x86_64-cpython-310/flash_attn/modules
+#13 114.8       copying flash_attn/modules/__init__.py -> build/lib.linux-x86_64-cpython-310/flash_attn/modules
+#13 114.8       copying flash_attn/modules/mlp.py -> build/lib.linux-x86_64-cpython-310/flash_attn/modules
+#13 114.8       creating build/lib.linux-x86_64-cpython-310/flash_attn/losses
+#13 114.8       copying flash_attn/losses/cross_entropy.py -> build/lib.linux-x86_64-cpython-310/flash_attn/losses
+#13 114.8       copying flash_attn/losses/__init__.py -> build/lib.linux-x86_64-cpython-310/flash_attn/losses
+#13 114.8       creating build/lib.linux-x86_64-cpython-310/flash_attn/flash_attn_triton_amd
+#13 114.8       copying flash_attn/flash_attn_triton_amd/bwd_prefill_onekernel.py -> build/lib.linux-x86_64-cpython-310/flash_attn/flash_attn_triton_amd
+#13 114.8       copying flash_attn/flash_attn_triton_amd/fp8.py -> build/lib.linux-x86_64-cpython-310/flash_attn/flash_attn_triton_amd
+#13 114.8       copying flash_attn/flash_attn_triton_amd/fwd_decode.py -> build/lib.linux-x86_64-cpython-310/flash_attn/flash_attn_triton_amd
+#13 114.8       copying flash_attn/flash_attn_triton_amd/bwd_prefill_split.py -> build/lib.linux-x86_64-cpython-310/flash_attn/flash_attn_triton_amd
+#13 114.8       copying flash_attn/flash_attn_triton_amd/fwd_prefill.py -> build/lib.linux-x86_64-cpython-310/flash_attn/flash_attn_triton_amd
+#13 114.8       copying flash_attn/flash_attn_triton_amd/fwd_ref.py -> build/lib.linux-x86_64-cpython-310/flash_attn/flash_attn_triton_amd
+#13 114.8       copying flash_attn/flash_attn_triton_amd/utils.py -> build/lib.linux-x86_64-cpython-310/flash_attn/flash_attn_triton_amd
+#13 114.8       copying flash_attn/flash_attn_triton_amd/bwd_prefill.py -> build/lib.linux-x86_64-cpython-310/flash_attn/flash_attn_triton_amd
+#13 114.8       copying flash_attn/flash_attn_triton_amd/bench.py -> build/lib.linux-x86_64-cpython-310/flash_attn/flash_attn_triton_amd
+#13 114.8       copying flash_attn/flash_attn_triton_amd/bwd_prefill_fused.py -> build/lib.linux-x86_64-cpython-310/flash_attn/flash_attn_triton_amd
+#13 114.8       copying flash_attn/flash_attn_triton_amd/bwd_ref.py -> build/lib.linux-x86_64-cpython-310/flash_attn/flash_attn_triton_amd
+#13 114.8       copying flash_attn/flash_attn_triton_amd/test.py -> build/lib.linux-x86_64-cpython-310/flash_attn/flash_attn_triton_amd
+#13 114.8       copying flash_attn/flash_attn_triton_amd/train.py -> build/lib.linux-x86_64-cpython-310/flash_attn/flash_attn_triton_amd
+#13 114.8       copying flash_attn/flash_attn_triton_amd/interface_fa.py -> build/lib.linux-x86_64-cpython-310/flash_attn/flash_attn_triton_amd
+#13 114.8       copying flash_attn/flash_attn_triton_amd/__init__.py -> build/lib.linux-x86_64-cpython-310/flash_attn/flash_attn_triton_amd
+#13 114.8       creating build/lib.linux-x86_64-cpython-310/flash_attn/layers
+#13 114.8       copying flash_attn/layers/rotary.py -> build/lib.linux-x86_64-cpython-310/flash_attn/layers
+#13 114.8       copying flash_attn/layers/patch_embed.py -> build/lib.linux-x86_64-cpython-310/flash_attn/layers
+#13 114.8       copying flash_attn/layers/__init__.py -> build/lib.linux-x86_64-cpython-310/flash_attn/layers
+#13 114.8       creating build/lib.linux-x86_64-cpython-310/flash_attn/ops/triton
+#13 114.8       copying flash_attn/ops/triton/linear.py -> build/lib.linux-x86_64-cpython-310/flash_attn/ops/triton
+#13 114.8       copying flash_attn/ops/triton/rotary.py -> build/lib.linux-x86_64-cpython-310/flash_attn/ops/triton
+#13 114.8       copying flash_attn/ops/triton/layer_norm.py -> build/lib.linux-x86_64-cpython-310/flash_attn/ops/triton
+#13 114.8       copying flash_attn/ops/triton/cross_entropy.py -> build/lib.linux-x86_64-cpython-310/flash_attn/ops/triton
+#13 114.8       copying flash_attn/ops/triton/k_activations.py -> build/lib.linux-x86_64-cpython-310/flash_attn/ops/triton
+#13 114.8       copying flash_attn/ops/triton/__init__.py -> build/lib.linux-x86_64-cpython-310/flash_attn/ops/triton
+#13 114.8       copying flash_attn/ops/triton/mlp.py -> build/lib.linux-x86_64-cpython-310/flash_attn/ops/triton
+#13 114.8       running build_ext
+#13 114.8       /opt/conda/lib/python3.10/site-packages/torch/utils/cpp_extension.py:424: UserWarning: There are no g++ version bounds defined for CUDA version 12.1
+#13 114.8         warnings.warn(f'There are no {compiler_name} version bounds defined for CUDA version {cuda_str_version}')
+#13 114.8       building 'flash_attn_2_cuda' extension
+#13 114.8       creating build/temp.linux-x86_64-cpython-310
+#13 114.8       creating build/temp.linux-x86_64-cpython-310/csrc
+#13 114.8       creating build/temp.linux-x86_64-cpython-310/csrc/flash_attn
+#13 114.8       creating build/temp.linux-x86_64-cpython-310/csrc/flash_attn/src
+#13 114.8       gcc -pthread -B /opt/conda/compiler_compat -Wno-unused-result -Wsign-compare -DNDEBUG -fwrapv -O2 -Wall -fPIC -O2 -isystem /opt/conda/include -fPIC -O2 -isystem /opt/conda/include -fPIC -I/tmp/pip-install-n_v_42pq/flash-attn_cf96cb0ad762463ca226f79a0028463e/csrc/flash_attn -I/tmp/pip-install-n_v_42pq/flash-attn_cf96cb0ad762463ca226f79a0028463e/csrc/flash_attn/src -I/tmp/pip-install-n_v_42pq/flash-attn_cf96cb0ad762463ca226f79a0028463e/csrc/cutlass/include -I/opt/conda/lib/python3.10/site-packages/torch/include -I/opt/conda/lib/python3.10/site-packages/torch/include/torch/csrc/api/include -I/opt/conda/lib/python3.10/site-packages/torch/include/TH -I/opt/conda/lib/python3.10/site-packages/torch/include/THC -I/usr/local/cuda/include -I/opt/conda/include/python3.10 -c csrc/flash_attn/flash_api.cpp -o build/temp.linux-x86_64-cpython-310/csrc/flash_attn/flash_api.o -O3 -std=c++17 -DTORCH_API_INCLUDE_EXTENSION_H -DPYBIND11_COMPILER_TYPE=\"_gcc\" -DPYBIND11_STDLIB=\"_libstdcpp\" -DPYBIND11_BUILD_ABI=\"_cxxabi1011\" -DTORCH_EXTENSION_NAME=flash_attn_2_cuda -D_GLIBCXX_USE_CXX11_ABI=0
+#13 114.8       csrc/flash_attn/flash_api.cpp: In function ‘std::vector<at::Tensor> flash::mha_fwd(at::Tensor&, const at::Tensor&, const at::Tensor&, std::optional<at::Tensor>&, std::optional<at::Tensor>&, float, float, bool, int, int, float, bool, std::optional<at::Generator>)’:
+#13 114.8       csrc/flash_attn/flash_api.cpp:489:13: error: invalid initialization of reference of type ‘const c10::optional<at::Generator>&’ from expression of type ‘std::optional<at::Generator>’
+#13 114.8         489 |             gen_, at::cuda::detail::getDefaultCUDAGenerator());
+#13 114.8             |             ^~~~
+#13 114.8       In file included from /opt/conda/lib/python3.10/site-packages/torch/include/ATen/core/DeprecatedTypeProperties.h:9,
+#13 114.8                        from /opt/conda/lib/python3.10/site-packages/torch/include/ATen/core/TensorBody.h:33,
+#13 114.8                        from /opt/conda/lib/python3.10/site-packages/torch/include/ATen/core/Tensor.h:3,
+#13 114.8                        from /opt/conda/lib/python3.10/site-packages/torch/include/torch/csrc/utils/variadic.h:3,
+#13 114.8                        from /opt/conda/lib/python3.10/site-packages/torch/include/torch/csrc/api/include/torch/detail/static.h:3,
+#13 114.8                        from /opt/conda/lib/python3.10/site-packages/torch/include/torch/csrc/api/include/torch/python.h:3,
+#13 114.8                        from csrc/flash_attn/flash_api.cpp:6:
+#13 114.8       /opt/conda/lib/python3.10/site-packages/torch/include/ATen/core/Generator.h:167:75: note: in passing argument 1 of ‘T* at::get_generator_or_default(const c10::optional<at::Generator>&, const at::Generator&) [with T = at::CUDAGeneratorImpl]’
+#13 114.8         167 | static inline T* get_generator_or_default(const c10::optional<Generator>& gen, const Generator& default_gen) {
+#13 114.8             |                                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~
+#13 114.8       csrc/flash_attn/flash_api.cpp: In function ‘std::vector<at::Tensor> flash::mha_varlen_fwd(at::Tensor&, const at::Tensor&, const at::Tensor&, std::optional<at::Tensor>&, const at::Tensor&, const at::Tensor&, std::optional<at::Tensor>&, std::optional<const at::Tensor>&, std::optional<at::Tensor>&, std::optional<at::Tensor>&, int, int, float, float, bool, bool, int, int, float, bool, std::optional<at::Generator>)’:
+#13 114.8       csrc/flash_attn/flash_api.cpp:729:13: error: invalid initialization of reference of type ‘const c10::optional<at::Generator>&’ from expression of type ‘std::optional<at::Generator>’
+#13 114.8         729 |             gen_, at::cuda::detail::getDefaultCUDAGenerator());
+#13 114.8             |             ^~~~
+#13 114.8       In file included from /opt/conda/lib/python3.10/site-packages/torch/include/ATen/core/DeprecatedTypeProperties.h:9,
+#13 114.8                        from /opt/conda/lib/python3.10/site-packages/torch/include/ATen/core/TensorBody.h:33,
+#13 114.8                        from /opt/conda/lib/python3.10/site-packages/torch/include/ATen/core/Tensor.h:3,
+#13 114.8                        from /opt/conda/lib/python3.10/site-packages/torch/include/torch/csrc/utils/variadic.h:3,
+#13 114.8                        from /opt/conda/lib/python3.10/site-packages/torch/include/torch/csrc/api/include/torch/detail/static.h:3,
+#13 114.8                        from /opt/conda/lib/python3.10/site-packages/torch/include/torch/csrc/api/include/torch/python.h:3,
+#13 114.8                        from csrc/flash_attn/flash_api.cpp:6:
+#13 114.8       /opt/conda/lib/python3.10/site-packages/torch/include/ATen/core/Generator.h:167:75: note: in passing argument 1 of ‘T* at::get_generator_or_default(const c10::optional<at::Generator>&, const at::Generator&) [with T = at::CUDAGeneratorImpl]’
+#13 114.8         167 | static inline T* get_generator_or_default(const c10::optional<Generator>& gen, const Generator& default_gen) {
+#13 114.8             |                                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~
+#13 114.8       csrc/flash_attn/flash_api.cpp: In function ‘std::vector<at::Tensor> flash::mha_bwd(const at::Tensor&, const at::Tensor&, const at::Tensor&, const at::Tensor&, const at::Tensor&, const at::Tensor&, std::optional<at::Tensor>&, std::optional<at::Tensor>&, std::optional<at::Tensor>&, std::optional<at::Tensor>&, float, float, bool, int, int, float, bool, std::optional<at::Generator>, std::optional<at::Tensor>&)’:
+#13 114.8       csrc/flash_attn/flash_api.cpp:937:9: error: invalid initialization of reference of type ‘const c10::optional<at::Generator>&’ from expression of type ‘std::optional<at::Generator>’
+#13 114.8         937 |         gen_, at::cuda::detail::getDefaultCUDAGenerator());
+#13 114.8             |         ^~~~
+#13 114.8       In file included from /opt/conda/lib/python3.10/site-packages/torch/include/ATen/core/DeprecatedTypeProperties.h:9,
+#13 114.8                        from /opt/conda/lib/python3.10/site-packages/torch/include/ATen/core/TensorBody.h:33,
+#13 114.8                        from /opt/conda/lib/python3.10/site-packages/torch/include/ATen/core/Tensor.h:3,
+#13 114.8                        from /opt/conda/lib/python3.10/site-packages/torch/include/torch/csrc/utils/variadic.h:3,
+#13 114.8                        from /opt/conda/lib/python3.10/site-packages/torch/include/torch/csrc/api/include/torch/detail/static.h:3,
+#13 114.8                        from /opt/conda/lib/python3.10/site-packages/torch/include/torch/csrc/api/include/torch/python.h:3,
+#13 114.8                        from csrc/flash_attn/flash_api.cpp:6:
+#13 114.8       /opt/conda/lib/python3.10/site-packages/torch/include/ATen/core/Generator.h:167:75: note: in passing argument 1 of ‘T* at::get_generator_or_default(const c10::optional<at::Generator>&, const at::Generator&) [with T = at::CUDAGeneratorImpl]’
+#13 114.8         167 | static inline T* get_generator_or_default(const c10::optional<Generator>& gen, const Generator& default_gen) {
+#13 114.8             |                                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~
+#13 114.8       csrc/flash_attn/flash_api.cpp: In function ‘std::vector<at::Tensor> flash::mha_varlen_bwd(const at::Tensor&, const at::Tensor&, const at::Tensor&, const at::Tensor&, const at::Tensor&, const at::Tensor&, std::optional<at::Tensor>&, std::optional<at::Tensor>&, std::optional<at::Tensor>&, const at::Tensor&, const at::Tensor&, std::optional<at::Tensor>&, int, int, float, float, bool, bool, int, int, float, bool, std::optional<at::Generator>, std::optional<at::Tensor>&)’:
+#13 114.8       csrc/flash_attn/flash_api.cpp:1166:9: error: invalid initialization of reference of type ‘const c10::optional<at::Generator>&’ from expression of type ‘std::optional<at::Generator>’
+#13 114.8        1166 |         gen_, at::cuda::detail::getDefaultCUDAGenerator());
+#13 114.8             |         ^~~~
+#13 114.8       In file included from /opt/conda/lib/python3.10/site-packages/torch/include/ATen/core/DeprecatedTypeProperties.h:9,
+#13 114.8                        from /opt/conda/lib/python3.10/site-packages/torch/include/ATen/core/TensorBody.h:33,
+#13 114.8                        from /opt/conda/lib/python3.10/site-packages/torch/include/ATen/core/Tensor.h:3,
+#13 114.8                        from /opt/conda/lib/python3.10/site-packages/torch/include/torch/csrc/utils/variadic.h:3,
+#13 114.8                        from /opt/conda/lib/python3.10/site-packages/torch/include/torch/csrc/api/include/torch/detail/static.h:3,
+#13 114.8                        from /opt/conda/lib/python3.10/site-packages/torch/include/torch/csrc/api/include/torch/python.h:3,
+#13 114.8                        from csrc/flash_attn/flash_api.cpp:6:
+#13 114.8       /opt/conda/lib/python3.10/site-packages/torch/include/ATen/core/Generator.h:167:75: note: in passing argument 1 of ‘T* at::get_generator_or_default(const c10::optional<at::Generator>&, const at::Generator&) [with T = at::CUDAGeneratorImpl]’
+#13 114.8         167 | static inline T* get_generator_or_default(const c10::optional<Generator>& gen, const Generator& default_gen) {
+#13 114.8             |                                           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^~~
+#13 114.8       error: command '/usr/bin/gcc' failed with exit code 1
+#13 114.8       [end of output]
+#13 114.8   
+#13 114.8   note: This error originates from a subprocess, and is likely not a problem with pip.
+#13 114.8   ERROR: Failed building wheel for flash-attn

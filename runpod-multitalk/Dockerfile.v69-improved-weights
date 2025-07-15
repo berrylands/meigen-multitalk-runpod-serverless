@@ -1,0 +1,23 @@
+# V69 - Improved Weight Mapping
+FROM berrylands/multitalk-v67:official-integration-v3
+
+# Copy the improved weight mapping implementation
+COPY multitalk_v69_improved_weights.py /app/multitalk_v69_improved_weights.py
+
+# Update handler to use v69
+RUN sed -i 's/multitalk_v67_official_integration/multitalk_v69_improved_weights/g' /app/handler.py && \
+    sed -i 's/MultiTalkV67Pipeline/MultiTalkV69Pipeline/g' /app/handler.py && \
+    sed -i 's/MultiTalk V67/MultiTalk V69/g' /app/handler.py && \
+    sed -i 's/multitalk-v67-official-integration/multitalk-v69-improved-weights/g' /app/handler.py && \
+    sed -i 's/v67_output/v69_output/g' /app/handler.py
+
+# Update version info
+ENV VERSION="69.0.0"
+ENV BUILD_TIME="2025-07-13T15:45:00Z"
+ENV BUILD_ID="multitalk-v69-improved-weights"
+
+# Set memory optimization environment variables
+ENV PYTORCH_CUDA_ALLOC_CONF="max_split_size_mb:512"
+ENV CUDA_LAUNCH_BLOCKING="0"
+
+CMD ["python", "-u", "/app/handler.py"]

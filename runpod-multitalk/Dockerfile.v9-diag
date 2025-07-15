@@ -1,0 +1,19 @@
+# Diagnostic version to debug S3 access
+FROM berrylands/multitalk-v6:latest
+
+# Copy diagnostic script
+COPY s3_diagnostic.py /app/s3_diagnostic.py
+
+# Replace handler with diagnostic version
+RUN mv /app/handler.py /app/handler_orig.py && \
+    cp /app/s3_diagnostic.py /app/handler.py && \
+    echo "" >> /app/handler.py && \
+    cat /app/handler_orig.py >> /app/handler.py
+
+# Update version
+ENV VERSION="9.0.0"
+ENV BUILD_TIME="2025-01-11T16:05:00Z"
+ENV BUILD_ID="multitalk-v9-diagnostic"
+
+WORKDIR /app
+CMD ["python", "-u", "/app/handler.py"]

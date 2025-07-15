@@ -1,0 +1,17 @@
+# Fix missing ffmpeg issue
+FROM berrylands/multitalk-s3-numpy:latest
+
+# Install ffmpeg
+RUN apt-get update && apt-get install -y ffmpeg && rm -rf /var/lib/apt/lists/*
+
+# Verify ffmpeg is installed
+RUN which ffmpeg && ffmpeg -version
+
+# Build info
+ARG BUILD_TIME="unknown"
+ARG BUILD_ID="unknown"
+ENV BUILD_TIME=${BUILD_TIME}
+ENV BUILD_ID=${BUILD_ID}
+
+# Same entrypoint
+CMD ["python", "-u", "/app/handler.py"]

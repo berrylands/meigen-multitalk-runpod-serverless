@@ -1,0 +1,20 @@
+# Quick fix - Add numpy to the S3 image
+FROM berrylands/multitalk-s3-fix:latest
+
+# Install numpy and other missing core dependencies
+RUN pip install --no-cache-dir \
+    "numpy<2.0.0" \
+    scipy==1.14.1 \
+    pillow==11.0.0
+
+# Verify numpy is installed
+RUN python -c "import numpy; print('NumPy installed:', numpy.__version__)"
+
+# Build info
+ARG BUILD_TIME="unknown"
+ARG BUILD_ID="unknown"
+ENV BUILD_TIME=${BUILD_TIME}
+ENV BUILD_ID=${BUILD_ID}
+
+# Same entrypoint
+CMD ["python", "-u", "/app/handler.py"]

@@ -1,0 +1,48 @@
+# MultiTalk V77 - REAL Implementation with NumPy Fix
+FROM berrylands/multitalk-v74:gcc-install
+
+# Install git for cloning the official repo
+RUN apt-get update && apt-get install -y git && \
+    rm -rf /var/lib/apt/lists/*
+
+# Version info
+ENV VERSION=77.0.0
+ENV BUILD_ID=multitalk-v77-real-numpy-fix
+ENV BUILD_TIME=2025-07-14T21:10:00Z
+ENV IMPLEMENTATION=OFFICIAL_MULTITALK_NUMPY_FIX
+
+# Working directory
+WORKDIR /app
+
+# Copy handler and wrapper
+COPY multitalk_v75_0_json_input.py .
+COPY handler_v75.py handler.py
+
+# Copy and run the setup script that downloads REAL implementation
+COPY setup_official_multitalk_v76.sh .
+RUN chmod +x setup_official_multitalk_v76.sh && \
+    ./setup_official_multitalk_v76.sh
+
+# FIX NUMPY/SCIPY BINARY INCOMPATIBILITY
+# Uninstall and reinstall numpy and scipy to ensure binary compatibility
+RUN pip uninstall -y numpy scipy && \
+    pip install --no-cache-dir numpy==1.24.3 scipy==1.10.1
+
+# Update Python path to include the official implementation
+ENV PYTHONPATH=/app/multitalk_official:/app:/runpod-volume/models:$PYTHONPATH
+
+# Verify the real implementation was downloaded
+RUN if [ ! -f /app/multitalk_official/generate_multitalk.py ]; then \
+        echo "ERROR: Official generate_multitalk.py not found!"; \
+        exit 1; \
+    fi && \
+    if [ ! -d /app/multitalk_official/wan ]; then \
+        echo "ERROR: Official wan module not found!"; \
+        exit 1; \
+    fi
+
+# Test that scipy imports correctly
+RUN python -c "import scipy.stats; print('✅ SciPy imports successfully')"
+
+# Entry point
+CMD ["python", "-u", "handler.py"]

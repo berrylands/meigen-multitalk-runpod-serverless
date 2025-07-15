@@ -1,0 +1,17 @@
+# Fix S3 endpoint issue
+FROM berrylands/multitalk-s3-numpy:latest
+
+# Copy the fixed S3 handler
+COPY s3_handler.py /app/s3_handler.py
+
+# Build info
+ARG BUILD_TIME="unknown"
+ARG BUILD_ID="unknown"
+ENV BUILD_TIME=${BUILD_TIME}
+ENV BUILD_ID=${BUILD_ID}
+
+# Clear the BUCKET_ENDPOINT_URL if it's empty
+ENV BUCKET_ENDPOINT_URL=""
+
+# Same entrypoint
+CMD ["python", "-u", "/app/handler.py"]

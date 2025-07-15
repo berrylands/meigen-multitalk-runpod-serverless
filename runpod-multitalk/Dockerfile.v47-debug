@@ -1,0 +1,14 @@
+# V47 - Debug Input Structure
+FROM berrylands/multitalk-v46:robust-defensive
+
+# Copy debug handler
+COPY multitalk_handler_v47_debug.py /app/handler.py
+
+# Update version info
+ENV VERSION="47.0.0"
+ENV BUILD_TIME="2025-07-12T11:15:00Z"
+ENV BUILD_ID="multitalk-v47-debug-input"
+ENV RUNPOD_DEBUG_LEVEL="DEBUG"
+
+WORKDIR /app
+CMD ["python", "-u", "/app/handler.py"]

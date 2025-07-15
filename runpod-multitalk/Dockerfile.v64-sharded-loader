@@ -1,0 +1,19 @@
+# V64 - Sharded Model Loader
+FROM berrylands/multitalk-v63:debug-models-v2
+
+# Copy the sharded loader implementation
+COPY multitalk_v64_sharded_loader.py /app/multitalk_v64_sharded_loader.py
+
+# Update handler to use v64
+RUN sed -i 's/multitalk_v63_debug_models/multitalk_v64_sharded_loader/g' /app/handler.py && \
+    sed -i 's/MultiTalkV63Pipeline/MultiTalkV64Pipeline/g' /app/handler.py && \
+    sed -i 's/MultiTalk V63 Debug/MultiTalk V64/g' /app/handler.py && \
+    sed -i 's/multitalk-v63-debug-models/multitalk-v64-sharded-loader/g' /app/handler.py && \
+    sed -i 's/v63_debug_output/v64_output/g' /app/handler.py
+
+# Update version info
+ENV VERSION="64.0.0"
+ENV BUILD_TIME="2025-07-13T13:00:00Z"
+ENV BUILD_ID="multitalk-v64-sharded-loader"
+
+CMD ["python", "-u", "/app/handler.py"]
