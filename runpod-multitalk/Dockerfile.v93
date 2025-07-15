@@ -1,0 +1,194 @@
+# MultiTalk V93 - Enhanced error diagnostics
+FROM pytorch/pytorch:2.1.2-cuda12.1-cudnn8-devel
+
+# System dependencies including OpenCV requirements
+ENV DEBIAN_FRONTEND=noninteractive
+RUN apt-get update && apt-get install -y \
+    ffmpeg \
+    libglib2.0-0 \
+    libsm6 \
+    libxext6 \
+    libxrender-dev \
+    libgomp1 \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+# Install dependencies including OpenCV
+RUN pip install --no-cache-dir \
+    runpod==1.7.3 \
+    numpy==1.24.3 \
+    opencv-python==4.9.0.80 \
+    Pillow
+
+# Create V93 handler with better diagnostics
+RUN cat > /app/handler.py << 'EOF'
+import runpod
+import os
+import sys
+import traceback
+from pathlib import Path
+
+print("V93: Handler starting...")
+
+def find_files_in_models(filename):
+    """Find files matching filename in models directory"""
+    model_path = Path("/runpod-volume/models")
+    if not model_path.exists():
+        return []
+    
+    # Search for exact match first
+    exact_matches = list(model_path.rglob(filename))
+    if exact_matches:
+        return exact_matches
+    
+    # Search for partial matches
+    partial_matches = []
+    for ext in ['wav', 'mp3', 'png', 'jpg', 'jpeg']:
+        matches = list(model_path.rglob(f"*.{ext}"))
+        partial_matches.extend(matches)
+    
+    return partial_matches[:10]  # Return first 10 matches
+
+def create_test_video():
+    """Create a simple test video"""
+    try:
+        import cv2
+        import numpy as np
+        
+        print("V93: Creating test video...")
+        
+        # Create a simple frame
+        img = np.zeros((512, 512, 3), dtype=np.uint8)
+        img[:] = (100, 150, 200)  # Blue background
+        
+        # Add text
+        cv2.putText(img, "V93 MultiTalk Test", (50, 256), 
+                   cv2.FONT_HERSHEY_SIMPLEX, 1.5, (255, 255, 255), 3)
+        
+        # Create video
+        output_path = "/tmp/v93_test.mp4"
+        fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+        out = cv2.VideoWriter(output_path, fourcc, 25.0, (512, 512))
+        
+        # Write 50 frames
+        for i in range(50):
+            frame = img.copy()
+            cv2.putText(frame, f"Frame {i+1}", (200, 300), 
+                       cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 0), 2)
+            out.write(frame)
+        
+        out.release()
+        print(f"V93: Video created at {output_path}, size: {os.path.getsize(output_path)} bytes")
+        return output_path
+        
+    except Exception as e:
+        print(f"V93: Error creating video: {e}")
+        traceback.print_exc()
+        return None
+
+def handler(job):
+    """V93 Handler with enhanced diagnostics"""
+    print(f"V93: Received job: {job}")
+    
+    job_input = job.get("input", {})
+    action = job_input.get("action", "generate")
+    
+    try:
+        if action == "model_check":
+            model_path = Path("/runpod-volume/models")
+            files = []
+            audio_files = []
+            image_files = []
+            
+            if model_path.exists():
+                all_files = list(model_path.rglob("*"))
+                files = [str(f.relative_to(model_path)) for f in all_files if f.is_file()][:20]
+                audio_files = [str(f.relative_to(model_path)) for f in all_files if f.suffix in ['.wav', '.mp3']][:10]
+                image_files = [str(f.relative_to(model_path)) for f in all_files if f.suffix in ['.png', '.jpg', '.jpeg']][:10]
+            
+            return {
+                "output": {
+                    "message": "V93 handler working!",
+                    "version": "93",
+                    "network_volume_mounted": os.path.exists("/runpod-volume"),
+                    "models_available": model_path.exists(),
+                    "total_files": len(files),
+                    "sample_files": files,
+                    "audio_files": audio_files,
+                    "image_files": image_files,
+                    "opencv_version": cv2.__version__ if 'cv2' in sys.modules else "Not loaded"
+                }
+            }
+        
+        elif action == "generate":
+            print("V93: Starting generation...")
+            
+            # Get inputs
+            audio_input = job_input.get("audio_1", "1.wav")
+            image_input = job_input.get("condition_image", "multi1.png")
+            
+            # Find actual files
+            audio_matches = find_files_in_models(audio_input)
+            image_matches = find_files_in_models(image_input)
+            
+            print(f"V93: Audio matches: {[str(f) for f in audio_matches]}")
+            print(f"V93: Image matches: {[str(f) for f in image_matches]}")
+            
+            # Create test video
+            video_path = create_test_video()
+            
+            if video_path and os.path.exists(video_path):
+                video_size_mb = round(os.path.getsize(video_path) / (1024*1024), 2)
+                
+                # Cleanup
+                os.unlink(video_path)
+                
+                return {
+                    "output": {
+                        "status": "completed",
+                        "message": "V93 test video generated successfully",
+                        "version": "93",
+                        "video_size_mb": video_size_mb,
+                        "audio_input": audio_input,
+                        "image_input": image_input,
+                        "audio_found": len(audio_matches) > 0,
+                        "image_found": len(image_matches) > 0,
+                        "audio_matches": [str(f) for f in audio_matches[:5]],
+                        "image_matches": [str(f) for f in image_matches[:5]]
+                    }
+                }
+            else:
+                return {
+                    "output": {
+                        "status": "error",
+                        "error": "Failed to create video",
+                        "version": "93"
+                    }
+                }
+        
+    except Exception as e:
+        print(f"V93: Handler error: {e}")
+        traceback.print_exc()
+        return {
+            "output": {
+                "status": "error",
+                "error": str(e),
+                "traceback": traceback.format_exc(),
+                "version": "93"
+            }
+        }
+
+# Import OpenCV at module level
+try:
+    import cv2
+    print(f"V93: OpenCV {cv2.__version__} loaded successfully")
+except ImportError as e:
+    print(f"V93: Failed to import OpenCV: {e}")
+
+# Start handler
+print("V93: Starting RunPod serverless...")
+runpod.serverless.start({"handler": handler})
+EOF
+
+CMD ["python", "-u", "/app/handler.py"]

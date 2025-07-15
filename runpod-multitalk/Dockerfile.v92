@@ -1,0 +1,52 @@
+# MultiTalk V92 - Ultra minimal test
+FROM pytorch/pytorch:2.1.2-cuda12.1-cudnn8-devel
+
+# Minimal system dependencies
+RUN apt-get update && apt-get install -y ffmpeg && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+# Install only runpod and numpy
+RUN pip install --no-cache-dir runpod==1.7.3 numpy==1.24.3
+
+# Create ultra-minimal handler
+RUN cat > /app/handler.py << 'EOF'
+import runpod
+import os
+
+print("V92: Handler script starting...")
+
+def handler(job):
+    """V92 Ultra minimal handler"""
+    print(f"V92: Received job: {job}")
+    
+    try:
+        # Check basic environment
+        result = {
+            "message": "V92 ultra minimal handler working!",
+            "version": "92",
+            "network_volume": os.path.exists("/runpod-volume"),
+            "models_dir": os.path.exists("/runpod-volume/models"),
+            "job_input": job.get("input", {})
+        }
+        
+        # Check for models directory
+        if os.path.exists("/runpod-volume/models"):
+            import os
+            files = os.listdir("/runpod-volume/models")
+            result["model_files_count"] = len(files)
+            result["first_10_files"] = files[:10]
+        
+        print(f"V92: Returning result: {result}")
+        return {"output": result}
+        
+    except Exception as e:
+        print(f"V92: Error: {e}")
+        return {"output": {"error": str(e), "version": "92"}}
+
+print("V92: Starting RunPod serverless...")
+runpod.serverless.start({"handler": handler})
+print("V92: RunPod serverless started")
+EOF
+
+CMD ["python", "-u", "/app/handler.py"]
