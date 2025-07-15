@@ -1,0 +1,81 @@
+# MultiTalk V108 - Network Volume Explorer
+FROM pytorch/pytorch:2.1.2-cuda12.1-cudnn8-devel
+
+# System dependencies
+ENV DEBIAN_FRONTEND=noninteractive
+RUN apt-get update && apt-get install -y \
+    git \
+    ffmpeg \
+    gcc \
+    g++ \
+    build-essential \
+    ninja-build \
+    && rm -rf /var/lib/apt/lists/*
+
+# Environment variables
+ENV PYTHONPATH=/app/multitalk_official:/app:/runpod-volume/models
+ENV HF_HOME=/tmp/huggingface
+ENV TRANSFORMERS_CACHE=/tmp/huggingface
+ENV MODEL_PATH=/runpod-volume/models
+ENV PYTHONUNBUFFERED=1
+ENV PIP_NO_CACHE_DIR=1
+
+WORKDIR /app
+
+# Install core dependencies first
+RUN pip install --no-cache-dir \
+    runpod==1.7.3 \
+    numpy==1.24.3 \
+    scipy==1.10.1 \
+    transformers==4.43.3 \
+    tokenizers==0.19.1 \
+    librosa==0.10.2 \
+    soundfile==0.12.1 \
+    diffusers>=0.31.0 \
+    accelerate>=1.1.1 \
+    safetensors>=0.4.3 \
+    opencv-python>=4.9.0 \
+    imageio>=2.30.0 \
+    huggingface-hub==0.23.5 \
+    einops \
+    rotary-embedding-torch \
+    tensorboardX \
+    omegaconf \
+    easydict \
+    ftfy \
+    timm \
+    sentencepiece \
+    peft \
+    boto3 \
+    moviepy \
+    imageio-ffmpeg \
+    Pillow \
+    torchaudio \
+    torchvision \
+    pydub \
+    av \
+    pyloudnorm \
+    xformers \
+    ninja \
+    packaging
+
+# Install xfuser with its actual dependencies
+RUN pip install --no-cache-dir beautifulsoup4>=4.12.3 yunchang>=0.6.0
+
+# Install xfuser 0.4.1 specifically
+RUN pip install --no-cache-dir xfuser==0.4.1
+
+# Verify xfuser installation
+RUN python -c "import xfuser; print(f'xfuser {xfuser.__version__} installed successfully')"
+
+# Clone MultiTalk repository
+RUN mkdir -p /app/multitalk_official && \
+    cd /app/multitalk_official && \
+    git clone https://github.com/MeiGen-AI/MultiTalk.git . && \
+    echo "MultiTalk repository cloned successfully"
+
+# Copy implementation files
+COPY multitalk_v106_implementation.py /app/
+COPY handler_v108.py /app/handler.py
+
+CMD ["python", "-u", "/app/handler.py"]
