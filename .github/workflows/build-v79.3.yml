@@ -1,0 +1,55 @@
+name: Build and Push V79.3
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'runpod-multitalk/Dockerfile.v79.3'
+      - '.github/workflows/build-v79.3.yml'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+    
+    - name: Login to DockerHub
+      uses: docker/login-action@v2
+      with:
+        username: berrylands
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+    
+    - name: Build and push V79.3
+      uses: docker/build-push-action@v4
+      with:
+        context: ./runpod-multitalk
+        file: ./runpod-multitalk/Dockerfile.v79.3
+        platforms: linux/amd64
+        push: true
+        tags: |
+          berrylands/multitalk-runpod:v79.3
+          berrylands/multitalk-runpod:v79.3-no-flash-attn
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+    
+    - name: Create summary
+      run: |
+        echo "# MultiTalk V79.3 Build Complete! 🎉" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "## Version Details:" >> $GITHUB_STEP_SUMMARY
+        echo "- **Version:** V79.3" >> $GITHUB_STEP_SUMMARY
+        echo "- **Changes:** Removed flash-attn (build failure), kept xfuser and other fixes" >> $GITHUB_STEP_SUMMARY
+        echo "- **Image:** berrylands/multitalk-runpod:v79.3" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "## Fixed Issues:" >> $GITHUB_STEP_SUMMARY
+        echo "- ✅ RunPod SDK included" >> $GITHUB_STEP_SUMMARY
+        echo "- ✅ xfuser module added" >> $GITHUB_STEP_SUMMARY
+        echo "- ✅ HuggingFace cache permissions fixed" >> $GITHUB_STEP_SUMMARY
+        echo "- ✅ Removed flash-attn (optional, was causing build failures)" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "## Next Steps:" >> $GITHUB_STEP_SUMMARY
+        echo "1. Update RunPod endpoint to use: berrylands/multitalk-runpod:v79.3" >> $GITHUB_STEP_SUMMARY
+        echo "2. Test with your standard test files" >> $GITHUB_STEP_SUMMARY
