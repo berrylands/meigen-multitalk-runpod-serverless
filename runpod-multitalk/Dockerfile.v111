@@ -1,0 +1,114 @@
+# MultiTalk V111 - Real WAN Model Implementation
+FROM pytorch/pytorch:2.1.2-cuda12.1-cudnn8-devel
+
+# System dependencies
+ENV DEBIAN_FRONTEND=noninteractive
+RUN apt-get update && apt-get install -y \
+    git \
+    ffmpeg \
+    gcc \
+    g++ \
+    build-essential \
+    ninja-build \
+    && rm -rf /var/lib/apt/lists/*
+
+# Environment variables
+ENV PYTHONPATH=/app/multitalk_official:/app:/runpod-volume/models
+ENV HF_HOME=/tmp/huggingface
+ENV TRANSFORMERS_CACHE=/tmp/huggingface
+ENV MODEL_PATH=/runpod-volume/models
+ENV PYTHONUNBUFFERED=1
+ENV PIP_NO_CACHE_DIR=1
+
+WORKDIR /app
+
+# Install core dependencies in stages to avoid conflicts
+# Stage 1: Basic scientific computing
+RUN pip install --no-cache-dir \
+    numpy==1.24.3 \
+    scipy==1.10.1 \
+    packaging \
+    ninja
+
+# Stage 2: ML frameworks (avoid version conflicts)
+RUN pip install --no-cache-dir \
+    transformers==4.43.3 \
+    tokenizers==0.19.1 \
+    diffusers>=0.31.0 \
+    accelerate>=1.1.1 \
+    safetensors>=0.4.3 \
+    huggingface-hub==0.23.5 \
+    einops \
+    timm \
+    sentencepiece \
+    peft
+
+# Stage 3: Audio processing
+RUN pip install --no-cache-dir \
+    librosa==0.10.2 \
+    soundfile==0.12.1 \
+    pyloudnorm \
+    pydub \
+    av
+
+# Stage 4: Computer vision
+RUN pip install --no-cache-dir \
+    opencv-python>=4.9.0 \
+    imageio>=2.30.0 \
+    imageio-ffmpeg \
+    Pillow
+
+# Stage 5: Video processing
+RUN pip install --no-cache-dir \
+    moviepy
+
+# Stage 6: Additional ML tools
+RUN pip install --no-cache-dir \
+    rotary-embedding-torch \
+    tensorboardX \
+    omegaconf \
+    easydict \
+    ftfy
+
+# Stage 7: Cloud and utilities
+RUN pip install --no-cache-dir \
+    boto3 \
+    runpod==1.7.3
+
+# Stage 8: Try xformers (may fail, but continue)
+RUN pip install --no-cache-dir xformers || echo "xformers installation failed, continuing without it"
+
+# Stage 9: Install xfuser dependencies first
+RUN pip install --no-cache-dir \
+    beautifulsoup4>=4.12.3 \
+    yunchang>=0.6.0
+
+# Stage 10: Install xfuser with fallback
+RUN pip install --no-cache-dir xfuser==0.4.1 || echo "xfuser installation failed, continuing without it"
+
+# Verify key installations
+RUN python -c "import torch; print(f'PyTorch {torch.__version__} OK')"
+RUN python -c "import transformers; print(f'Transformers {transformers.__version__} OK')"
+RUN python -c "import runpod; print(f'RunPod {runpod.__version__} OK')"
+RUN python -c "import cv2; print('OpenCV OK')"
+RUN python -c "import librosa; print('Librosa OK')"
+RUN python -c "import moviepy; print('MoviePy OK')"
+RUN python -c "import safetensors; print('SafeTensors OK')"
+
+# Try to import xfuser (optional)
+RUN python -c "import xfuser; print(f'xfuser {xfuser.__version__} OK')" || echo "xfuser not available"
+
+# Clone MultiTalk repository
+RUN mkdir -p /app/multitalk_official && \
+    cd /app/multitalk_official && \
+    git clone https://github.com/MeiGen-AI/MultiTalk.git . && \
+    echo "MultiTalk repository cloned successfully"
+
+# Copy implementation files
+COPY multitalk_v111_implementation.py /app/
+COPY handler_v111.py /app/handler.py
+
+# Test our implementation
+RUN python -c "from multitalk_v111_implementation import MultiTalkV111; print('V111 implementation imported successfully')"
+
+CMD ["python", "-u", "/app/handler.py"]

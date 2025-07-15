@@ -1,0 +1,63 @@
+{
+  "delayTime": 151299,
+  "executionTime": 1713,
+  "id": "dcbadf6b-5d04-4b56-89a6-9dc0ca4a836a-e1",
+  "output": {
+    "output": {
+      "additional_checks": {
+        "common_model_paths": {
+          "/runpod-volume/models/wan2.1-i2v-14b-480p": {
+            "contents": [
+              "multitalk.safetensors",
+              "diffusion_pytorch_model.safetensors.index.json_old",
+              "xlm-roberta-large",
+              "diffusion_pytorch_model-00007-of-00007.safetensors",
+              "models_clip_open-clip-xlm-roberta-large-vit-huge-14.pth",
+              "google",
+              "examples",
+              "Wan2.1_VAE.pth",
+              "config.json",
+              "README.md",
+              "LICENSE.txt",
+              ".gitattributes",
+              "assets",
+              ".cache"
+            ],
+            "exists": true,
+            "is_dir": true
+          }
+        },
+        "huggingface_cache": true
+      },
+      "exploration": {
+        "models_dir_exists": true,
+        "total_size_gb": 104.93,
+        "volume_exists": true,
+        "wan_models": [
+          {
+            "path": "wan2.1-i2v-14b-480p",
+            "size_mb": 22290.5
+          }
+        ],
+        "wav2vec_models": [
+          {
+            "path": "wav2vec2-large-960h",
+            "size_mb": 1203.4
+          },
+          {
+            "path": "wav2vec2-base-960h", 
+            "size_mb": 360.2
+          },
+          {
+            "path": "wav2vec2",
+            "size_mb": 360.2
+          },
+          {
+            "path": "chinese-wav2vec2-base",
+            "size_mb": 1450.4
+          }
+        ]
+      }
+    }
+  }
+}

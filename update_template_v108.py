@@ -20,7 +20,7 @@ def update_template():
     
     # Template details
     template_id = "joospbpdol"
-    new_image = "berrylands/multitalk-runpod:v108"
+    new_image = "berrylands/multitalk-runpod:v110"
     
     headers = {
         "Authorization": f"Bearer {api_key}",
@@ -119,7 +119,7 @@ def update_template():
             """,
             "variables": {
                 "templateId": template_id,
-                "name": template["name"].replace("v91", "v108") if "v91" in template["name"] else template["name"],
+                "name": template["name"].replace("v91", "v110").replace("v108", "v110") if any(v in template["name"] for v in ["v91", "v108"]) else template["name"],
                 "imageName": new_image,
                 "containerDiskInGb": template["containerDiskInGb"],
                 "volumeInGb": template["volumeInGb"],
@@ -150,7 +150,7 @@ def update_template():
     print(f"🐳 Image: {updated_template['imageName']}")
     
     print("\n🚀 Template is now ready for testing!")
-    print("Run: ./test_v108_models.sh")
+    print("Run: ./test_v110_models.sh")
 
 if __name__ == "__main__":
     update_template()
