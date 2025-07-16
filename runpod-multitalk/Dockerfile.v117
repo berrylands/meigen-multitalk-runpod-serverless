@@ -1,0 +1,108 @@
+# MultiTalk V117 - Robust NumPy Fix
+FROM pytorch/pytorch:2.1.2-cuda12.1-cudnn8-devel
+
+# System dependencies
+ENV DEBIAN_FRONTEND=noninteractive
+RUN apt-get update && apt-get install -y \
+    git \
+    ffmpeg \
+    gcc \
+    g++ \
+    build-essential \
+    ninja-build \
+    && rm -rf /var/lib/apt/lists/*
+
+# Environment variables
+ENV PYTHONPATH=/app/multitalk_official:/app:/runpod-volume/models
+ENV HF_HOME=/runpod-volume/huggingface
+ENV TRANSFORMERS_CACHE=/runpod-volume/huggingface
+ENV MODEL_PATH=/runpod-volume/models
+ENV PYTHONUNBUFFERED=1
+ENV PIP_NO_CACHE_DIR=1
+
+WORKDIR /app
+
+# Fix NumPy compatibility by installing all scientific packages together
+# This ensures consistent versions across the stack
+RUN pip install --no-cache-dir \
+    "numpy<2.0" \
+    "scipy<1.11" \
+    "scikit-learn<1.4" \
+    "pandas<2.2" \
+    "matplotlib<3.9"
+
+# Install PyTorch ecosystem with numpy constraint
+RUN pip install --no-cache-dir \
+    "numpy<2.0" \
+    transformers==4.43.3 \
+    tokenizers==0.19.1 \
+    diffusers>=0.31.0 \
+    accelerate>=1.1.1 \
+    safetensors>=0.4.3 \
+    huggingface-hub==0.23.5 \
+    einops \
+    timm \
+    sentencepiece \
+    peft
+
+# Install audio libraries with compatible numpy
+RUN pip install --no-cache-dir \
+    "numpy<2.0" \
+    librosa==0.10.2 \
+    soundfile==0.12.1 \
+    pyloudnorm \
+    pydub \
+    av
+
+# Install video libraries
+RUN pip install --no-cache-dir \
+    "numpy<2.0" \
+    opencv-python>=4.9.0 \
+    imageio>=2.30.0 \
+    imageio-ffmpeg \
+    Pillow \
+    moviepy
+
+# Install additional ML dependencies
+RUN pip install --no-cache-dir \
+    rotary-embedding-torch \
+    tensorboardX \
+    omegaconf \
+    easydict \
+    ftfy \
+    packaging \
+    ninja
+
+# Install cloud and server dependencies
+RUN pip install --no-cache-dir \
+    boto3 \
+    runpod==1.7.3
+
+# Try optional dependencies
+RUN pip install --no-cache-dir xformers || echo "xformers installation failed, continuing without it"
+RUN pip install --no-cache-dir beautifulsoup4>=4.12.3 yunchang>=0.6.0 || echo "Optional deps failed"
+RUN pip install --no-cache-dir xfuser==0.4.1 || echo "xfuser installation failed, continuing without it"
+
+# Verify installations
+RUN python -c "import numpy; print(f'NumPy {numpy.__version__}')"
+RUN python -c "import scipy; print(f'SciPy {scipy.__version__}')"
+RUN python -c "import torch; print(f'PyTorch {torch.__version__}')"
+RUN python -c "import transformers; print(f'Transformers {transformers.__version__}')"
+RUN python -c "import runpod; print(f'RunPod {runpod.__version__}')"
+
+# Clone MultiTalk repository
+RUN mkdir -p /app/multitalk_official && \
+    cd /app/multitalk_official && \
+    git clone https://github.com/MeiGen-AI/MultiTalk.git . && \
+    echo "MultiTalk repository cloned successfully"
+
+# Copy implementation files (use V115 files)
+COPY multitalk_v115_implementation.py /app/
+COPY handler_v115.py /app/handler.py
+COPY s3_handler.py /app/
+
+# Test imports
+RUN python -c "from multitalk_v115_implementation import MultiTalkV115; print('V115 implementation OK')"
+RUN python -c "import handler; print('V115 handler OK')"
+
+CMD ["python", "-u", "/app/handler.py"]
