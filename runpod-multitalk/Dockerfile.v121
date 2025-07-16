@@ -1,0 +1,22 @@
+# MultiTalk V121 - Mock xfuser for MeiGen-MultiTalk
+FROM berrylands/multitalk-runpod:v119
+
+# Create a mock xfuser module to satisfy imports
+# This allows MeiGen-MultiTalk to load and show proper errors
+RUN mkdir -p /opt/conda/lib/python3.10/site-packages/xfuser/core && \
+    echo "__version__ = '0.4.0-mock'" > /opt/conda/lib/python3.10/site-packages/xfuser/__init__.py && \
+    echo "from . import distributed" > /opt/conda/lib/python3.10/site-packages/xfuser/core/__init__.py && \
+    echo "def is_dp_last_group(): return True" > /opt/conda/lib/python3.10/site-packages/xfuser/core/distributed.py && \
+    echo "def get_world_group(): return None" >> /opt/conda/lib/python3.10/site-packages/xfuser/core/distributed.py && \
+    echo "def get_data_parallel_rank(): return 0" >> /opt/conda/lib/python3.10/site-packages/xfuser/core/distributed.py && \
+    echo "def get_data_parallel_world_size(): return 1" >> /opt/conda/lib/python3.10/site-packages/xfuser/core/distributed.py && \
+    echo "def get_runtime_state(): return type('obj', (object,), {'_is_dp_last_group': True})" >> /opt/conda/lib/python3.10/site-packages/xfuser/core/distributed.py
+
+# Verify mock xfuser works
+RUN python -c "import xfuser; print(f'xfuser {xfuser.__version__} (mock) installed')" && \
+    python -c "from xfuser.core.distributed import is_dp_last_group; print('xfuser distributed mock OK')"
+
+# Update handler to report V121
+RUN sed -i 's/V115/V121/g' /app/handler.py || echo "Handler update failed, continuing"
+
+CMD ["python", "-u", "/app/handler.py"]
