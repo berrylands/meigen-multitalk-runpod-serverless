@@ -389,3 +389,19 @@ class MultiTalkV115:
     def initialize_models(self) -> bool:
         """Initialize all models (convenience method)"""
         return self.load_models()
+
+# V121 class - same as V115 but with version identifier
+class MultiTalkV121(MultiTalkV115):
+    """
+    MultiTalk V121 - Same as V115 but with updated version identifier
+    """
+    
+    def __init__(self, model_path: str = "/runpod-volume/models"):
+        super().__init__(model_path)
+        logger.info(f"MultiTalk V121 initialized (based on V115 implementation)")
+    
+    def get_model_info(self) -> Dict[str, Any]:
+        """Get information about loaded models"""
+        info = super().get_model_info()
+        info["version"] = "V121"
+        return info

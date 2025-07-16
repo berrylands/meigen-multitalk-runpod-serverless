@@ -1,0 +1,94 @@
+# MultiTalk V126 - Pin All Dependencies
+# Stage 1: Use a pre-built PyTorch image with CUDA
+FROM pytorch/pytorch:2.1.2-cuda12.1-cudnn8-runtime AS base
+
+# Set timezone non-interactively to avoid build hanging
+ENV DEBIAN_FRONTEND=noninteractive
+ENV TZ=UTC
+
+# Install system dependencies quickly
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone && \
+    apt-get update && apt-get install -y --no-install-recommends \
+    git \
+    ffmpeg \
+    && rm -rf /var/lib/apt/lists/*
+
+# Stage 2: Install Python dependencies with strict pinning
+FROM base AS deps
+
+# Create requirements file with exact versions
+RUN cat > /tmp/requirements.txt << 'EOF'
+# Core dependencies with exact versions
+numpy==1.24.3
+scipy==1.10.1
+huggingface-hub==0.19.4
+transformers==4.36.2
+diffusers==0.25.0
+accelerate==0.25.0
+safetensors==0.4.1
+einops==0.7.0
+
+# Audio/video dependencies
+librosa==0.10.1
+soundfile==0.12.1
+pyloudnorm==0.1.1
+opencv-python-headless==4.9.0.80
+imageio==2.33.1
+imageio-ffmpeg==0.4.9
+
+# RunPod and utilities
+boto3
+runpod==1.7.3
+Pillow==10.2.0
+moviepy==1.0.3
+easydict
+omegaconf
+tensorboardX
+ftfy
+timm
+sentencepiece
+peft
+rotary-embedding-torch
+EOF
+
+# Install all dependencies in one go with --no-deps to prevent version conflicts
+RUN pip install --no-cache-dir --no-deps -r /tmp/requirements.txt && \
+    pip install --no-cache-dir -r /tmp/requirements.txt
+
+# Stage 3: Final image
+FROM deps AS final
+
+# Set environment variables
+ENV PYTHONPATH=/app/multitalk_official:/app:/runpod-volume/models
+ENV HF_HOME=/runpod-volume/huggingface
+ENV TRANSFORMERS_CACHE=/runpod-volume/huggingface
+ENV MODEL_PATH=/runpod-volume/models
+ENV PYTHONUNBUFFERED=1
+
+WORKDIR /app
+
+# Clone MultiTalk repository
+RUN git clone https://github.com/MeiGen-AI/MultiTalk.git /app/multitalk_official && \
+    echo "MultiTalk repository cloned"
+
+# Copy our implementation files
+COPY multitalk_v75_0_json_input.py /app/
+COPY handler_v122_s3_fix.py /app/handler.py
+COPY s3_handler.py /app/
+
+# Update handler to identify as V126
+RUN sed -i 's/V122/V126/g' /app/handler.py || true
+RUN sed -i 's/V123/V126/g' /app/handler.py || true
+RUN sed -i 's/V124/V126/g' /app/handler.py || true
+RUN sed -i 's/V125/V126/g' /app/handler.py || true
+
+# Verify huggingface_hub has cached_download
+RUN python -c "import numpy; print(f'NumPy {numpy.__version__}')" && \
+    python -c "import scipy; print(f'SciPy {scipy.__version__}')" && \
+    python -c "import torch; print(f'PyTorch {torch.__version__}')" && \
+    python -c "import easydict; print('EasyDict OK')" && \
+    python -c "import huggingface_hub; print(f'HuggingFace Hub {huggingface_hub.__version__}')" && \
+    python -c "from huggingface_hub import cached_download; print('cached_download available')" && \
+    echo "V126 ready"
+
+CMD ["python", "-u", "/app/handler.py"]

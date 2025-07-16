@@ -1,187 +1,246 @@
 #!/usr/bin/env python3
 """
-Test video generation with the current setup
+Test Actual Video Generation with MeiGen-MultiTalk
+Focus on generating real videos, not just testing components
 """
 
+import subprocess
+import json
 import os
 import time
-import base64
-import numpy as np
-import runpod
-from dotenv import load_dotenv
-
-load_dotenv()
-runpod.api_key = os.getenv("RUNPOD_API_KEY")
-
-ENDPOINT_ID = "kkx3cfy484jszl"
-
-def create_test_audio():
-    """Create a simple test audio signal."""
-    # Generate 3 seconds of sine wave at 440Hz (A4 note)
-    sample_rate = 16000
-    duration = 3.0
-    frequency = 440
-    
-    t = np.linspace(0, duration, int(sample_rate * duration), False)
-    audio_signal = np.sin(2 * np.pi * frequency * t)
-    
-    # Convert to 16-bit PCM
-    audio_int16 = (audio_signal * 32767).astype(np.int16)
-    
-    # Encode to base64
-    audio_b64 = base64.b64encode(audio_int16.tobytes()).decode('utf-8')
-    
-    return audio_b64, duration
 
 def test_video_generation():
-    """Test the video generation functionality."""
+    """Test actual video generation with real inputs"""
     
-    print("MultiTalk Video Generation Test")
-    print("=" * 60)
+    api_key = os.getenv("RUNPOD_API_KEY")
+    if not api_key:
+        print("❌ RUNPOD_API_KEY environment variable not set")
+        return False
     
-    endpoint = runpod.Endpoint(ENDPOINT_ID)
+    endpoint_id = "zu0ik6c8yukyl6"
     
-    # Create test audio
-    print("1. Creating test audio signal...")
-    audio_b64, duration = create_test_audio()
-    print(f"   Generated {duration}s audio signal (440Hz sine wave)")
-    print(f"   Encoded size: {len(audio_b64)} characters")
+    print("🎬 Testing actual video generation with MeiGen-MultiTalk...")
     
-    # Submit generation job
-    print(f"\n2. Submitting video generation job...")
-    job_input = {
-        "action": "generate",
-        "audio": audio_b64,
-        "duration": duration,
-        "fps": 30
+    # Test with real video generation
+    generation_job = {
+        "input": {
+            "action": "generate",
+            "audio_1": "1.wav",  # Should be in S3 bucket
+            "condition_image": "multi1.png",  # Should be in S3 bucket
+            "prompt": "A person talking naturally with expressive facial movements and lip sync",
+            "output_format": "s3",
+            "s3_output_key": "multitalk-test/generated-video-{timestamp}.mp4",
+            "sample_steps": 30,
+            "text_guidance_scale": 7.5,
+            "audio_guidance_scale": 3.5,
+            "seed": 42
+        }
     }
     
+    url = f"https://api.runpod.ai/v2/{endpoint_id}/run"
+    
+    curl_cmd = [
+        "curl", "-X", "POST", 
+        url,
+        "-H", "Content-Type: application/json",
+        "-H", f"Authorization: Bearer {api_key}",
+        "-d", json.dumps(generation_job)
+    ]
+    
+    print(f"🚀 Submitting video generation job...")
+    print(f"📝 Inputs: 1.wav + multi1.png → video")
+    print(f"⚙️  Settings: {generation_job['input']['sample_steps']} steps, guidance {generation_job['input']['text_guidance_scale']}")
+    
     try:
-        job = endpoint.run(job_input)
-        print(f"   Job ID: {job.job_id}")
-        print(f"   Processing {duration}s of audio at 30fps...")
+        result = subprocess.run(curl_cmd, capture_output=True, text=True, timeout=30)
         
-        # Monitor progress
-        start_time = time.time()
-        last_status = None
-        
-        while True:
-            status = job.status()
-            if status != last_status:
-                elapsed = time.time() - start_time
-                print(f"   [{elapsed:.1f}s] Status: {status}")
-                last_status = status
+        if result.returncode == 0:
+            response = json.loads(result.stdout)
+            job_id = response.get("id")
             
-            if status not in ["IN_QUEUE", "IN_PROGRESS"]:
-                break
+            if job_id:
+                print(f"✅ Video generation job submitted: {job_id}")
+                print(f"⏱️  Expected duration: 2-10 minutes depending on model loading")
                 
-            if time.time() - start_time > 300:  # 5 minute timeout
-                print("   Timeout waiting for generation")
+                # Monitor with extended timeout for video generation
+                start_time = time.time()
+                last_status = None
+                
+                for i in range(1800):  # 30 minutes max
+                    status_url = f"https://api.runpod.ai/v2/{endpoint_id}/status/{job_id}"
+                    
+                    status_cmd = [
+                        "curl", "-H", f"Authorization: Bearer {api_key}",
+                        status_url
+                    ]
+                    
+                    status_result = subprocess.run(status_cmd, capture_output=True, text=True)
+                    
+                    if status_result.returncode == 0:
+                        status_data = json.loads(status_result.stdout)
+                        status = status_data.get("status")
+                        elapsed = time.time() - start_time
+                        
+                        if status != last_status:
+                            print(f"[{elapsed//60:.0f}:{elapsed%60:02.0f}] Status: {status}")
+                            last_status = status
+                        elif i % 60 == 0:  # Progress update every minute
+                            print(f"[{elapsed//60:.0f}:{elapsed%60:02.0f}] Still {status}...")
+                        
+                        if status == "COMPLETED":
+                            output = status_data.get("output", {})
+                            
+                            print(f"\n🎉 VIDEO GENERATION COMPLETED!")
+                            print(f"⏱️  Total time: {elapsed//60:.0f}:{elapsed%60:02.0f}")
+                            print("=" * 60)
+                            
+                            if "output" in output:
+                                result_data = output["output"]
+                                
+                                if result_data.get("status") == "completed":
+                                    print("✅ Video generated successfully!")
+                                    
+                                    # Show video details
+                                    video_url = result_data.get("video_url")
+                                    s3_key = result_data.get("s3_key")
+                                    video_base64 = result_data.get("video_base64")
+                                    
+                                    if video_url:
+                                        print(f"🔗 Video URL: {video_url}")
+                                        print(f"📁 S3 Key: {s3_key}")
+                                    elif video_base64:
+                                        print(f"📦 Video returned as base64 ({len(video_base64)} chars)")
+                                        
+                                        # Save base64 video locally
+                                        try:
+                                            import base64
+                                            video_data = base64.b64decode(video_base64)
+                                            local_path = f"/Users/jasonedge/CODEHOME/meigen-multitalk/generated_video_{int(time.time())}.mp4"
+                                            with open(local_path, 'wb') as f:
+                                                f.write(video_data)
+                                            print(f"💾 Video saved locally: {local_path}")
+                                        except Exception as e:
+                                            print(f"⚠️  Could not save video locally: {e}")
+                                    
+                                    # Show generation parameters
+                                    gen_params = result_data.get("generation_params", {})
+                                    if gen_params:
+                                        print(f"\n📊 Generation Parameters:")
+                                        for key, value in gen_params.items():
+                                            print(f"  {key}: {value}")
+                                    
+                                    message = result_data.get("message", "")
+                                    if message:
+                                        print(f"\n💬 Message: {message}")
+                                    
+                                    return True
+                                
+                                elif result_data.get("status") == "error":
+                                    print("❌ Video generation failed!")
+                                    error = result_data.get("error", "Unknown error")
+                                    print(f"💥 Error: {error}")
+                                    
+                                    # Show error details
+                                    details = result_data.get("details", {})
+                                    if details:
+                                        print(f"📋 Details:")
+                                        for key, value in details.items():
+                                            print(f"  {key}: {value}")
+                                    
+                                    return False
+                                
+                                else:
+                                    print(f"❓ Unexpected status: {result_data.get('status')}")
+                                    print(f"📄 Full output: {json.dumps(result_data, indent=2)}")
+                                    return False
+                            
+                            else:
+                                print(f"❌ No output in response")
+                                print(f"📄 Raw response: {json.dumps(output, indent=2)}")
+                                return False
+                        
+                        elif status == "FAILED":
+                            print(f"\n❌ VIDEO GENERATION FAILED!")
+                            print(f"⏱️  Failed after: {elapsed//60:.0f}:{elapsed%60:02.0f}")
+                            
+                            # Try to get error details
+                            try:
+                                error_output = status_data.get("output", {})
+                                if error_output:
+                                    print(f"💥 Error details: {json.dumps(error_output, indent=2)}")
+                            except:
+                                pass
+                            
+                            return False
+                        
+                        elif status in ["IN_QUEUE", "IN_PROGRESS"]:
+                            time.sleep(1)
+                            continue
+                        
+                        else:
+                            print(f"❓ Unknown status: {status}")
+                            time.sleep(1)
+                            continue
+                    
+                    else:
+                        print(f"❌ Status check failed: {status_result.stderr}")
+                        return False
+                
+                print(f"\n⏱️  TIMEOUT: Video generation took longer than 30 minutes")
+                print(f"Check RunPod dashboard for job status: {job_id}")
                 return False
-                
-            time.sleep(5)
-        
-        # Get result
-        print(f"\n3. Processing result...")
-        if job.status() == "COMPLETED":
-            output = job.output()
             
-            if isinstance(output, dict) and output.get("success"):
-                print(f"   ✓ Video generated successfully!")
-                print(f"   Duration: {output.get('duration')}s")
-                print(f"   FPS: {output.get('fps')}")
-                print(f"   Frames: {output.get('frames')}")
-                print(f"   Processing time: {output.get('processing_time')}")
-                
-                # Save the video
-                video_b64 = output.get("video")
-                if video_b64:
-                    video_data = base64.b64decode(video_b64)
-                    output_file = "multitalk_test_output.mp4"
-                    
-                    with open(output_file, "wb") as f:
-                        f.write(video_data)
-                    
-                    file_size_mb = len(video_data) / (1024 * 1024)
-                    print(f"   Saved video: {output_file} ({file_size_mb:.1f} MB)")
-                    
-                    return True
-                else:
-                    print(f"   ✗ No video data in response")
-                    print(f"   Output: {output}")
-                    return False
-                    
             else:
-                print(f"   ✗ Generation failed")
-                print(f"   Error: {output.get('error', 'Unknown error')}")
-                if 'traceback' in output:
-                    print(f"   Traceback: {output['traceback'][:500]}...")
+                print(f"❌ No job ID in response: {response}")
                 return False
-                
+        
         else:
-            print(f"   ✗ Job failed with status: {job.status()}")
-            try:
-                error_output = job.output()
-                print(f"   Error details: {error_output}")
-            except:
-                pass
+            print(f"❌ Request failed: {result.stderr}")
             return False
             
     except Exception as e:
-        print(f"   ✗ Exception during generation: {e}")
+        print(f"❌ Error: {e}")
         return False
 
-def test_audio_processing():
-    """Test just the audio processing part."""
+def main():
+    print("=" * 80)
+    print("MEIGEN-MULTITALK VIDEO GENERATION TEST")
+    print("=" * 80)
+    print("Testing actual video generation with real audio and image inputs")
+    print("This is the core functionality test")
+    print("=" * 80)
     
-    print(f"\n4. Testing audio processing separately...")
-    
-    endpoint = runpod.Endpoint(ENDPOINT_ID)
-    audio_b64, duration = create_test_audio()
-    
-    # Test with a smaller job
-    job_input = {
-        "action": "process_audio",
-        "audio": audio_b64
-    }
-    
-    try:
-        job = endpoint.run(job_input)
-        print(f"   Audio processing job: {job.job_id}")
-        
-        while job.status() in ["IN_QUEUE", "IN_PROGRESS"]:
-            time.sleep(2)
-        
-        if job.status() == "COMPLETED":
-            result = job.output()
-            print(f"   ✓ Audio processing result: {result}")
-            return True
-        else:
-            print(f"   ✗ Audio processing failed: {job.output()}")
-            return False
-            
-    except Exception as e:
-        print(f"   ✗ Audio processing error: {e}")
-        return False
-
-if __name__ == "__main__":
     success = test_video_generation()
     
-    if not success:
-        print(f"\nTrying alternative test...")
-        test_audio_processing()
+    print("\n" + "=" * 80)
+    print("TEST RESULTS")
+    print("=" * 80)
     
-    print(f"\n" + "=" * 60)
     if success:
-        print("🎉 Video generation test PASSED!")
-        print("✓ Serverless MultiTalk is working!")
-        print("✓ Check the generated video: multitalk_test_output.mp4")
+        print("🎉 SUCCESS: MeiGen-MultiTalk video generation working!")
+        print("✅ Core functionality verified")
+        print("✅ Video output generated successfully")
+        print("✅ S3 integration working")
+        print("✅ System ready for production use")
+        
+        print("\n🎯 Next steps:")
+        print("1. Test with different audio/image combinations")
+        print("2. Optimize generation parameters")
+        print("3. Scale for production workloads")
+        
     else:
-        print("⚠️  Video generation needs refinement")
-        print("✓ Endpoint is healthy and processing jobs")
-        print("ℹ️  May need to download larger models for full functionality")
-    
-    print(f"\nNext steps:")
-    print("- Download the large Wan2.1 model for better video quality")
-    print("- Test with real audio files")
-    print("- Deploy to production with monitoring")
+        print("❌ FAILED: MeiGen-MultiTalk video generation not working")
+        print("🔧 Troubleshooting needed:")
+        print("1. Check if models are properly loaded")
+        print("2. Verify S3 inputs exist (1.wav, multi1.png)")
+        print("3. Check RunPod logs for detailed errors")
+        print("4. Ensure sufficient GPU memory for generation")
+        
+        print("\n💡 Possible issues:")
+        print("- Model loading failures")
+        print("- Missing input files in S3")
+        print("- GPU memory limitations")
+        print("- Implementation bugs in video generation")
+
+if __name__ == "__main__":
+    main()

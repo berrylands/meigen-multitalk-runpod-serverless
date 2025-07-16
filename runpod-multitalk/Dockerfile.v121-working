@@ -1,0 +1,105 @@
+# MultiTalk V121 Working Implementation
+# Based on proven cog-MultiTalk code from https://github.com/zsxkib/cog-MultiTalk
+FROM pytorch/pytorch:2.1.2-cuda12.1-cudnn8-devel
+
+# System dependencies
+ENV DEBIAN_FRONTEND=noninteractive
+RUN apt-get update && apt-get install -y \
+    git \
+    ffmpeg \
+    gcc \
+    g++ \
+    build-essential \
+    ninja-build \
+    && rm -rf /var/lib/apt/lists/*
+
+# Environment variables
+ENV PYTHONPATH=/app/multitalk_official:/app:/runpod-volume/models
+ENV HF_HOME=/runpod-volume/huggingface
+ENV TRANSFORMERS_CACHE=/runpod-volume/huggingface
+ENV MODEL_PATH=/runpod-volume/models
+ENV PYTHONUNBUFFERED=1
+ENV PIP_NO_CACHE_DIR=1
+
+WORKDIR /app
+
+# Install core dependencies (matching working implementation)
+RUN pip install --no-cache-dir \
+    "numpy>=1.21.6,<1.27.0" \
+    "scipy>=1.10.1,<1.12.0" \
+    packaging \
+    ninja
+
+# Install transformers and ML libraries
+RUN pip install --no-cache-dir \
+    "transformers>=4.49.0" \
+    "tokenizers>=0.19.1" \
+    "diffusers>=0.31.0" \
+    "accelerate>=1.1.1" \
+    "safetensors>=0.4.3" \
+    "huggingface-hub>=0.23.5" \
+    einops \
+    timm \
+    sentencepiece \
+    peft
+
+# Install audio processing (matching working implementation)
+RUN pip install --no-cache-dir \
+    "librosa>=0.10.0" \
+    "soundfile>=0.12.1" \
+    pyloudnorm \
+    pydub \
+    av
+
+# Install image processing
+RUN pip install --no-cache-dir \
+    "opencv-python>=4.9.0" \
+    "imageio>=2.30.0" \
+    imageio-ffmpeg \
+    Pillow \
+    moviepy
+
+# Install additional dependencies
+RUN pip install --no-cache-dir \
+    rotary-embedding-torch \
+    tensorboardX \
+    omegaconf \
+    easydict \
+    ftfy
+
+# Install RunPod and AWS
+RUN pip install --no-cache-dir \
+    boto3 \
+    runpod==1.7.3
+
+# Try to install xformers (may fail on some systems)
+RUN pip install --no-cache-dir xformers || echo "xformers installation failed, continuing without it"
+
+# Try to install flash-attn (may fail on some systems)
+RUN pip install --no-cache-dir flash-attn || echo "flash-attn installation failed, continuing without it"
+
+# Try to install xfuser (may fail)
+RUN pip install --no-cache-dir "xfuser>=0.4.1" || echo "xfuser installation failed, continuing without it"
+
+# Verify core installations
+RUN python -c "import torch; print(f'PyTorch {torch.__version__} OK')"
+RUN python -c "import transformers; print(f'Transformers {transformers.__version__} OK')"
+RUN python -c "import librosa; print(f'Librosa {librosa.__version__} OK')"
+RUN python -c "import einops; print(f'Einops OK')"
+RUN python -c "import runpod; print(f'RunPod {runpod.__version__} OK')"
+
+# Clone MultiTalk repository (for MeiGen-MultiTalk modules)
+RUN mkdir -p /app/multitalk_official && \
+    cd /app/multitalk_official && \
+    git clone https://github.com/MeiGen-AI/MultiTalk.git . && \
+    echo "MultiTalk repository cloned successfully"
+
+# Copy implementation files
+COPY multitalk_v121_working_implementation.py /app/
+COPY handler_v121_working.py /app/handler.py
+COPY s3_handler.py /app/
+
+# Test basic imports (skip problematic ones for now)
+RUN python -c "import torch; import transformers; import librosa; print('Core imports OK')"
+
+CMD ["python", "-u", "/app/handler.py"]

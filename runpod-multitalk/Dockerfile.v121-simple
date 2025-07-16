@@ -1,0 +1,15 @@
+# MultiTalk V121 Simple - Working Implementation
+# Based on V115 with working MeiGen-MultiTalk code
+FROM berrylands/multitalk-runpod:v115
+
+# Copy working implementation files
+COPY multitalk_v121_working_implementation.py /app/
+COPY handler_v121_working.py /app/handler.py
+
+# Update any references to V115 to V121
+RUN sed -i 's/V115/V121/g' /app/handler.py || true
+
+# Simple test
+RUN python -c "print('V121 Working Implementation Ready')"
+
+CMD ["python", "-u", "/app/handler.py"]

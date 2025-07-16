@@ -1,0 +1,22 @@
+# MultiTalk V122 Simple - Fix NumPy/SciPy based on V76
+FROM berrylands/multitalk-runpod:v76
+
+# Fix NumPy/SciPy compatibility
+RUN pip uninstall -y numpy scipy && \
+    pip install --no-cache-dir \
+    "numpy==1.24.3" \
+    "scipy==1.10.1"
+
+# Copy V121 working implementation
+COPY multitalk_v121_working_implementation.py /app/
+COPY handler_v121_working.py /app/handler.py
+
+# Update to V122
+RUN sed -i 's/V121/V122/g' /app/handler.py || true
+RUN sed -i 's/V75/V122/g' /app/handler.py || true
+RUN sed -i 's/V76/V122/g' /app/handler.py || true
+
+# Test imports
+RUN python -c "import numpy; import scipy; print('NumPy/SciPy compatibility check passed')"
+
+CMD ["python", "-u", "/app/handler.py"]

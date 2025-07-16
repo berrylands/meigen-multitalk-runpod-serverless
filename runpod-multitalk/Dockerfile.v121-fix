@@ -1,0 +1,10 @@
+# MultiTalk V121 Fix - Add missing V121 class
+FROM berrylands/multitalk-runpod:v121
+
+# Copy updated implementation with V121 class
+COPY multitalk_v115_implementation.py /app/multitalk_v115_implementation.py
+
+# Test V121 import
+RUN python -c "from multitalk_v115_implementation import MultiTalkV121; print('V121 class now available')"
+
+CMD ["python", "-u", "/app/handler.py"]

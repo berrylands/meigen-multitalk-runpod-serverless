@@ -1,0 +1,946 @@
+#0 building with "desktop-linux" instance using docker driver
+
+#1 [internal] load build definition from Dockerfile.v130-fixed
+#1 transferring dockerfile: 4.60kB done
+#1 DONE 0.0s
+
+#2 [auth] pytorch/pytorch:pull token for registry-1.docker.io
+#2 DONE 0.0s
+
+#3 [internal] load metadata for docker.io/pytorch/pytorch:2.4.0-cuda12.1-cudnn9-runtime
+#3 DONE 0.8s
+
+#4 [internal] load .dockerignore
+#4 transferring context: 2B 0.0s done
+#4 DONE 0.0s
+
+#5 [base 1/2] FROM docker.io/pytorch/pytorch:2.4.0-cuda12.1-cudnn9-runtime@sha256:68c022c2f4627943a6f3e574cfd2c8ae4256210d5f66ae2b117942e0a8d4fa9d
+#5 DONE 0.0s
+
+#6 [deps 1/9] RUN pip install --no-cache-dir     "numpy>=1.23.5,<2"
+#6 CACHED
+
+#7 [base 2/2] RUN ln -snf /usr/share/zoneinfo/UTC /etc/localtime && echo UTC > /etc/timezone &&     apt-get update && apt-get install -y --no-install-recommends     git     ffmpeg     && rm -rf /var/lib/apt/lists/*
+#7 CACHED
+
+#8 [deps 2/9] RUN pip install --no-cache-dir     "transformers>=4.49.0"     "diffusers>=0.31.0"     "accelerate>=1.1.1"     "safetensors>=0.3.1"     "einops>=0.8.0"     "huggingface-hub>=0.19.0"     "tokenizers>=0.20.3"
+#8 CACHED
+
+#9 [internal] load build context
+#9 transferring context: 238B done
+#9 DONE 0.0s
+
+#10 [deps 3/9] RUN pip install --no-cache-dir --no-deps     "xfuser>=0.4.1"
+#10 0.780 Collecting xfuser>=0.4.1
+#10 0.851   Downloading xfuser-0.4.3.post3-py3-none-any.whl.metadata (22 kB)
+#10 0.868 Downloading xfuser-0.4.3.post3-py3-none-any.whl (196 kB)
+#10 0.889    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 196.2/196.2 kB 13.8 MB/s eta 0:00:00
+#10 0.894 Installing collected packages: xfuser
+#10 1.034 Successfully installed xfuser-0.4.3.post3
+#10 1.035 WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv
+#10 DONE 1.2s
+
+#11 [deps 4/9] RUN pip install --no-cache-dir     "sentencepiece>=0.1.99"     "beautifulsoup4>=4.12.3"     "distvae"     "yunchang>=0.6.0"     "pytest"     "opencv-python"     "imageio"     "imageio-ffmpeg"
+#11 0.800 Collecting sentencepiece>=0.1.99
+#11 0.851   Downloading sentencepiece-0.2.0-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (7.7 kB)
+#11 0.853 Requirement already satisfied: beautifulsoup4>=4.12.3 in /opt/conda/lib/python3.11/site-packages (4.12.3)
+#11 0.868 Collecting distvae
+#11 0.876   Downloading DistVAE-0.0.0b5-py3-none-any.whl.metadata (701 bytes)
+#11 0.893 Collecting yunchang>=0.6.0
+#11 0.907   Downloading yunchang-0.6.3.post1-py3-none-any.whl.metadata (12 kB)
+#11 0.960 Collecting pytest
+#11 0.972   Downloading pytest-8.4.1-py3-none-any.whl.metadata (7.7 kB)
+#11 1.041 Collecting opencv-python
+#11 1.053   Downloading opencv_python-4.12.0.88-cp37-abi3-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (19 kB)
+#11 1.090 Collecting imageio
+#11 1.099   Downloading imageio-2.37.0-py3-none-any.whl.metadata (5.2 kB)
+#11 1.119 Collecting imageio-ffmpeg
+#11 1.128   Downloading imageio_ffmpeg-0.6.0-py3-none-manylinux2014_x86_64.whl.metadata (1.5 kB)
+#11 1.134 Requirement already satisfied: soupsieve>1.2 in /opt/conda/lib/python3.11/site-packages (from beautifulsoup4>=4.12.3) (2.5)
+#11 1.137 Requirement already satisfied: torch>=2.2 in /opt/conda/lib/python3.11/site-packages (from distvae) (2.4.0)
+#11 1.139 Requirement already satisfied: diffusers>=0.27.2 in /opt/conda/lib/python3.11/site-packages (from distvae) (0.34.0)
+#11 1.142 Requirement already satisfied: transformers in /opt/conda/lib/python3.11/site-packages (from distvae) (4.53.2)
+#11 1.163 Collecting iniconfig>=1 (from pytest)
+#11 1.171   Downloading iniconfig-2.1.0-py3-none-any.whl.metadata (2.7 kB)
+#11 1.173 Requirement already satisfied: packaging>=20 in /opt/conda/lib/python3.11/site-packages (from pytest) (24.1)
+#11 1.192 Collecting pluggy<2,>=1.5 (from pytest)
+#11 1.199   Downloading pluggy-1.6.0-py3-none-any.whl.metadata (4.8 kB)
+#11 1.203 Requirement already satisfied: pygments>=2.7.2 in /opt/conda/lib/python3.11/site-packages (from pytest) (2.15.1)
+#11 1.374 Collecting numpy<2.3.0,>=2 (from opencv-python)
+#11 1.385   Downloading numpy-2.2.6-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (62 kB)
+#11 1.394      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 62.0/62.0 kB 13.5 MB/s eta 0:00:00
+#11 1.445 Requirement already satisfied: pillow>=8.3.2 in /opt/conda/lib/python3.11/site-packages (from imageio) (10.4.0)
+#11 1.480 Requirement already satisfied: importlib_metadata in /opt/conda/lib/python3.11/site-packages (from diffusers>=0.27.2->distvae) (8.7.0)
+#11 1.480 Requirement already satisfied: filelock in /opt/conda/lib/python3.11/site-packages (from diffusers>=0.27.2->distvae) (3.13.1)
+#11 1.482 Requirement already satisfied: huggingface-hub>=0.27.0 in /opt/conda/lib/python3.11/site-packages (from diffusers>=0.27.2->distvae) (0.33.4)
+#11 1.484 Requirement already satisfied: regex!=2019.12.17 in /opt/conda/lib/python3.11/site-packages (from diffusers>=0.27.2->distvae) (2024.11.6)
+#11 1.484 Requirement already satisfied: requests in /opt/conda/lib/python3.11/site-packages (from diffusers>=0.27.2->distvae) (2.32.3)
+#11 1.485 Requirement already satisfied: safetensors>=0.3.1 in /opt/conda/lib/python3.11/site-packages (from diffusers>=0.27.2->distvae) (0.5.3)
+#11 1.511 Requirement already satisfied: typing-extensions>=4.8.0 in /opt/conda/lib/python3.11/site-packages (from torch>=2.2->distvae) (4.11.0)
+#11 1.512 Requirement already satisfied: sympy in /opt/conda/lib/python3.11/site-packages (from torch>=2.2->distvae) (1.12)
+#11 1.513 Requirement already satisfied: networkx in /opt/conda/lib/python3.11/site-packages (from torch>=2.2->distvae) (3.3)
+#11 1.514 Requirement already satisfied: jinja2 in /opt/conda/lib/python3.11/site-packages (from torch>=2.2->distvae) (3.1.4)
+#11 1.515 Requirement already satisfied: fsspec in /opt/conda/lib/python3.11/site-packages (from torch>=2.2->distvae) (2024.6.1)
+#11 1.682 Requirement already satisfied: pyyaml>=5.1 in /opt/conda/lib/python3.11/site-packages (from transformers->distvae) (6.0.1)
+#11 1.683 Requirement already satisfied: tokenizers<0.22,>=0.21 in /opt/conda/lib/python3.11/site-packages (from transformers->distvae) (0.21.2)
+#11 1.686 Requirement already satisfied: tqdm>=4.27 in /opt/conda/lib/python3.11/site-packages (from transformers->distvae) (4.66.4)
+#11 1.739 Requirement already satisfied: hf-xet<2.0.0,>=1.1.2 in /opt/conda/lib/python3.11/site-packages (from huggingface-hub>=0.27.0->diffusers>=0.27.2->distvae) (1.1.5)
+#11 1.824 Requirement already satisfied: zipp>=3.20 in /opt/conda/lib/python3.11/site-packages (from importlib_metadata->diffusers>=0.27.2->distvae) (3.23.0)
+#11 1.828 Requirement already satisfied: MarkupSafe>=2.0 in /opt/conda/lib/python3.11/site-packages (from jinja2->torch>=2.2->distvae) (2.1.3)
+#11 1.843 Requirement already satisfied: charset-normalizer<4,>=2 in /opt/conda/lib/python3.11/site-packages (from requests->diffusers>=0.27.2->distvae) (2.0.4)
+#11 1.844 Requirement already satisfied: idna<4,>=2.5 in /opt/conda/lib/python3.11/site-packages (from requests->diffusers>=0.27.2->distvae) (3.7)
+#11 1.845 Requirement already satisfied: urllib3<3,>=1.21.1 in /opt/conda/lib/python3.11/site-packages (from requests->diffusers>=0.27.2->distvae) (2.2.2)
+#11 1.846 Requirement already satisfied: certifi>=2017.4.17 in /opt/conda/lib/python3.11/site-packages (from requests->diffusers>=0.27.2->distvae) (2024.7.4)
+#11 1.849 Requirement already satisfied: mpmath>=0.19 in /opt/conda/lib/python3.11/site-packages (from sympy->torch>=2.2->distvae) (1.3.0)
+#11 1.890 Downloading sentencepiece-0.2.0-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (1.3 MB)
+#11 1.973    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.3/1.3 MB 16.2 MB/s eta 0:00:00
+#11 1.986 Downloading DistVAE-0.0.0b5-py3-none-any.whl (28 kB)
+#11 1.994 Downloading yunchang-0.6.3.post1-py3-none-any.whl (48 kB)
+#11 1.999    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 48.1/48.1 kB 41.1 MB/s eta 0:00:00
+#11 2.009 Downloading pytest-8.4.1-py3-none-any.whl (365 kB)
+#11 2.021    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 365.5/365.5 kB 38.4 MB/s eta 0:00:00
+#11 2.030 Downloading opencv_python-4.12.0.88-cp37-abi3-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (67.0 MB)
+#11 4.144    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 67.0/67.0 MB 29.1 MB/s eta 0:00:00
+#11 4.158 Downloading imageio-2.37.0-py3-none-any.whl (315 kB)
+#11 4.168    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 315.8/315.8 kB 36.8 MB/s eta 0:00:00
+#11 4.182 Downloading imageio_ffmpeg-0.6.0-py3-none-manylinux2014_x86_64.whl (29.5 MB)
+#11 4.913    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 29.5/29.5 MB 43.0 MB/s eta 0:00:00
+#11 4.927 Downloading iniconfig-2.1.0-py3-none-any.whl (6.0 kB)
+#11 4.944 Downloading numpy-2.2.6-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (16.8 MB)
+#11 5.499    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 16.8/16.8 MB 40.5 MB/s eta 0:00:00
+#11 5.510 Downloading pluggy-1.6.0-py3-none-any.whl (20 kB)
+#11 6.527 Installing collected packages: sentencepiece, yunchang, pluggy, numpy, iniconfig, imageio-ffmpeg, pytest, opencv-python, imageio, distvae
+#11 6.593   Attempting uninstall: pluggy
+#11 6.610     Found existing installation: pluggy 1.0.0
+#11 6.613     Uninstalling pluggy-1.0.0:
+#11 6.619       Successfully uninstalled pluggy-1.0.0
+#11 6.633   Attempting uninstall: numpy
+#11 6.637     Found existing installation: numpy 1.26.4
+#11 6.671     Uninstalling numpy-1.26.4:
+#11 6.988       Successfully uninstalled numpy-1.26.4
+#11 10.05 Successfully installed distvae-0.0.0b5 imageio-2.37.0 imageio-ffmpeg-0.6.0 iniconfig-2.1.0 numpy-2.2.6 opencv-python-4.12.0.88 pluggy-1.6.0 pytest-8.4.1 sentencepiece-0.2.0 yunchang-0.6.3.post1
+#11 10.05 WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv
+#11 DONE 10.4s
+
+#12 [deps 5/9] RUN pip install --no-cache-dir     "scikit-image>=0.21.0"
+#12 0.780 Collecting scikit-image>=0.21.0
+#12 0.836   Downloading scikit_image-0.25.2-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (14 kB)
+#12 0.869 Requirement already satisfied: numpy>=1.24 in /opt/conda/lib/python3.11/site-packages (from scikit-image>=0.21.0) (2.2.6)
+#12 0.980 Collecting scipy>=1.11.4 (from scikit-image>=0.21.0)
+#12 0.988   Downloading scipy-1.16.0-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (61 kB)
+#12 1.002      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 61.9/61.9 kB 6.3 MB/s eta 0:00:00
+#12 1.014 Requirement already satisfied: networkx>=3.0 in /opt/conda/lib/python3.11/site-packages (from scikit-image>=0.21.0) (3.3)
+#12 1.015 Requirement already satisfied: pillow>=10.1 in /opt/conda/lib/python3.11/site-packages (from scikit-image>=0.21.0) (10.4.0)
+#12 1.017 Requirement already satisfied: imageio!=2.35.0,>=2.33 in /opt/conda/lib/python3.11/site-packages (from scikit-image>=0.21.0) (2.37.0)
+#12 1.058 Collecting tifffile>=2022.8.12 (from scikit-image>=0.21.0)
+#12 1.068   Downloading tifffile-2025.6.11-py3-none-any.whl.metadata (32 kB)
+#12 1.073 Requirement already satisfied: packaging>=21 in /opt/conda/lib/python3.11/site-packages (from scikit-image>=0.21.0) (24.1)
+#12 1.090 Collecting lazy-loader>=0.4 (from scikit-image>=0.21.0)
+#12 1.099   Downloading lazy_loader-0.4-py3-none-any.whl.metadata (7.6 kB)
+#12 1.218 Downloading scikit_image-0.25.2-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (14.8 MB)
+#12 1.852    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 14.8/14.8 MB 29.7 MB/s eta 0:00:00
+#12 1.861 Downloading lazy_loader-0.4-py3-none-any.whl (12 kB)
+#12 1.889 Downloading scipy-1.16.0-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (35.3 MB)
+#12 3.145    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 35.3/35.3 MB 28.6 MB/s eta 0:00:00
+#12 3.164 Downloading tifffile-2025.6.11-py3-none-any.whl (230 kB)
+#12 3.170    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 230.8/230.8 kB 72.4 MB/s eta 0:00:00
+#12 4.033 Installing collected packages: tifffile, scipy, lazy-loader, scikit-image
+#12 7.425 Successfully installed lazy-loader-0.4 scikit-image-0.25.2 scipy-1.16.0 tifffile-2025.6.11
+#12 7.425 WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv
+#12 DONE 7.8s
+
+#13 [deps 6/9] RUN pip install --no-cache-dir     "librosa>=0.10.0"     "soundfile>=0.12.1"     pyloudnorm==0.1.1     "opencv-python-headless>=4.9.0.80"     imageio==2.33.1     imageio-ffmpeg==0.4.9
+#13 0.673 Collecting librosa>=0.10.0
+#13 0.725   Downloading librosa-0.11.0-py3-none-any.whl.metadata (8.7 kB)
+#13 0.749 Collecting soundfile>=0.12.1
+#13 0.759   Downloading soundfile-0.13.1-py2.py3-none-manylinux_2_28_x86_64.whl.metadata (16 kB)
+#13 0.860 Collecting pyloudnorm==0.1.1
+#13 0.872   Downloading pyloudnorm-0.1.1-py3-none-any.whl.metadata (5.6 kB)
+#13 0.956 Collecting opencv-python-headless>=4.9.0.80
+#13 0.969   Downloading opencv_python_headless-4.12.0.88-cp37-abi3-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (19 kB)
+#13 1.025 Collecting imageio==2.33.1
+#13 1.037   Downloading imageio-2.33.1-py3-none-any.whl.metadata (4.9 kB)
+#13 1.061 Collecting imageio-ffmpeg==0.4.9
+#13 1.073   Downloading imageio_ffmpeg-0.4.9-py3-none-manylinux2010_x86_64.whl.metadata (1.7 kB)
+#13 1.082 Requirement already satisfied: scipy>=1.0.1 in /opt/conda/lib/python3.11/site-packages (from pyloudnorm==0.1.1) (1.16.0)
+#13 1.088 Requirement already satisfied: numpy>=1.14.2 in /opt/conda/lib/python3.11/site-packages (from pyloudnorm==0.1.1) (2.2.6)
+#13 1.107 Collecting future>=0.16.0 (from pyloudnorm==0.1.1)
+#13 1.116   Downloading future-1.0.0-py3-none-any.whl.metadata (4.0 kB)
+#13 1.142 Requirement already satisfied: pillow>=8.3.2 in /opt/conda/lib/python3.11/site-packages (from imageio==2.33.1) (10.4.0)
+#13 1.144 Requirement already satisfied: setuptools in /opt/conda/lib/python3.11/site-packages (from imageio-ffmpeg==0.4.9) (69.5.1)
+#13 1.203 Collecting audioread>=2.1.9 (from librosa>=0.10.0)
+#13 1.212   Downloading audioread-3.0.1-py3-none-any.whl.metadata (8.4 kB)
+#13 1.301 Collecting numba>=0.51.0 (from librosa>=0.10.0)
+#13 1.310   Downloading numba-0.61.2-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (2.8 kB)
+#13 1.408 Collecting scikit-learn>=1.1.0 (from librosa>=0.10.0)
+#13 1.422   Downloading scikit_learn-1.7.0-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (17 kB)
+#13 1.453 Collecting joblib>=1.0 (from librosa>=0.10.0)
+#13 1.463   Downloading joblib-1.5.1-py3-none-any.whl.metadata (5.6 kB)
+#13 1.465 Requirement already satisfied: decorator>=4.3.0 in /opt/conda/lib/python3.11/site-packages (from librosa>=0.10.0) (5.1.1)
+#13 1.489 Collecting pooch>=1.1 (from librosa>=0.10.0)
+#13 1.499   Downloading pooch-1.8.2-py3-none-any.whl.metadata (10 kB)
+#13 1.557 Collecting soxr>=0.3.2 (from librosa>=0.10.0)
+#13 1.565   Downloading soxr-0.5.0.post1-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (5.6 kB)
+#13 1.568 Requirement already satisfied: typing_extensions>=4.1.1 in /opt/conda/lib/python3.11/site-packages (from librosa>=0.10.0) (4.11.0)
+#13 1.569 Requirement already satisfied: lazy_loader>=0.1 in /opt/conda/lib/python3.11/site-packages (from librosa>=0.10.0) (0.4)
+#13 1.631 Collecting msgpack>=1.0 (from librosa>=0.10.0)
+#13 1.641   Downloading msgpack-1.1.1-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (8.4 kB)
+#13 1.645 Requirement already satisfied: cffi>=1.0 in /opt/conda/lib/python3.11/site-packages (from soundfile>=0.12.1) (1.16.0)
+#13 1.656 Requirement already satisfied: pycparser in /opt/conda/lib/python3.11/site-packages (from cffi>=1.0->soundfile>=0.12.1) (2.21)
+#13 1.665 Requirement already satisfied: packaging in /opt/conda/lib/python3.11/site-packages (from lazy_loader>=0.1->librosa>=0.10.0) (24.1)
+#13 1.730 Collecting llvmlite<0.45,>=0.44.0dev0 (from numba>=0.51.0->librosa>=0.10.0)
+#13 1.741   Downloading llvmlite-0.44.0-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (4.8 kB)
+#13 1.768 Requirement already satisfied: platformdirs>=2.5.0 in /opt/conda/lib/python3.11/site-packages (from pooch>=1.1->librosa>=0.10.0) (3.10.0)
+#13 1.770 Requirement already satisfied: requests>=2.19.0 in /opt/conda/lib/python3.11/site-packages (from pooch>=1.1->librosa>=0.10.0) (2.32.3)
+#13 1.820 Collecting threadpoolctl>=3.1.0 (from scikit-learn>=1.1.0->librosa>=0.10.0)
+#13 1.829   Downloading threadpoolctl-3.6.0-py3-none-any.whl.metadata (13 kB)
+#13 1.918 Requirement already satisfied: charset-normalizer<4,>=2 in /opt/conda/lib/python3.11/site-packages (from requests>=2.19.0->pooch>=1.1->librosa>=0.10.0) (2.0.4)
+#13 1.919 Requirement already satisfied: idna<4,>=2.5 in /opt/conda/lib/python3.11/site-packages (from requests>=2.19.0->pooch>=1.1->librosa>=0.10.0) (3.7)
+#13 1.921 Requirement already satisfied: urllib3<3,>=1.21.1 in /opt/conda/lib/python3.11/site-packages (from requests>=2.19.0->pooch>=1.1->librosa>=0.10.0) (2.2.2)
+#13 1.922 Requirement already satisfied: certifi>=2017.4.17 in /opt/conda/lib/python3.11/site-packages (from requests>=2.19.0->pooch>=1.1->librosa>=0.10.0) (2024.7.4)
+#13 1.953 Downloading pyloudnorm-0.1.1-py3-none-any.whl (9.6 kB)
+#13 1.963 Downloading imageio-2.33.1-py3-none-any.whl (313 kB)
+#13 1.987    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 313.3/313.3 kB 16.5 MB/s eta 0:00:00
+#13 1.995 Downloading imageio_ffmpeg-0.4.9-py3-none-manylinux2010_x86_64.whl (26.9 MB)
+#13 2.826    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 26.9/26.9 MB 34.9 MB/s eta 0:00:00
+#13 2.836 Downloading librosa-0.11.0-py3-none-any.whl (260 kB)
+#13 2.847    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 260.7/260.7 kB 29.0 MB/s eta 0:00:00
+#13 2.859 Downloading soundfile-0.13.1-py2.py3-none-manylinux_2_28_x86_64.whl (1.3 MB)
+#13 2.894    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.3/1.3 MB 40.8 MB/s eta 0:00:00
+#13 2.906 Downloading opencv_python_headless-4.12.0.88-cp37-abi3-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (54.0 MB)
+#13 4.399    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 54.0/54.0 MB 46.9 MB/s eta 0:00:00
+#13 4.408 Downloading audioread-3.0.1-py3-none-any.whl (23 kB)
+#13 4.419 Downloading future-1.0.0-py3-none-any.whl (491 kB)
+#13 4.431    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 491.3/491.3 kB 50.8 MB/s eta 0:00:00
+#13 4.442 Downloading joblib-1.5.1-py3-none-any.whl (307 kB)
+#13 4.448    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 307.7/307.7 kB 65.9 MB/s eta 0:00:00
+#13 4.466 Downloading msgpack-1.1.1-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (429 kB)
+#13 4.472    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 430.0/430.0 kB 106.7 MB/s eta 0:00:00
+#13 4.481 Downloading numba-0.61.2-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (3.8 MB)
+#13 4.571    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.8/3.8 MB 43.7 MB/s eta 0:00:00
+#13 4.581 Downloading pooch-1.8.2-py3-none-any.whl (64 kB)
+#13 4.583    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 64.6/64.6 kB 103.8 MB/s eta 0:00:00
+#13 4.599 Downloading scikit_learn-1.7.0-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (12.9 MB)
+#13 4.909    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 12.9/12.9 MB 42.1 MB/s eta 0:00:00
+#13 4.920 Downloading soxr-0.5.0.post1-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (252 kB)
+#13 4.925    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 252.5/252.5 kB 108.7 MB/s eta 0:00:00
+#13 4.935 Downloading llvmlite-0.44.0-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (42.4 MB)
+#13 6.042    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 42.4/42.4 MB 39.8 MB/s eta 0:00:00
+#13 6.059 Downloading threadpoolctl-3.6.0-py3-none-any.whl (18 kB)
+#13 7.454 Installing collected packages: threadpoolctl, soxr, opencv-python-headless, msgpack, llvmlite, joblib, imageio-ffmpeg, imageio, future, audioread, soundfile, scikit-learn, pyloudnorm, pooch, numba, librosa
+#13 9.008   Attempting uninstall: imageio-ffmpeg
+#13 9.044     Found existing installation: imageio-ffmpeg 0.6.0
+#13 9.047     Uninstalling imageio-ffmpeg-0.6.0:
+#13 9.076       Successfully uninstalled imageio-ffmpeg-0.6.0
+#13 9.432   Attempting uninstall: imageio
+#13 9.473     Found existing installation: imageio 2.37.0
+#13 9.478     Uninstalling imageio-2.37.0:
+#13 9.505       Successfully uninstalled imageio-2.37.0
+#13 13.70 Successfully installed audioread-3.0.1 future-1.0.0 imageio-2.33.1 imageio-ffmpeg-0.4.9 joblib-1.5.1 librosa-0.11.0 llvmlite-0.44.0 msgpack-1.1.1 numba-0.61.2 opencv-python-headless-4.12.0.88 pooch-1.8.2 pyloudnorm-0.1.1 scikit-learn-1.7.0 soundfile-0.13.1 soxr-0.5.0.post1 threadpoolctl-3.6.0
+#13 13.70 WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv
+#13 DONE 14.4s
+
+#14 [deps 7/9] RUN pip install --no-cache-dir     boto3     runpod==1.7.3     Pillow==10.2.0     moviepy==1.0.3     easydict     omegaconf     tensorboardX     ftfy     timm     sentencepiece     peft     rotary-embedding-torch     scipy
+#14 1.110 Collecting boto3
+#14 1.170   Downloading boto3-1.39.7-py3-none-any.whl.metadata (6.6 kB)
+#14 1.210 Collecting runpod==1.7.3
+#14 1.223   Downloading runpod-1.7.3-py3-none-any.whl.metadata (7.9 kB)
+#14 1.405 Collecting Pillow==10.2.0
+#14 1.417   Downloading pillow-10.2.0-cp311-cp311-manylinux_2_28_x86_64.whl.metadata (9.7 kB)
+#14 1.441 Collecting moviepy==1.0.3
+#14 1.453   Downloading moviepy-1.0.3.tar.gz (388 kB)
+#14 1.498      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 388.3/388.3 kB 9.6 MB/s eta 0:00:00
+#14 1.524   Preparing metadata (setup.py): started
+#14 1.881   Preparing metadata (setup.py): finished with status 'done'
+#14 1.901 Collecting easydict
+#14 1.911   Downloading easydict-1.13-py3-none-any.whl.metadata (4.2 kB)
+#14 1.968 Collecting omegaconf
+#14 1.982   Downloading omegaconf-2.3.0-py3-none-any.whl.metadata (3.9 kB)
+#14 2.003 Collecting tensorboardX
+#14 2.017   Downloading tensorboardx-2.6.4-py3-none-any.whl.metadata (6.2 kB)
+#14 2.037 Collecting ftfy
+#14 2.046   Downloading ftfy-6.3.1-py3-none-any.whl.metadata (7.3 kB)
+#14 2.075 Collecting timm
+#14 2.086   Downloading timm-1.0.17-py3-none-any.whl.metadata (59 kB)
+#14 2.090      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 59.9/59.9 kB 40.3 MB/s eta 0:00:00
+#14 2.094 Requirement already satisfied: sentencepiece in /opt/conda/lib/python3.11/site-packages (0.2.0)
+#14 2.203 Collecting peft
+#14 2.212   Downloading peft-0.16.0-py3-none-any.whl.metadata (14 kB)
+#14 2.311 Collecting rotary-embedding-torch
+#14 2.320   Downloading rotary_embedding_torch-0.8.8-py3-none-any.whl.metadata (883 bytes)
+#14 2.327 Requirement already satisfied: scipy in /opt/conda/lib/python3.11/site-packages (1.16.0)
+#14 2.822 Collecting aiohttp>=3.9.3 (from aiohttp[speedups]>=3.9.3->runpod==1.7.3)
+#14 2.834   Downloading aiohttp-3.12.14-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (7.6 kB)
+#14 2.857 Collecting aiohttp-retry>=2.8.3 (from runpod==1.7.3)
+#14 2.881   Downloading aiohttp_retry-2.9.1-py3-none-any.whl.metadata (8.8 kB)
+#14 2.906 Collecting backoff>=2.2.1 (from runpod==1.7.3)
+#14 2.917   Downloading backoff-2.2.1-py3-none-any.whl.metadata (14 kB)
+#14 3.005 Requirement already satisfied: click>=8.1.7 in /opt/conda/lib/python3.11/site-packages (from runpod==1.7.3) (8.1.7)
+#14 3.029 Collecting colorama<0.4.7,>=0.2.5 (from runpod==1.7.3)
+#14 3.038   Downloading colorama-0.4.6-py2.py3-none-any.whl.metadata (17 kB)
+#14 3.041 Requirement already satisfied: cryptography<44.0.0 in /opt/conda/lib/python3.11/site-packages (from runpod==1.7.3) (42.0.5)
+#14 3.102 Collecting fastapi>=0.94.0 (from fastapi[all]>=0.94.0->runpod==1.7.3)
+#14 3.115   Downloading fastapi-0.116.1-py3-none-any.whl.metadata (28 kB)
+#14 3.146 Collecting paramiko>=3.3.1 (from runpod==1.7.3)
+#14 3.155   Downloading paramiko-3.5.1-py3-none-any.whl.metadata (4.6 kB)
+#14 3.181 Collecting prettytable>=3.9.0 (from runpod==1.7.3)
+#14 3.190   Downloading prettytable-3.16.0-py3-none-any.whl.metadata (33 kB)
+#14 3.210 Collecting py-cpuinfo>=9.0.0 (from runpod==1.7.3)
+#14 3.220   Downloading py_cpuinfo-9.0.0-py3-none-any.whl.metadata (794 bytes)
+#14 3.240 Collecting inquirerpy==0.3.4 (from runpod==1.7.3)
+#14 3.251   Downloading InquirerPy-0.3.4-py3-none-any.whl.metadata (8.1 kB)
+#14 3.253 Requirement already satisfied: requests>=2.31.0 in /opt/conda/lib/python3.11/site-packages (from runpod==1.7.3) (2.32.3)
+#14 3.274 Collecting tomli>=2.0.1 (from runpod==1.7.3)
+#14 3.285   Downloading tomli-2.2.1-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (11 kB)
+#14 3.326 Collecting tomlkit>=0.12.2 (from runpod==1.7.3)
+#14 3.335   Downloading tomlkit-0.13.3-py3-none-any.whl.metadata (2.8 kB)
+#14 3.354 Collecting tqdm-loggable>=0.1.4 (from runpod==1.7.3)
+#14 3.363   Downloading tqdm_loggable-0.2-py3-none-any.whl.metadata (9.3 kB)
+#14 3.366 Requirement already satisfied: urllib3>=1.26.6 in /opt/conda/lib/python3.11/site-packages (from runpod==1.7.3) (2.2.2)
+#14 3.419 Collecting watchdog>=3.0.0 (from runpod==1.7.3)
+#14 3.428   Downloading watchdog-6.0.0-py3-none-manylinux2014_x86_64.whl.metadata (44 kB)
+#14 3.431      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 44.3/44.3 kB 275.4 MB/s eta 0:00:00
+#14 3.514 Collecting decorator<5.0,>=4.0.2 (from moviepy==1.0.3)
+#14 3.527   Downloading decorator-4.4.2-py2.py3-none-any.whl.metadata (4.2 kB)
+#14 3.531 Requirement already satisfied: imageio<3.0,>=2.5 in /opt/conda/lib/python3.11/site-packages (from moviepy==1.0.3) (2.33.1)
+#14 3.533 Requirement already satisfied: imageio_ffmpeg>=0.2.0 in /opt/conda/lib/python3.11/site-packages (from moviepy==1.0.3) (0.4.9)
+#14 3.536 Requirement already satisfied: tqdm<5.0,>=4.11.2 in /opt/conda/lib/python3.11/site-packages (from moviepy==1.0.3) (4.66.4)
+#14 3.543 Requirement already satisfied: numpy>=1.17.3 in /opt/conda/lib/python3.11/site-packages (from moviepy==1.0.3) (2.2.6)
+#14 3.563 Collecting proglog<=1.0.0 (from moviepy==1.0.3)
+#14 3.581   Downloading proglog-0.1.12-py3-none-any.whl.metadata (794 bytes)
+#14 3.605 Collecting pfzy<0.4.0,>=0.3.1 (from inquirerpy==0.3.4->runpod==1.7.3)
+#14 3.617   Downloading pfzy-0.3.4-py3-none-any.whl.metadata (4.9 kB)
+#14 3.620 Requirement already satisfied: prompt-toolkit<4.0.0,>=3.0.1 in /opt/conda/lib/python3.11/site-packages (from inquirerpy==0.3.4->runpod==1.7.3) (3.0.43)
+#14 4.013 Collecting botocore<1.40.0,>=1.39.7 (from boto3)
+#14 4.025   Downloading botocore-1.39.7-py3-none-any.whl.metadata (5.7 kB)
+#14 4.048 Collecting jmespath<2.0.0,>=0.7.1 (from boto3)
+#14 4.058   Downloading jmespath-1.0.1-py3-none-any.whl.metadata (7.6 kB)
+#14 4.122 Collecting s3transfer<0.14.0,>=0.13.0 (from boto3)
+#14 4.135   Downloading s3transfer-0.13.0-py3-none-any.whl.metadata (1.7 kB)
+#14 4.155 Collecting antlr4-python3-runtime==4.9.* (from omegaconf)
+#14 4.165   Downloading antlr4-python3-runtime-4.9.3.tar.gz (117 kB)
+#14 4.169      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 117.0/117.0 kB 263.9 MB/s eta 0:00:00
+#14 4.185   Preparing metadata (setup.py): started
+#14 4.482   Preparing metadata (setup.py): finished with status 'done'
+#14 4.485 Requirement already satisfied: PyYAML>=5.1.0 in /opt/conda/lib/python3.11/site-packages (from omegaconf) (6.0.1)
+#14 4.494 Requirement already satisfied: packaging in /opt/conda/lib/python3.11/site-packages (from tensorboardX) (24.1)
+#14 4.663 Collecting protobuf>=3.20 (from tensorboardX)
+#14 4.671   Downloading protobuf-6.31.1-cp39-abi3-manylinux2014_x86_64.whl.metadata (593 bytes)
+#14 4.676 Requirement already satisfied: wcwidth in /opt/conda/lib/python3.11/site-packages (from ftfy) (0.2.5)
+#14 4.680 Requirement already satisfied: torch in /opt/conda/lib/python3.11/site-packages (from timm) (2.4.0)
+#14 4.681 Requirement already satisfied: torchvision in /opt/conda/lib/python3.11/site-packages (from timm) (0.19.0)
+#14 4.683 Requirement already satisfied: huggingface_hub in /opt/conda/lib/python3.11/site-packages (from timm) (0.33.4)
+#14 4.684 Requirement already satisfied: safetensors in /opt/conda/lib/python3.11/site-packages (from timm) (0.5.3)
+#14 4.703 Requirement already satisfied: psutil in /opt/conda/lib/python3.11/site-packages (from peft) (5.9.0)
+#14 4.707 Requirement already satisfied: transformers in /opt/conda/lib/python3.11/site-packages (from peft) (4.53.2)
+#14 4.710 Requirement already satisfied: accelerate>=0.21.0 in /opt/conda/lib/python3.11/site-packages (from peft) (1.9.0)
+#14 4.715 Requirement already satisfied: einops>=0.7 in /opt/conda/lib/python3.11/site-packages (from rotary-embedding-torch) (0.8.1)
+#14 4.806 Collecting aiohappyeyeballs>=2.5.0 (from aiohttp>=3.9.3->aiohttp[speedups]>=3.9.3->runpod==1.7.3)
+#14 4.815   Downloading aiohappyeyeballs-2.6.1-py3-none-any.whl.metadata (5.9 kB)
+#14 4.834 Collecting aiosignal>=1.4.0 (from aiohttp>=3.9.3->aiohttp[speedups]>=3.9.3->runpod==1.7.3)
+#14 4.846   Downloading aiosignal-1.4.0-py3-none-any.whl.metadata (3.7 kB)
+#14 4.847 Requirement already satisfied: attrs>=17.3.0 in /opt/conda/lib/python3.11/site-packages (from aiohttp>=3.9.3->aiohttp[speedups]>=3.9.3->runpod==1.7.3) (23.1.0)
+#14 4.916 Collecting frozenlist>=1.1.1 (from aiohttp>=3.9.3->aiohttp[speedups]>=3.9.3->runpod==1.7.3)
+#14 4.928   Downloading frozenlist-1.7.0-cp311-cp311-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (18 kB)
+#14 5.153 Collecting multidict<7.0,>=4.5 (from aiohttp>=3.9.3->aiohttp[speedups]>=3.9.3->runpod==1.7.3)
+#14 5.163   Downloading multidict-6.6.3-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (5.3 kB)
+#14 5.279 Collecting propcache>=0.2.0 (from aiohttp>=3.9.3->aiohttp[speedups]>=3.9.3->runpod==1.7.3)
+#14 5.290   Downloading propcache-0.3.2-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (12 kB)
+#14 5.528 Collecting yarl<2.0,>=1.17.0 (from aiohttp>=3.9.3->aiohttp[speedups]>=3.9.3->runpod==1.7.3)
+#14 5.538   Downloading yarl-1.20.1-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (73 kB)
+#14 5.541      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 73.9/73.9 kB 300.8 MB/s eta 0:00:00
+#14 5.574 Collecting aiodns>=3.3.0 (from aiohttp[speedups]>=3.9.3->runpod==1.7.3)
+#14 5.585   Downloading aiodns-3.5.0-py3-none-any.whl.metadata (5.8 kB)
+#14 5.588 Requirement already satisfied: Brotli in /opt/conda/lib/python3.11/site-packages (from aiohttp[speedups]>=3.9.3->runpod==1.7.3) (1.0.9)
+#14 5.618 Collecting python-dateutil<3.0.0,>=2.1 (from botocore<1.40.0,>=1.39.7->boto3)
+#14 5.628   Downloading python_dateutil-2.9.0.post0-py2.py3-none-any.whl.metadata (8.4 kB)
+#14 5.648 Requirement already satisfied: cffi>=1.12 in /opt/conda/lib/python3.11/site-packages (from cryptography<44.0.0->runpod==1.7.3) (1.16.0)
+#14 5.708 Collecting starlette<0.48.0,>=0.40.0 (from fastapi>=0.94.0->fastapi[all]>=0.94.0->runpod==1.7.3)
+#14 5.718   Downloading starlette-0.47.1-py3-none-any.whl.metadata (6.2 kB)
+#14 5.861 Collecting pydantic!=1.8,!=1.8.1,!=2.0.0,!=2.0.1,!=2.1.0,<3.0.0,>=1.7.4 (from fastapi>=0.94.0->fastapi[all]>=0.94.0->runpod==1.7.3)
+#14 5.871   Downloading pydantic-2.11.7-py3-none-any.whl.metadata (67 kB)
+#14 5.873      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 68.0/68.0 kB 381.3 MB/s eta 0:00:00
+#14 5.877 Requirement already satisfied: typing-extensions>=4.8.0 in /opt/conda/lib/python3.11/site-packages (from fastapi>=0.94.0->fastapi[all]>=0.94.0->runpod==1.7.3) (4.11.0)
+#14 5.916 Collecting fastapi-cli>=0.0.8 (from fastapi-cli[standard]>=0.0.8; extra == "all"->fastapi[all]>=0.94.0->runpod==1.7.3)
+#14 5.928   Downloading fastapi_cli-0.0.8-py3-none-any.whl.metadata (6.3 kB)
+#14 5.957 Collecting httpx>=0.23.0 (from fastapi[all]>=0.94.0->runpod==1.7.3)
+#14 5.968   Downloading httpx-0.28.1-py3-none-any.whl.metadata (7.1 kB)
+#14 5.990 Collecting jinja2>=3.1.5 (from fastapi[all]>=0.94.0->runpod==1.7.3)
+#14 5.999   Downloading jinja2-3.1.6-py3-none-any.whl.metadata (2.9 kB)
+#14 6.019 Collecting python-multipart>=0.0.18 (from fastapi[all]>=0.94.0->runpod==1.7.3)
+#14 6.028   Downloading python_multipart-0.0.20-py3-none-any.whl.metadata (1.8 kB)
+#14 6.044 Collecting itsdangerous>=1.1.0 (from fastapi[all]>=0.94.0->runpod==1.7.3)
+#14 6.053   Downloading itsdangerous-2.2.0-py3-none-any.whl.metadata (1.9 kB)
+#14 6.118 Collecting ujson!=4.0.2,!=4.1.0,!=4.2.0,!=4.3.0,!=5.0.0,!=5.1.0,>=4.0.1 (from fastapi[all]>=0.94.0->runpod==1.7.3)
+#14 6.130   Downloading ujson-5.10.0-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (9.3 kB)
+#14 6.419 Collecting orjson>=3.2.1 (from fastapi[all]>=0.94.0->runpod==1.7.3)
+#14 6.434   Downloading orjson-3.11.0-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (42 kB)
+#14 6.436      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 42.0/42.0 kB 284.2 MB/s eta 0:00:00
+#14 6.461 Collecting email-validator>=2.0.0 (from fastapi[all]>=0.94.0->runpod==1.7.3)
+#14 6.472   Downloading email_validator-2.2.0-py3-none-any.whl.metadata (25 kB)
+#14 6.506 Collecting uvicorn>=0.12.0 (from uvicorn[standard]>=0.12.0; extra == "all"->fastapi[all]>=0.94.0->runpod==1.7.3)
+#14 6.517   Downloading uvicorn-0.35.0-py3-none-any.whl.metadata (6.5 kB)
+#14 6.543 Collecting pydantic-settings>=2.0.0 (from fastapi[all]>=0.94.0->runpod==1.7.3)
+#14 6.552   Downloading pydantic_settings-2.10.1-py3-none-any.whl.metadata (3.4 kB)
+#14 6.574 Collecting pydantic-extra-types>=2.0.0 (from fastapi[all]>=0.94.0->runpod==1.7.3)
+#14 6.583   Downloading pydantic_extra_types-2.10.5-py3-none-any.whl.metadata (3.9 kB)
+#14 6.639 Requirement already satisfied: filelock in /opt/conda/lib/python3.11/site-packages (from huggingface_hub->timm) (3.13.1)
+#14 6.641 Requirement already satisfied: fsspec>=2023.5.0 in /opt/conda/lib/python3.11/site-packages (from huggingface_hub->timm) (2024.6.1)
+#14 6.645 Requirement already satisfied: hf-xet<2.0.0,>=1.1.2 in /opt/conda/lib/python3.11/site-packages (from huggingface_hub->timm) (1.1.5)
+#14 6.678 Requirement already satisfied: setuptools in /opt/conda/lib/python3.11/site-packages (from imageio_ffmpeg>=0.2.0->moviepy==1.0.3) (69.5.1)
+#14 6.751 Collecting bcrypt>=3.2 (from paramiko>=3.3.1->runpod==1.7.3)
+#14 6.783   Downloading bcrypt-4.3.0-cp39-abi3-manylinux_2_34_x86_64.whl.metadata (10 kB)
+#14 6.833 Collecting pynacl>=1.5 (from paramiko>=3.3.1->runpod==1.7.3)
+#14 6.871   Downloading PyNaCl-1.5.0-cp36-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.manylinux_2_24_x86_64.whl.metadata (8.6 kB)
+#14 6.901 Requirement already satisfied: charset-normalizer<4,>=2 in /opt/conda/lib/python3.11/site-packages (from requests>=2.31.0->runpod==1.7.3) (2.0.4)
+#14 6.902 Requirement already satisfied: idna<4,>=2.5 in /opt/conda/lib/python3.11/site-packages (from requests>=2.31.0->runpod==1.7.3) (3.7)
+#14 6.903 Requirement already satisfied: certifi>=2017.4.17 in /opt/conda/lib/python3.11/site-packages (from requests>=2.31.0->runpod==1.7.3) (2024.7.4)
+#14 7.025 Requirement already satisfied: sympy in /opt/conda/lib/python3.11/site-packages (from torch->timm) (1.12)
+#14 7.027 Requirement already satisfied: networkx in /opt/conda/lib/python3.11/site-packages (from torch->timm) (3.3)
+#14 7.255 Requirement already satisfied: regex!=2019.12.17 in /opt/conda/lib/python3.11/site-packages (from transformers->peft) (2024.11.6)
+#14 7.256 Requirement already satisfied: tokenizers<0.22,>=0.21 in /opt/conda/lib/python3.11/site-packages (from transformers->peft) (0.21.2)
+#14 7.331 Collecting pycares>=4.9.0 (from aiodns>=3.3.0->aiohttp[speedups]>=3.9.3->runpod==1.7.3)
+#14 7.348   Downloading pycares-4.9.0-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (4.3 kB)
+#14 7.395 Requirement already satisfied: pycparser in /opt/conda/lib/python3.11/site-packages (from cffi>=1.12->cryptography<44.0.0->runpod==1.7.3) (2.21)
+#14 7.409 Requirement already satisfied: dnspython>=2.0.0 in /opt/conda/lib/python3.11/site-packages (from email-validator>=2.0.0->fastapi[all]>=0.94.0->runpod==1.7.3) (2.6.1)
+#14 7.446 Collecting typer>=0.15.1 (from fastapi-cli>=0.0.8->fastapi-cli[standard]>=0.0.8; extra == "all"->fastapi[all]>=0.94.0->runpod==1.7.3)
+#14 7.455   Downloading typer-0.16.0-py3-none-any.whl.metadata (15 kB)
+#14 7.488 Collecting rich-toolkit>=0.14.8 (from fastapi-cli>=0.0.8->fastapi-cli[standard]>=0.0.8; extra == "all"->fastapi[all]>=0.94.0->runpod==1.7.3)
+#14 7.499   Downloading rich_toolkit-0.14.8-py3-none-any.whl.metadata (999 bytes)
+#14 7.524 Collecting fastapi-cloud-cli>=0.1.1 (from fastapi-cli[standard]>=0.0.8; extra == "all"->fastapi[all]>=0.94.0->runpod==1.7.3)
+#14 7.534   Downloading fastapi_cloud_cli-0.1.4-py3-none-any.whl.metadata (3.2 kB)
+#14 7.628 Collecting anyio (from httpx>=0.23.0->fastapi[all]>=0.94.0->runpod==1.7.3)
+#14 7.639   Downloading anyio-4.9.0-py3-none-any.whl.metadata (4.7 kB)
+#14 7.666 Collecting httpcore==1.* (from httpx>=0.23.0->fastapi[all]>=0.94.0->runpod==1.7.3)
+#14 7.675   Downloading httpcore-1.0.9-py3-none-any.whl.metadata (21 kB)
+#14 7.703 Collecting h11>=0.16 (from httpcore==1.*->httpx>=0.23.0->fastapi[all]>=0.94.0->runpod==1.7.3)
+#14 7.714   Downloading h11-0.16.0-py3-none-any.whl.metadata (8.3 kB)
+#14 7.735 Requirement already satisfied: MarkupSafe>=2.0 in /opt/conda/lib/python3.11/site-packages (from jinja2>=3.1.5->fastapi[all]>=0.94.0->runpod==1.7.3) (2.1.3)
+#14 7.802 Collecting annotated-types>=0.6.0 (from pydantic!=1.8,!=1.8.1,!=2.0.0,!=2.0.1,!=2.1.0,<3.0.0,>=1.7.4->fastapi>=0.94.0->fastapi[all]>=0.94.0->runpod==1.7.3)
+#14 7.810   Downloading annotated_types-0.7.0-py3-none-any.whl.metadata (15 kB)
+#14 8.433 Collecting pydantic-core==2.33.2 (from pydantic!=1.8,!=1.8.1,!=2.0.0,!=2.0.1,!=2.1.0,<3.0.0,>=1.7.4->fastapi>=0.94.0->fastapi[all]>=0.94.0->runpod==1.7.3)
+#14 8.441   Downloading pydantic_core-2.33.2-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (6.8 kB)
+#14 8.466 Collecting typing-extensions>=4.8.0 (from fastapi>=0.94.0->fastapi[all]>=0.94.0->runpod==1.7.3)
+#14 8.476   Downloading typing_extensions-4.14.1-py3-none-any.whl.metadata (3.0 kB)
+#14 8.493 Collecting typing-inspection>=0.4.0 (from pydantic!=1.8,!=1.8.1,!=2.0.0,!=2.0.1,!=2.1.0,<3.0.0,>=1.7.4->fastapi>=0.94.0->fastapi[all]>=0.94.0->runpod==1.7.3)
+#14 8.501   Downloading typing_inspection-0.4.1-py3-none-any.whl.metadata (2.6 kB)
+#14 8.603 Collecting python-dotenv>=0.21.0 (from pydantic-settings>=2.0.0->fastapi[all]>=0.94.0->runpod==1.7.3)
+#14 8.611   Downloading python_dotenv-1.1.1-py3-none-any.whl.metadata (24 kB)
+#14 8.634 Requirement already satisfied: six>=1.5 in /opt/conda/lib/python3.11/site-packages (from python-dateutil<3.0.0,>=2.1->botocore<1.40.0,>=1.39.7->boto3) (1.16.0)
+#14 8.755 Collecting httptools>=0.6.3 (from uvicorn[standard]>=0.12.0; extra == "all"->fastapi[all]>=0.94.0->runpod==1.7.3)
+#14 8.768   Downloading httptools-0.6.4-cp311-cp311-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (3.6 kB)
+#14 8.812 Collecting uvloop>=0.15.1 (from uvicorn[standard]>=0.12.0; extra == "all"->fastapi[all]>=0.94.0->runpod==1.7.3)
+#14 8.822   Downloading uvloop-0.21.0-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (4.9 kB)
+#14 8.892 Collecting watchfiles>=0.13 (from uvicorn[standard]>=0.12.0; extra == "all"->fastapi[all]>=0.94.0->runpod==1.7.3)
+#14 8.903   Downloading watchfiles-1.1.0-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (4.9 kB)
+#14 8.989 Collecting websockets>=10.4 (from uvicorn[standard]>=0.12.0; extra == "all"->fastapi[all]>=0.94.0->runpod==1.7.3)
+#14 9.018   Downloading websockets-15.0.1-cp311-cp311-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (6.8 kB)
+#14 9.121 Requirement already satisfied: mpmath>=0.19 in /opt/conda/lib/python3.11/site-packages (from sympy->torch->timm) (1.3.0)
+#14 9.167 Collecting sniffio>=1.1 (from anyio->httpx>=0.23.0->fastapi[all]>=0.94.0->runpod==1.7.3)
+#14 9.177   Downloading sniffio-1.3.1-py3-none-any.whl.metadata (3.9 kB)
+#14 9.273 Collecting rignore>=0.5.1 (from fastapi-cloud-cli>=0.1.1->fastapi-cli[standard]>=0.0.8; extra == "all"->fastapi[all]>=0.94.0->runpod==1.7.3)
+#14 9.284   Downloading rignore-0.6.2-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (3.8 kB)
+#14 9.358 Collecting sentry-sdk>=2.20.0 (from fastapi-cloud-cli>=0.1.1->fastapi-cli[standard]>=0.0.8; extra == "all"->fastapi[all]>=0.94.0->runpod==1.7.3)
+#14 9.371   Downloading sentry_sdk-2.33.0-py2.py3-none-any.whl.metadata (10 kB)
+#14 9.503 Collecting rich>=13.7.1 (from rich-toolkit>=0.14.8->fastapi-cli>=0.0.8->fastapi-cli[standard]>=0.0.8; extra == "all"->fastapi[all]>=0.94.0->runpod==1.7.3)
+#14 9.513   Downloading rich-14.0.0-py3-none-any.whl.metadata (18 kB)
+#14 9.559 Collecting shellingham>=1.3.0 (from typer>=0.15.1->fastapi-cli>=0.0.8->fastapi-cli[standard]>=0.0.8; extra == "all"->fastapi[all]>=0.94.0->runpod==1.7.3)
+#14 9.571   Downloading shellingham-1.5.4-py2.py3-none-any.whl.metadata (3.5 kB)
+#14 9.695 Collecting markdown-it-py>=2.2.0 (from rich>=13.7.1->rich-toolkit>=0.14.8->fastapi-cli>=0.0.8->fastapi-cli[standard]>=0.0.8; extra == "all"->fastapi[all]>=0.94.0->runpod==1.7.3)
+#14 9.706   Downloading markdown_it_py-3.0.0-py3-none-any.whl.metadata (6.9 kB)
+#14 9.708 Requirement already satisfied: pygments<3.0.0,>=2.13.0 in /opt/conda/lib/python3.11/site-packages (from rich>=13.7.1->rich-toolkit>=0.14.8->fastapi-cli>=0.0.8->fastapi-cli[standard]>=0.0.8; extra == "all"->fastapi[all]>=0.94.0->runpod==1.7.3) (2.15.1)
+#14 9.810 Collecting mdurl~=0.1 (from markdown-it-py>=2.2.0->rich>=13.7.1->rich-toolkit>=0.14.8->fastapi-cli>=0.0.8->fastapi-cli[standard]>=0.0.8; extra == "all"->fastapi[all]>=0.94.0->runpod==1.7.3)
+#14 9.818   Downloading mdurl-0.1.2-py3-none-any.whl.metadata (1.6 kB)
+#14 9.868 Downloading runpod-1.7.3-py3-none-any.whl (4.0 MB)
+#14 10.02    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 4.0/4.0 MB 25.9 MB/s eta 0:00:00
+#14 10.04 Downloading pillow-10.2.0-cp311-cp311-manylinux_2_28_x86_64.whl (4.5 MB)
+#14 10.17    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 4.5/4.5 MB 33.9 MB/s eta 0:00:00
+#14 10.18 Downloading InquirerPy-0.3.4-py3-none-any.whl (67 kB)
+#14 10.18    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 67.7/67.7 kB 169.1 MB/s eta 0:00:00
+#14 10.19 Downloading boto3-1.39.7-py3-none-any.whl (139 kB)
+#14 10.20    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 139.9/139.9 kB 231.8 MB/s eta 0:00:00
+#14 10.21 Downloading easydict-1.13-py3-none-any.whl (6.8 kB)
+#14 10.22 Downloading omegaconf-2.3.0-py3-none-any.whl (79 kB)
+#14 10.22    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 79.5/79.5 kB 162.9 MB/s eta 0:00:00
+#14 10.23 Downloading tensorboardx-2.6.4-py3-none-any.whl (87 kB)
+#14 10.23    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 87.2/87.2 kB 163.0 MB/s eta 0:00:00
+#14 10.24 Downloading ftfy-6.3.1-py3-none-any.whl (44 kB)
+#14 10.24    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 44.8/44.8 kB 197.7 MB/s eta 0:00:00
+#14 10.25 Downloading timm-1.0.17-py3-none-any.whl (2.5 MB)
+#14 10.32    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.5/2.5 MB 38.7 MB/s eta 0:00:00
+#14 10.33 Downloading peft-0.16.0-py3-none-any.whl (472 kB)
+#14 10.34    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 472.3/472.3 kB 63.1 MB/s eta 0:00:00
+#14 10.35 Downloading rotary_embedding_torch-0.8.8-py3-none-any.whl (5.9 kB)
+#14 10.36 Downloading aiohttp-3.12.14-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (1.7 MB)
+#14 10.41    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.7/1.7 MB 43.9 MB/s eta 0:00:00
+#14 10.42 Downloading aiohttp_retry-2.9.1-py3-none-any.whl (10.0 kB)
+#14 10.43 Downloading backoff-2.2.1-py3-none-any.whl (15 kB)
+#14 10.44 Downloading botocore-1.39.7-py3-none-any.whl (13.9 MB)
+#14 10.84    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 13.9/13.9 MB 34.6 MB/s eta 0:00:00
+#14 10.85 Downloading colorama-0.4.6-py2.py3-none-any.whl (25 kB)
+#14 10.87 Downloading decorator-4.4.2-py2.py3-none-any.whl (9.2 kB)
+#14 10.89 Downloading fastapi-0.116.1-py3-none-any.whl (95 kB)
+#14 10.89    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 95.6/95.6 kB 349.4 MB/s eta 0:00:00
+#14 10.90 Downloading jmespath-1.0.1-py3-none-any.whl (20 kB)
+#14 10.91 Downloading paramiko-3.5.1-py3-none-any.whl (227 kB)
+#14 10.92    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 227.3/227.3 kB 32.2 MB/s eta 0:00:00
+#14 10.94 Downloading prettytable-3.16.0-py3-none-any.whl (33 kB)
+#14 10.95 Downloading proglog-0.1.12-py3-none-any.whl (6.3 kB)
+#14 10.97 Downloading protobuf-6.31.1-cp39-abi3-manylinux2014_x86_64.whl (321 kB)
+#14 10.98    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 321.1/321.1 kB 40.7 MB/s eta 0:00:00
+#14 10.99 Downloading py_cpuinfo-9.0.0-py3-none-any.whl (22 kB)
+#14 11.01 Downloading s3transfer-0.13.0-py3-none-any.whl (85 kB)
+#14 11.01    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 85.2/85.2 kB 305.5 MB/s eta 0:00:00
+#14 11.02 Downloading tomli-2.2.1-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (236 kB)
+#14 11.03    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 236.0/236.0 kB 46.2 MB/s eta 0:00:00
+#14 11.04 Downloading tomlkit-0.13.3-py3-none-any.whl (38 kB)
+#14 11.05 Downloading tqdm_loggable-0.2-py3-none-any.whl (9.3 kB)
+#14 11.07 Downloading watchdog-6.0.0-py3-none-manylinux2014_x86_64.whl (79 kB)
+#14 11.07    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 79.1/79.1 kB 262.9 MB/s eta 0:00:00
+#14 11.08 Downloading aiodns-3.5.0-py3-none-any.whl (8.1 kB)
+#14 11.09 Downloading aiohappyeyeballs-2.6.1-py3-none-any.whl (15 kB)
+#14 11.11 Downloading aiosignal-1.4.0-py3-none-any.whl (7.5 kB)
+#14 11.12 Downloading bcrypt-4.3.0-cp39-abi3-manylinux_2_34_x86_64.whl (284 kB)
+#14 11.13    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 284.2/284.2 kB 44.9 MB/s eta 0:00:00
+#14 11.14 Downloading email_validator-2.2.0-py3-none-any.whl (33 kB)
+#14 11.15 Downloading fastapi_cli-0.0.8-py3-none-any.whl (10 kB)
+#14 11.16 Downloading frozenlist-1.7.0-cp311-cp311-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl (235 kB)
+#14 11.17    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 235.3/235.3 kB 57.6 MB/s eta 0:00:00
+#14 11.18 Downloading httpx-0.28.1-py3-none-any.whl (73 kB)
+#14 11.18    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 73.5/73.5 kB 334.0 MB/s eta 0:00:00
+#14 11.20 Downloading httpcore-1.0.9-py3-none-any.whl (78 kB)
+#14 11.20    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 78.8/78.8 kB 336.5 MB/s eta 0:00:00
+#14 11.21 Downloading itsdangerous-2.2.0-py3-none-any.whl (16 kB)
+#14 11.22 Downloading jinja2-3.1.6-py3-none-any.whl (134 kB)
+#14 11.22    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 134.9/134.9 kB 131.4 MB/s eta 0:00:00
+#14 11.24 Downloading multidict-6.6.3-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (246 kB)
+#14 11.24    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 246.6/246.6 kB 72.4 MB/s eta 0:00:00
+#14 11.25 Downloading orjson-3.11.0-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (127 kB)
+#14 11.26    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 127.9/127.9 kB 318.1 MB/s eta 0:00:00
+#14 11.27 Downloading pfzy-0.3.4-py3-none-any.whl (8.5 kB)
+#14 11.28 Downloading propcache-0.3.2-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (213 kB)
+#14 11.28    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 213.5/213.5 kB 97.5 MB/s eta 0:00:00
+#14 11.29 Downloading pydantic-2.11.7-py3-none-any.whl (444 kB)
+#14 11.31    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 444.8/444.8 kB 37.2 MB/s eta 0:00:00
+#14 11.32 Downloading pydantic_core-2.33.2-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (2.0 MB)
+#14 11.38    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.0/2.0 MB 35.7 MB/s eta 0:00:00
+#14 11.39 Downloading pydantic_extra_types-2.10.5-py3-none-any.whl (38 kB)
+#14 11.40 Downloading pydantic_settings-2.10.1-py3-none-any.whl (45 kB)
+#14 11.41    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 45.2/45.2 kB 171.9 MB/s eta 0:00:00
+#14 11.42 Downloading PyNaCl-1.5.0-cp36-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.manylinux_2_24_x86_64.whl (856 kB)
+#14 11.44    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 856.7/856.7 kB 48.8 MB/s eta 0:00:00
+#14 11.45 Downloading python_dateutil-2.9.0.post0-py2.py3-none-any.whl (229 kB)
+#14 11.46    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 229.9/229.9 kB 86.5 MB/s eta 0:00:00
+#14 11.47 Downloading python_multipart-0.0.20-py3-none-any.whl (24 kB)
+#14 11.48 Downloading starlette-0.47.1-py3-none-any.whl (72 kB)
+#14 11.48    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 72.7/72.7 kB 206.0 MB/s eta 0:00:00
+#14 11.49 Downloading typing_extensions-4.14.1-py3-none-any.whl (43 kB)
+#14 11.49    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 43.9/43.9 kB 255.9 MB/s eta 0:00:00
+#14 11.51 Downloading ujson-5.10.0-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (53 kB)
+#14 11.51    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 53.6/53.6 kB 313.4 MB/s eta 0:00:00
+#14 11.52 Downloading uvicorn-0.35.0-py3-none-any.whl (66 kB)
+#14 11.52    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 66.4/66.4 kB 172.6 MB/s eta 0:00:00
+#14 11.53 Downloading yarl-1.20.1-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (348 kB)
+#14 11.54    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 349.0/349.0 kB 63.6 MB/s eta 0:00:00
+#14 11.55 Downloading annotated_types-0.7.0-py3-none-any.whl (13 kB)
+#14 11.57 Downloading anyio-4.9.0-py3-none-any.whl (100 kB)
+#14 11.57    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 100.9/100.9 kB 230.7 MB/s eta 0:00:00
+#14 11.59 Downloading fastapi_cloud_cli-0.1.4-py3-none-any.whl (18 kB)
+#14 11.60 Downloading h11-0.16.0-py3-none-any.whl (37 kB)
+#14 11.61 Downloading httptools-0.6.4-cp311-cp311-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl (459 kB)
+#14 11.63    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 459.8/459.8 kB 28.8 MB/s eta 0:00:00
+#14 11.64 Downloading pycares-4.9.0-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (627 kB)
+#14 11.66    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 628.0/628.0 kB 43.5 MB/s eta 0:00:00
+#14 11.67 Downloading python_dotenv-1.1.1-py3-none-any.whl (20 kB)
+#14 11.68 Downloading rich_toolkit-0.14.8-py3-none-any.whl (24 kB)
+#14 11.69 Downloading typer-0.16.0-py3-none-any.whl (46 kB)
+#14 11.70    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 46.3/46.3 kB 204.3 MB/s eta 0:00:00
+#14 11.71 Downloading typing_inspection-0.4.1-py3-none-any.whl (14 kB)
+#14 11.73 Downloading uvloop-0.21.0-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (4.0 MB)
+#14 11.83    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 4.0/4.0 MB 40.7 MB/s eta 0:00:00
+#14 11.84 Downloading watchfiles-1.1.0-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (453 kB)
+#14 11.85    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 453.1/453.1 kB 42.0 MB/s eta 0:00:00
+#14 11.87 Downloading websockets-15.0.1-cp311-cp311-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl (182 kB)
+#14 11.87    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 182.3/182.3 kB 169.0 MB/s eta 0:00:00
+#14 11.88 Downloading rich-14.0.0-py3-none-any.whl (243 kB)
+#14 11.89    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 243.2/243.2 kB 50.8 MB/s eta 0:00:00
+#14 11.90 Downloading rignore-0.6.2-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (950 kB)
+#14 11.92    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 950.5/950.5 kB 38.3 MB/s eta 0:00:00
+#14 11.93 Downloading sentry_sdk-2.33.0-py2.py3-none-any.whl (356 kB)
+#14 11.94    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 356.4/356.4 kB 37.4 MB/s eta 0:00:00
+#14 11.95 Downloading shellingham-1.5.4-py2.py3-none-any.whl (9.8 kB)
+#14 11.96 Downloading sniffio-1.3.1-py3-none-any.whl (10 kB)
+#14 11.97 Downloading markdown_it_py-3.0.0-py3-none-any.whl (87 kB)
+#14 11.97    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 87.5/87.5 kB 101.1 MB/s eta 0:00:00
+#14 11.98 Downloading mdurl-0.1.2-py3-none-any.whl (10.0 kB)
+#14 12.16 Building wheels for collected packages: moviepy, antlr4-python3-runtime
+#14 12.17   Building wheel for moviepy (setup.py): started
+#14 12.60   Building wheel for moviepy (setup.py): finished with status 'done'
+#14 12.60   Created wheel for moviepy: filename=moviepy-1.0.3-py3-none-any.whl size=110721 sha256=6e4948d50a9772bd20c953fa63a33381f10b249d710723dd16188efd8362e8b3
+#14 12.60   Stored in directory: /tmp/pip-ephem-wheel-cache-cz66jd7f/wheels/83/b1/d9/119ef7c144b44d591ec0a9a140465133c23ea95d2a161184ba
+#14 12.61   Building wheel for antlr4-python3-runtime (setup.py): started
+#14 12.98   Building wheel for antlr4-python3-runtime (setup.py): finished with status 'done'
+#14 12.98   Created wheel for antlr4-python3-runtime: filename=antlr4_python3_runtime-4.9.3-py3-none-any.whl size=144554 sha256=e9200c36536ac23a48a97c2d363c3e62a2894eaf635b61b17cbeddf4f095a499
+#14 12.98   Stored in directory: /tmp/pip-ephem-wheel-cache-cz66jd7f/wheels/1a/97/32/461f837398029ad76911109f07047fde1d7b661a147c7c56d1
+#14 12.99 Successfully built moviepy antlr4-python3-runtime
+#14 14.10 Installing collected packages: py-cpuinfo, easydict, antlr4-python3-runtime, websockets, watchdog, uvloop, ujson, typing-extensions, tqdm-loggable, tomlkit, tomli, sniffio, shellingham, sentry-sdk, rignore, python-multipart, python-dotenv, python-dateutil, protobuf, propcache, proglog, prettytable, Pillow, pfzy, orjson, omegaconf, multidict, mdurl, jmespath, jinja2, itsdangerous, httptools, h11, ftfy, frozenlist, email-validator, decorator, colorama, bcrypt, backoff, annotated-types, aiohappyeyeballs, yarl, uvicorn, typing-inspection, tensorboardX, pynacl, pydantic-core, pycares, markdown-it-py, inquirerpy, httpcore, botocore, anyio, aiosignal, watchfiles, starlette, s3transfer, rotary-embedding-torch, rich, pydantic, paramiko, moviepy, httpx, aiohttp, aiodns, typer, timm, rich-toolkit, pydantic-settings, pydantic-extra-types, fastapi, boto3, aiohttp-retry, peft, fastapi-cloud-cli, fastapi-cli, runpod
+#14 14.36   Attempting uninstall: typing-extensions
+#14 14.37     Found existing installation: typing_extensions 4.11.0
+#14 14.38     Uninstalling typing_extensions-4.11.0:
+#14 14.59       Successfully uninstalled typing_extensions-4.11.0
+#14 15.36   Attempting uninstall: Pillow
+#14 15.39     Found existing installation: pillow 10.4.0
+#14 15.40     Uninstalling pillow-10.4.0:
+#14 15.44       Successfully uninstalled pillow-10.4.0
+#14 15.77   Attempting uninstall: jinja2
+#14 15.79     Found existing installation: Jinja2 3.1.4
+#14 15.79     Uninstalling Jinja2-3.1.4:
+#14 15.81       Successfully uninstalled Jinja2-3.1.4
+#14 15.99   Attempting uninstall: decorator
+#14 16.00     Found existing installation: decorator 5.1.1
+#14 16.00     Uninstalling decorator-5.1.1:
+#14 16.14       Successfully uninstalled decorator-5.1.1
+#14 20.89 Successfully installed Pillow-10.2.0 aiodns-3.5.0 aiohappyeyeballs-2.6.1 aiohttp-3.12.14 aiohttp-retry-2.9.1 aiosignal-1.4.0 annotated-types-0.7.0 antlr4-python3-runtime-4.9.3 anyio-4.9.0 backoff-2.2.1 bcrypt-4.3.0 boto3-1.39.7 botocore-1.39.7 colorama-0.4.6 decorator-4.4.2 easydict-1.13 email-validator-2.2.0 fastapi-0.116.1 fastapi-cli-0.0.8 fastapi-cloud-cli-0.1.4 frozenlist-1.7.0 ftfy-6.3.1 h11-0.16.0 httpcore-1.0.9 httptools-0.6.4 httpx-0.28.1 inquirerpy-0.3.4 itsdangerous-2.2.0 jinja2-3.1.6 jmespath-1.0.1 markdown-it-py-3.0.0 mdurl-0.1.2 moviepy-1.0.3 multidict-6.6.3 omegaconf-2.3.0 orjson-3.11.0 paramiko-3.5.1 peft-0.16.0 pfzy-0.3.4 prettytable-3.16.0 proglog-0.1.12 propcache-0.3.2 protobuf-6.31.1 py-cpuinfo-9.0.0 pycares-4.9.0 pydantic-2.11.7 pydantic-core-2.33.2 pydantic-extra-types-2.10.5 pydantic-settings-2.10.1 pynacl-1.5.0 python-dateutil-2.9.0.post0 python-dotenv-1.1.1 python-multipart-0.0.20 rich-14.0.0 rich-toolkit-0.14.8 rignore-0.6.2 rotary-embedding-torch-0.8.8 runpod-1.7.3 s3transfer-0.13.0 sentry-sdk-2.33.0 shellingham-1.5.4 sniffio-1.3.1 starlette-0.47.1 tensorboardX-2.6.4 timm-1.0.17 tomli-2.2.1 tomlkit-0.13.3 tqdm-loggable-0.2 typer-0.16.0 typing-extensions-4.14.1 typing-inspection-0.4.1 ujson-5.10.0 uvicorn-0.35.0 uvloop-0.21.0 watchdog-6.0.0 watchfiles-1.1.0 websockets-15.0.1 yarl-1.20.1
+#14 20.89 WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv
+#14 DONE 22.6s
+
+#15 [deps 8/9] RUN pip install --force-reinstall --no-cache-dir     torch==2.1.0     torchvision==0.16.0
+#15 0.806 Collecting torch==2.1.0
+#15 0.855   Downloading torch-2.1.0-cp311-cp311-manylinux1_x86_64.whl.metadata (25 kB)
+#15 0.913 Collecting torchvision==0.16.0
+#15 0.925   Downloading torchvision-0.16.0-cp311-cp311-manylinux1_x86_64.whl.metadata (6.6 kB)
+#15 0.974 Collecting filelock (from torch==2.1.0)
+#15 0.985   Downloading filelock-3.18.0-py3-none-any.whl.metadata (2.9 kB)
+#15 1.009 Collecting typing-extensions (from torch==2.1.0)
+#15 1.018   Downloading typing_extensions-4.14.1-py3-none-any.whl.metadata (3.0 kB)
+#15 1.044 Collecting sympy (from torch==2.1.0)
+#15 1.052   Downloading sympy-1.14.0-py3-none-any.whl.metadata (12 kB)
+#15 1.092 Collecting networkx (from torch==2.1.0)
+#15 1.103   Downloading networkx-3.5-py3-none-any.whl.metadata (6.3 kB)
+#15 1.128 Collecting jinja2 (from torch==2.1.0)
+#15 1.135   Downloading jinja2-3.1.6-py3-none-any.whl.metadata (2.9 kB)
+#15 1.169 Collecting fsspec (from torch==2.1.0)
+#15 1.178   Downloading fsspec-2025.7.0-py3-none-any.whl.metadata (12 kB)
+#15 1.206 Collecting nvidia-cuda-nvrtc-cu12==12.1.105 (from torch==2.1.0)
+#15 1.214   Downloading nvidia_cuda_nvrtc_cu12-12.1.105-py3-none-manylinux1_x86_64.whl.metadata (1.5 kB)
+#15 1.235 Collecting nvidia-cuda-runtime-cu12==12.1.105 (from torch==2.1.0)
+#15 1.245   Downloading nvidia_cuda_runtime_cu12-12.1.105-py3-none-manylinux1_x86_64.whl.metadata (1.5 kB)
+#15 1.284 Collecting nvidia-cuda-cupti-cu12==12.1.105 (from torch==2.1.0)
+#15 1.293   Downloading nvidia_cuda_cupti_cu12-12.1.105-py3-none-manylinux1_x86_64.whl.metadata (1.6 kB)
+#15 1.313 Collecting nvidia-cudnn-cu12==8.9.2.26 (from torch==2.1.0)
+#15 1.321   Downloading nvidia_cudnn_cu12-8.9.2.26-py3-none-manylinux1_x86_64.whl.metadata (1.6 kB)
+#15 1.341 Collecting nvidia-cublas-cu12==12.1.3.1 (from torch==2.1.0)
+#15 1.350   Downloading nvidia_cublas_cu12-12.1.3.1-py3-none-manylinux1_x86_64.whl.metadata (1.5 kB)
+#15 1.447 Collecting nvidia-cufft-cu12==11.0.2.54 (from torch==2.1.0)
+#15 1.457   Downloading nvidia_cufft_cu12-11.0.2.54-py3-none-manylinux1_x86_64.whl.metadata (1.5 kB)
+#15 1.482 Collecting nvidia-curand-cu12==10.3.2.106 (from torch==2.1.0)
+#15 1.492   Downloading nvidia_curand_cu12-10.3.2.106-py3-none-manylinux1_x86_64.whl.metadata (1.5 kB)
+#15 1.511 Collecting nvidia-cusolver-cu12==11.4.5.107 (from torch==2.1.0)
+#15 1.522   Downloading nvidia_cusolver_cu12-11.4.5.107-py3-none-manylinux1_x86_64.whl.metadata (1.6 kB)
+#15 1.542 Collecting nvidia-cusparse-cu12==12.1.0.106 (from torch==2.1.0)
+#15 1.553   Downloading nvidia_cusparse_cu12-12.1.0.106-py3-none-manylinux1_x86_64.whl.metadata (1.6 kB)
+#15 1.574 Collecting nvidia-nccl-cu12==2.18.1 (from torch==2.1.0)
+#15 1.583   Downloading nvidia_nccl_cu12-2.18.1-py3-none-manylinux1_x86_64.whl.metadata (1.8 kB)
+#15 1.603 Collecting nvidia-nvtx-cu12==12.1.105 (from torch==2.1.0)
+#15 1.612   Downloading nvidia_nvtx_cu12-12.1.105-py3-none-manylinux1_x86_64.whl.metadata (1.7 kB)
+#15 1.633 Collecting triton==2.1.0 (from torch==2.1.0)
+#15 1.644   Downloading triton-2.1.0-0-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (1.3 kB)
+#15 1.858 Collecting numpy (from torchvision==0.16.0)
+#15 1.870   Downloading numpy-2.3.1-cp311-cp311-manylinux_2_28_x86_64.whl.metadata (62 kB)
+#15 1.876      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 62.1/62.1 kB 326.5 MB/s eta 0:00:00
+#15 1.922 Collecting requests (from torchvision==0.16.0)
+#15 1.933   Downloading requests-2.32.4-py3-none-any.whl.metadata (4.9 kB)
+#15 2.104 Collecting pillow!=8.3.*,>=5.3.0 (from torchvision==0.16.0)
+#15 2.114   Downloading pillow-11.3.0-cp311-cp311-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (9.0 kB)
+#15 2.144 Collecting nvidia-nvjitlink-cu12 (from nvidia-cusolver-cu12==11.4.5.107->torch==2.1.0)
+#15 2.190   Downloading nvidia_nvjitlink_cu12-12.9.86-py3-none-manylinux2010_x86_64.manylinux_2_12_x86_64.whl.metadata (1.7 kB)
+#15 2.356 Collecting MarkupSafe>=2.0 (from jinja2->torch==2.1.0)
+#15 2.380   Downloading MarkupSafe-3.0.2-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (4.0 kB)
+#15 2.491 Collecting charset_normalizer<4,>=2 (from requests->torchvision==0.16.0)
+#15 2.508   Downloading charset_normalizer-3.4.2-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (35 kB)
+#15 2.535 Collecting idna<4,>=2.5 (from requests->torchvision==0.16.0)
+#15 2.544   Downloading idna-3.10-py3-none-any.whl.metadata (10 kB)
+#15 2.584 Collecting urllib3<3,>=1.21.1 (from requests->torchvision==0.16.0)
+#15 2.611   Downloading urllib3-2.5.0-py3-none-any.whl.metadata (6.5 kB)
+#15 2.638 Collecting certifi>=2017.4.17 (from requests->torchvision==0.16.0)
+#15 2.650   Downloading certifi-2025.7.14-py3-none-any.whl.metadata (2.4 kB)
+#15 2.673 Collecting mpmath<1.4,>=1.1.0 (from sympy->torch==2.1.0)
+#15 2.684   Downloading mpmath-1.3.0-py3-none-any.whl.metadata (8.6 kB)
+#15 2.722 Downloading torch-2.1.0-cp311-cp311-manylinux1_x86_64.whl (670.2 MB)
+#15 20.91    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 670.2/670.2 MB 21.4 MB/s eta 0:00:00
+#15 20.92 Downloading torchvision-0.16.0-cp311-cp311-manylinux1_x86_64.whl (6.9 MB)
+#15 21.10    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 6.9/6.9 MB 38.4 MB/s eta 0:00:00
+#15 21.12 Downloading nvidia_cublas_cu12-12.1.3.1-py3-none-manylinux1_x86_64.whl (410.6 MB)
+#15 32.31    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 410.6/410.6 MB 26.7 MB/s eta 0:00:00
+#15 32.34 Downloading nvidia_cuda_cupti_cu12-12.1.105-py3-none-manylinux1_x86_64.whl (14.1 MB)
+#15 32.65    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 14.1/14.1 MB 43.7 MB/s eta 0:00:00
+#15 32.67 Downloading nvidia_cuda_nvrtc_cu12-12.1.105-py3-none-manylinux1_x86_64.whl (23.7 MB)
+#15 33.21    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 23.7/23.7 MB 40.6 MB/s eta 0:00:00
+#15 33.22 Downloading nvidia_cuda_runtime_cu12-12.1.105-py3-none-manylinux1_x86_64.whl (823 kB)
+#15 33.25    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 823.6/823.6 kB 37.6 MB/s eta 0:00:00
+#15 33.26 Downloading nvidia_cudnn_cu12-8.9.2.26-py3-none-manylinux1_x86_64.whl (731.7 MB)
+#15 52.26    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 731.7/731.7 MB 43.5 MB/s eta 0:00:00
+#15 52.29 Downloading nvidia_cufft_cu12-11.0.2.54-py3-none-manylinux1_x86_64.whl (121.6 MB)
+#15 55.53    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 121.6/121.6 MB 38.1 MB/s eta 0:00:00
+#15 55.54 Downloading nvidia_curand_cu12-10.3.2.106-py3-none-manylinux1_x86_64.whl (56.5 MB)
+#15 57.09    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 56.5/56.5 MB 45.0 MB/s eta 0:00:00
+#15 57.10 Downloading nvidia_cusolver_cu12-11.4.5.107-py3-none-manylinux1_x86_64.whl (124.2 MB)
+#15 60.02    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 124.2/124.2 MB 41.0 MB/s eta 0:00:00
+#15 60.04 Downloading nvidia_cusparse_cu12-12.1.0.106-py3-none-manylinux1_x86_64.whl (196.0 MB)
+#15 65.19    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 196.0/196.0 MB 42.2 MB/s eta 0:00:00
+#15 65.23 Downloading nvidia_nccl_cu12-2.18.1-py3-none-manylinux1_x86_64.whl (209.8 MB)
+#15 71.35    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 209.8/209.8 MB 38.4 MB/s eta 0:00:00
+#15 71.36 Downloading nvidia_nvtx_cu12-12.1.105-py3-none-manylinux1_x86_64.whl (99 kB)
+#15 71.36    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 99.1/99.1 kB 225.3 MB/s eta 0:00:00
+#15 71.38 Downloading triton-2.1.0-0-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (89.2 MB)
+#15 73.84    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 89.2/89.2 MB 40.4 MB/s eta 0:00:00
+#15 73.86 Downloading pillow-11.3.0-cp311-cp311-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (6.6 MB)
+#15 74.03    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 6.6/6.6 MB 38.2 MB/s eta 0:00:00
+#15 74.05 Downloading filelock-3.18.0-py3-none-any.whl (16 kB)
+#15 74.06 Downloading fsspec-2025.7.0-py3-none-any.whl (199 kB)
+#15 74.07    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 199.6/199.6 kB 30.4 MB/s eta 0:00:00
+#15 74.08 Downloading jinja2-3.1.6-py3-none-any.whl (134 kB)
+#15 74.08    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 134.9/134.9 kB 65.2 MB/s eta 0:00:00
+#15 74.38 Downloading networkx-3.5-py3-none-any.whl (2.0 MB)
+#15 74.42    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.0/2.0 MB 55.9 MB/s eta 0:00:00
+#15 74.44 Downloading numpy-2.3.1-cp311-cp311-manylinux_2_28_x86_64.whl (16.9 MB)
+#15 74.85    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 16.9/16.9 MB 41.2 MB/s eta 0:00:00
+#15 74.86 Downloading requests-2.32.4-py3-none-any.whl (64 kB)
+#15 74.86    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 64.8/64.8 kB 178.1 MB/s eta 0:00:00
+#15 74.88 Downloading sympy-1.14.0-py3-none-any.whl (6.3 MB)
+#15 75.06    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 6.3/6.3 MB 36.4 MB/s eta 0:00:00
+#15 75.07 Downloading typing_extensions-4.14.1-py3-none-any.whl (43 kB)
+#15 75.07    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 43.9/43.9 kB 135.0 MB/s eta 0:00:00
+#15 75.09 Downloading certifi-2025.7.14-py3-none-any.whl (162 kB)
+#15 75.09    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 162.7/162.7 kB 132.8 MB/s eta 0:00:00
+#15 75.10 Downloading charset_normalizer-3.4.2-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (147 kB)
+#15 75.11    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 147.3/147.3 kB 83.7 MB/s eta 0:00:00
+#15 75.12 Downloading idna-3.10-py3-none-any.whl (70 kB)
+#15 75.12    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 70.4/70.4 kB 203.7 MB/s eta 0:00:00
+#15 75.13 Downloading MarkupSafe-3.0.2-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (23 kB)
+#15 75.14 Downloading mpmath-1.3.0-py3-none-any.whl (536 kB)
+#15 75.16    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 536.2/536.2 kB 42.7 MB/s eta 0:00:00
+#15 75.18 Downloading urllib3-2.5.0-py3-none-any.whl (129 kB)
+#15 75.18    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 129.8/129.8 kB 116.6 MB/s eta 0:00:00
+#15 75.20 Downloading nvidia_nvjitlink_cu12-12.9.86-py3-none-manylinux2010_x86_64.manylinux_2_12_x86_64.whl (39.7 MB)
+#15 76.50    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 39.7/39.7 MB 18.9 MB/s eta 0:00:00
+#15 85.44 Installing collected packages: mpmath, urllib3, typing-extensions, sympy, pillow, nvidia-nvtx-cu12, nvidia-nvjitlink-cu12, nvidia-nccl-cu12, nvidia-curand-cu12, nvidia-cufft-cu12, nvidia-cuda-runtime-cu12, nvidia-cuda-nvrtc-cu12, nvidia-cuda-cupti-cu12, nvidia-cublas-cu12, numpy, networkx, MarkupSafe, idna, fsspec, filelock, charset_normalizer, certifi, triton, requests, nvidia-cusparse-cu12, nvidia-cudnn-cu12, jinja2, nvidia-cusolver-cu12, torch, torchvision
+#15 85.44   Attempting uninstall: mpmath
+#15 85.44     Found existing installation: mpmath 1.3.0
+#15 85.45     Uninstalling mpmath-1.3.0:
+#15 85.50       Successfully uninstalled mpmath-1.3.0
+#15 85.74   Attempting uninstall: urllib3
+#15 85.76     Found existing installation: urllib3 2.2.2
+#15 85.76     Uninstalling urllib3-2.2.2:
+#15 85.78       Successfully uninstalled urllib3-2.2.2
+#15 85.83   Attempting uninstall: typing-extensions
+#15 85.86     Found existing installation: typing_extensions 4.14.1
+#15 85.87     Uninstalling typing_extensions-4.14.1:
+#15 86.03       Successfully uninstalled typing_extensions-4.14.1
+#15 86.05   Attempting uninstall: sympy
+#15 86.05     Found existing installation: sympy 1.12
+#15 86.14     Uninstalling sympy-1.12:
+#15 87.52       Successfully uninstalled sympy-1.12
+#15 91.15   Attempting uninstall: pillow
+#15 91.18     Found existing installation: pillow 10.2.0
+#15 91.18     Uninstalling pillow-10.2.0:
+#15 91.21       Successfully uninstalled pillow-10.2.0
+#15 100.2   Attempting uninstall: numpy
+#15 100.3     Found existing installation: numpy 2.2.6
+#15 100.3     Uninstalling numpy-2.2.6:
+#15 100.6       Successfully uninstalled numpy-2.2.6
+#15 101.9   Attempting uninstall: networkx
+#15 101.9     Found existing installation: networkx 3.3
+#15 101.9     Uninstalling networkx-3.3:
+#15 102.2       Successfully uninstalled networkx-3.3
+#15 102.9   Attempting uninstall: MarkupSafe
+#15 102.9     Found existing installation: MarkupSafe 2.1.3
+#15 102.9     Uninstalling MarkupSafe-2.1.3:
+#15 102.9       Successfully uninstalled MarkupSafe-2.1.3
+#15 102.9   Attempting uninstall: idna
+#15 102.9     Found existing installation: idna 3.7
+#15 102.9     Uninstalling idna-3.7:
+#15 102.9       Successfully uninstalled idna-3.7
+#15 103.0   Attempting uninstall: fsspec
+#15 103.0     Found existing installation: fsspec 2024.6.1
+#15 103.0     Uninstalling fsspec-2024.6.1:
+#15 103.0       Successfully uninstalled fsspec-2024.6.1
+#15 103.1   Attempting uninstall: filelock
+#15 103.1     Found existing installation: filelock 3.13.1
+#15 103.1     Uninstalling filelock-3.13.1:
+#15 103.1       Successfully uninstalled filelock-3.13.1
+#15 103.1   Attempting uninstall: charset_normalizer
+#15 103.2     Found existing installation: charset-normalizer 2.0.4
+#15 103.2     Uninstalling charset-normalizer-2.0.4:
+#15 103.2       Successfully uninstalled charset-normalizer-2.0.4
+#15 103.2   Attempting uninstall: certifi
+#15 103.2     Found existing installation: certifi 2024.7.4
+#15 103.2     Uninstalling certifi-2024.7.4:
+#15 103.2       Successfully uninstalled certifi-2024.7.4
+#15 103.2   Attempting uninstall: triton
+#15 103.2     Found existing installation: triton 3.0.0
+#15 103.2     Uninstalling triton-3.0.0:
+#15 104.6       Successfully uninstalled triton-3.0.0
+#15 105.7   Attempting uninstall: requests
+#15 105.8     Found existing installation: requests 2.32.3
+#15 105.8     Uninstalling requests-2.32.3:
+#15 105.8       Successfully uninstalled requests-2.32.3
+#15 114.1   Attempting uninstall: jinja2
+#15 114.1     Found existing installation: Jinja2 3.1.6
+#15 114.1     Uninstalling Jinja2-3.1.6:
+#15 114.1       Successfully uninstalled Jinja2-3.1.6
+#15 115.3   Attempting uninstall: torch
+#15 115.3     Found existing installation: torch 2.4.0
+#15 115.3     Uninstalling torch-2.4.0:
+#15 121.6       Successfully uninstalled torch-2.4.0
+#15 132.2   Attempting uninstall: torchvision
+#15 132.2     Found existing installation: torchvision 0.19.0
+#15 132.2     Uninstalling torchvision-0.19.0:
+#15 132.6       Successfully uninstalled torchvision-0.19.0
+#15 133.6 ERROR: pip's dependency resolver does not currently take into account all the packages that are installed. This behaviour is the source of the following dependency conflicts.
+#15 133.6 opencv-python-headless 4.12.0.88 requires numpy<2.3.0,>=2; python_version >= "3.9", but you have numpy 2.3.1 which is incompatible.
+#15 133.6 numba 0.61.2 requires numpy<2.3,>=1.24, but you have numpy 2.3.1 which is incompatible.
+#15 133.6 distvae 0.0.0b5 requires torch>=2.2, but you have torch 2.1.0 which is incompatible.
+#15 133.6 opencv-python 4.12.0.88 requires numpy<2.3.0,>=2; python_version >= "3.9", but you have numpy 2.3.1 which is incompatible.
+#15 133.6 Successfully installed MarkupSafe-3.0.2 certifi-2025.7.14 charset_normalizer-3.4.2 filelock-3.18.0 fsspec-2025.7.0 idna-3.10 jinja2-3.1.6 mpmath-1.3.0 networkx-3.5 numpy-2.3.1 nvidia-cublas-cu12-12.1.3.1 nvidia-cuda-cupti-cu12-12.1.105 nvidia-cuda-nvrtc-cu12-12.1.105 nvidia-cuda-runtime-cu12-12.1.105 nvidia-cudnn-cu12-8.9.2.26 nvidia-cufft-cu12-11.0.2.54 nvidia-curand-cu12-10.3.2.106 nvidia-cusolver-cu12-11.4.5.107 nvidia-cusparse-cu12-12.1.0.106 nvidia-nccl-cu12-2.18.1 nvidia-nvjitlink-cu12-12.9.86 nvidia-nvtx-cu12-12.1.105 pillow-11.3.0 requests-2.32.4 sympy-1.13.1 torch-2.1.0 torchvision-0.16.0 triton-2.1.0 typing-extensions-4.14.1 urllib3-2.5.0
+#15 133.6 WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv
+#15 DONE 134.2s
+
+#16 [deps 9/9] RUN pip install --no-cache-dir     "xformers>=0.0.22,<0.0.23"
+#16 0.774 Collecting xformers<0.0.23,>=0.0.22
+#16 0.840   Downloading xformers-0.0.22.post7-cp311-cp311-manylinux2014_x86_64.whl.metadata (1.0 kB)
+#16 0.848 Requirement already satisfied: numpy in /opt/conda/lib/python3.11/site-packages (from xformers<0.0.23,>=0.0.22) (2.3.1)
+#16 0.849 Requirement already satisfied: torch==2.1.0 in /opt/conda/lib/python3.11/site-packages (from xformers<0.0.23,>=0.0.22) (2.1.0)
+#16 0.869 Requirement already satisfied: filelock in /opt/conda/lib/python3.11/site-packages (from torch==2.1.0->xformers<0.0.23,>=0.0.22) (3.18.0)
+#16 0.870 Requirement already satisfied: typing-extensions in /opt/conda/lib/python3.11/site-packages (from torch==2.1.0->xformers<0.0.23,>=0.0.22) (4.14.1)
+#16 0.871 Requirement already satisfied: sympy in /opt/conda/lib/python3.11/site-packages (from torch==2.1.0->xformers<0.0.23,>=0.0.22) (1.13.1)
+#16 0.872 Requirement already satisfied: networkx in /opt/conda/lib/python3.11/site-packages (from torch==2.1.0->xformers<0.0.23,>=0.0.22) (3.5)
+#16 0.873 Requirement already satisfied: jinja2 in /opt/conda/lib/python3.11/site-packages (from torch==2.1.0->xformers<0.0.23,>=0.0.22) (3.1.6)
+#16 0.874 Requirement already satisfied: fsspec in /opt/conda/lib/python3.11/site-packages (from torch==2.1.0->xformers<0.0.23,>=0.0.22) (2025.7.0)
+#16 0.876 Requirement already satisfied: nvidia-cuda-nvrtc-cu12==12.1.105 in /opt/conda/lib/python3.11/site-packages (from torch==2.1.0->xformers<0.0.23,>=0.0.22) (12.1.105)
+#16 0.877 Requirement already satisfied: nvidia-cuda-runtime-cu12==12.1.105 in /opt/conda/lib/python3.11/site-packages (from torch==2.1.0->xformers<0.0.23,>=0.0.22) (12.1.105)
+#16 0.879 Requirement already satisfied: nvidia-cuda-cupti-cu12==12.1.105 in /opt/conda/lib/python3.11/site-packages (from torch==2.1.0->xformers<0.0.23,>=0.0.22) (12.1.105)
+#16 0.880 Requirement already satisfied: nvidia-cudnn-cu12==8.9.2.26 in /opt/conda/lib/python3.11/site-packages (from torch==2.1.0->xformers<0.0.23,>=0.0.22) (8.9.2.26)
+#16 0.881 Requirement already satisfied: nvidia-cublas-cu12==12.1.3.1 in /opt/conda/lib/python3.11/site-packages (from torch==2.1.0->xformers<0.0.23,>=0.0.22) (12.1.3.1)
+#16 0.883 Requirement already satisfied: nvidia-cufft-cu12==11.0.2.54 in /opt/conda/lib/python3.11/site-packages (from torch==2.1.0->xformers<0.0.23,>=0.0.22) (11.0.2.54)
+#16 0.885 Requirement already satisfied: nvidia-curand-cu12==10.3.2.106 in /opt/conda/lib/python3.11/site-packages (from torch==2.1.0->xformers<0.0.23,>=0.0.22) (10.3.2.106)
+#16 0.886 Requirement already satisfied: nvidia-cusolver-cu12==11.4.5.107 in /opt/conda/lib/python3.11/site-packages (from torch==2.1.0->xformers<0.0.23,>=0.0.22) (11.4.5.107)
+#16 0.888 Requirement already satisfied: nvidia-cusparse-cu12==12.1.0.106 in /opt/conda/lib/python3.11/site-packages (from torch==2.1.0->xformers<0.0.23,>=0.0.22) (12.1.0.106)
+#16 0.889 Requirement already satisfied: nvidia-nccl-cu12==2.18.1 in /opt/conda/lib/python3.11/site-packages (from torch==2.1.0->xformers<0.0.23,>=0.0.22) (2.18.1)
+#16 0.890 Requirement already satisfied: nvidia-nvtx-cu12==12.1.105 in /opt/conda/lib/python3.11/site-packages (from torch==2.1.0->xformers<0.0.23,>=0.0.22) (12.1.105)
+#16 0.892 Requirement already satisfied: triton==2.1.0 in /opt/conda/lib/python3.11/site-packages (from torch==2.1.0->xformers<0.0.23,>=0.0.22) (2.1.0)
+#16 0.899 Requirement already satisfied: nvidia-nvjitlink-cu12 in /opt/conda/lib/python3.11/site-packages (from nvidia-cusolver-cu12==11.4.5.107->torch==2.1.0->xformers<0.0.23,>=0.0.22) (12.9.86)
+#16 0.959 Requirement already satisfied: MarkupSafe>=2.0 in /opt/conda/lib/python3.11/site-packages (from jinja2->torch==2.1.0->xformers<0.0.23,>=0.0.22) (3.0.2)
+#16 0.975 Requirement already satisfied: mpmath<1.4,>=1.1.0 in /opt/conda/lib/python3.11/site-packages (from sympy->torch==2.1.0->xformers<0.0.23,>=0.0.22) (1.3.0)
+#16 1.075 Downloading xformers-0.0.22.post7-cp311-cp311-manylinux2014_x86_64.whl (211.8 MB)
+#16 19.33    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 211.8/211.8 MB 12.2 MB/s eta 0:00:00
+#16 20.96 Installing collected packages: xformers
+#16 23.17 Successfully installed xformers-0.0.22.post7
+#16 23.17 WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv
+#16 DONE 23.6s
+
+#17 [final  1/14] WORKDIR /app
+#17 DONE 0.0s
+
+#18 [final  2/14] RUN git clone https://github.com/MeiGen-AI/MultiTalk.git /app/multitalk_official &&     echo "MultiTalk repository cloned"
+#18 0.137 Cloning into '/app/multitalk_official'...
+#18 1.840 MultiTalk repository cloned
+#18 DONE 1.9s
+
+#19 [final  3/14] COPY multitalk_v75_0_json_input.py /app/
+#19 DONE 0.0s
+
+#20 [final  4/14] COPY handler_v122_s3_fix.py /app/handler.py
+#20 DONE 0.0s
+
+#21 [final  5/14] COPY s3_handler.py /app/
+#21 DONE 0.0s
+
+#22 [final  6/14] RUN sed -i 's/V122/V130/g' /app/handler.py || true
+#22 DONE 0.2s
+
+#23 [final  7/14] RUN sed -i 's/V123/V130/g' /app/handler.py || true
+#23 DONE 0.2s
+
+#24 [final  8/14] RUN sed -i 's/V124/V130/g' /app/handler.py || true
+#24 DONE 0.1s
+
+#25 [final  9/14] RUN sed -i 's/V125/V130/g' /app/handler.py || true
+#25 DONE 0.1s
+
+#26 [final 10/14] RUN sed -i 's/V126/V130/g' /app/handler.py || true
+#26 DONE 0.2s
+
+#27 [final 11/14] RUN sed -i 's/V127/V130/g' /app/handler.py || true
+#27 DONE 0.2s
+
+#28 [final 12/14] RUN sed -i 's/V128/V130/g' /app/handler.py || true
+#28 DONE 0.1s
+
+#29 [final 13/14] RUN sed -i 's/V129/V130/g' /app/handler.py || true
+#29 DONE 0.2s
+
+#30 [final 14/14] RUN python -c "import torch; print(f'PyTorch {torch.__version__}'); assert torch.__version__ == '2.1.0'" &&     python -c "import torchvision; print(f'Torchvision {torchvision.__version__}'); assert torchvision.__version__ == '0.16.0'" &&     python -c "import numpy; print(f'NumPy {numpy.__version__}')" &&     python -c "import scipy; print(f'SciPy {scipy.__version__}')" &&     python -c "import easydict; print('EasyDict OK')" &&     python -c "import huggingface_hub; print(f'HuggingFace Hub {huggingface_hub.__version__}')" &&     python -c "import diffusers; print(f'Diffusers {diffusers.__version__}')" &&     python -c "import pkg_resources; pkg_resources.get_distribution('xfuser'); print('xfuser package installed')" &&     python -c "import skimage; print(f'scikit-image {skimage.__version__}')" &&     python -c "import xformers; print(f'xformers {xformers.__version__}')" &&     echo "V130 FIXED: Compatible PyTorch 2.1.0 and torchvision 0.16.0 with all dependencies"
+#30 1.767 
+#30 1.767 A module that was compiled using NumPy 1.x cannot be run in
+#30 1.767 NumPy 2.3.1 as it may crash. To support both 1.x and 2.x
+#30 1.767 versions of NumPy, modules must be compiled with NumPy 2.0.
+#30 1.767 Some module may need to rebuild instead e.g. with 'pybind11>=2.12'.
+#30 1.767 
+#30 1.767 If you are a user of the module, the easiest solution will be to
+#30 1.767 downgrade to 'numpy<2' or try to upgrade the affected module.
+#30 1.767 We expect that some modules will need time to support NumPy 2.
+#30 1.767 
+#30 1.767 Traceback (most recent call last):  File "<string>", line 1, in <module>
+#30 1.767   File "/opt/conda/lib/python3.11/site-packages/torch/__init__.py", line 1382, in <module>
+#30 1.767     from .functional import *  # noqa: F403
+#30 1.767   File "/opt/conda/lib/python3.11/site-packages/torch/functional.py", line 7, in <module>
+#30 1.767     import torch.nn.functional as F
+#30 1.767   File "/opt/conda/lib/python3.11/site-packages/torch/nn/__init__.py", line 1, in <module>
+#30 1.767     from .modules import *  # noqa: F403
+#30 1.767   File "/opt/conda/lib/python3.11/site-packages/torch/nn/modules/__init__.py", line 35, in <module>
+#30 1.767     from .transformer import TransformerEncoder, TransformerDecoder, \
+#30 1.767   File "/opt/conda/lib/python3.11/site-packages/torch/nn/modules/transformer.py", line 20, in <module>
+#30 1.767     device: torch.device = torch.device(torch._C._get_default_device()),  # torch.device('cpu'),
+#30 1.768 /opt/conda/lib/python3.11/site-packages/torch/nn/modules/transformer.py:20: UserWarning: Failed to initialize NumPy: _ARRAY_API not found (Triggered internally at ../torch/csrc/utils/tensor_numpy.cpp:84.)
+#30 1.768   device: torch.device = torch.device(torch._C._get_default_device()),  # torch.device('cpu'),
+#30 2.269 PyTorch 2.1.0+cu121
+#30 2.274 Traceback (most recent call last):
+#30 2.274   File "<string>", line 1, in <module>
+#30 2.274 AssertionError
+#30 ERROR: process "/bin/sh -c python -c \"import torch; print(f'PyTorch {torch.__version__}'); assert torch.__version__ == '2.1.0'\" &&     python -c \"import torchvision; print(f'Torchvision {torchvision.__version__}'); assert torchvision.__version__ == '0.16.0'\" &&     python -c \"import numpy; print(f'NumPy {numpy.__version__}')\" &&     python -c \"import scipy; print(f'SciPy {scipy.__version__}')\" &&     python -c \"import easydict; print('EasyDict OK')\" &&     python -c \"import huggingface_hub; print(f'HuggingFace Hub {huggingface_hub.__version__}')\" &&     python -c \"import diffusers; print(f'Diffusers {diffusers.__version__}')\" &&     python -c \"import pkg_resources; pkg_resources.get_distribution('xfuser'); print('xfuser package installed')\" &&     python -c \"import skimage; print(f'scikit-image {skimage.__version__}')\" &&     python -c \"import xformers; print(f'xformers {xformers.__version__}')\" &&     echo \"V130 FIXED: Compatible PyTorch 2.1.0 and torchvision 0.16.0 with all dependencies\"" did not complete successfully: exit code: 1
+------
+ > [final 14/14] RUN python -c "import torch; print(f'PyTorch {torch.__version__}'); assert torch.__version__ == '2.1.0'" &&     python -c "import torchvision; print(f'Torchvision {torchvision.__version__}'); assert torchvision.__version__ == '0.16.0'" &&     python -c "import numpy; print(f'NumPy {numpy.__version__}')" &&     python -c "import scipy; print(f'SciPy {scipy.__version__}')" &&     python -c "import easydict; print('EasyDict OK')" &&     python -c "import huggingface_hub; print(f'HuggingFace Hub {huggingface_hub.__version__}')" &&     python -c "import diffusers; print(f'Diffusers {diffusers.__version__}')" &&     python -c "import pkg_resources; pkg_resources.get_distribution('xfuser'); print('xfuser package installed')" &&     python -c "import skimage; print(f'scikit-image {skimage.__version__}')" &&     python -c "import xformers; print(f'xformers {xformers.__version__}')" &&     echo "V130 FIXED: Compatible PyTorch 2.1.0 and torchvision 0.16.0 with all dependencies":
+1.767   File "/opt/conda/lib/python3.11/site-packages/torch/nn/modules/__init__.py", line 35, in <module>
+1.767     from .transformer import TransformerEncoder, TransformerDecoder, \
+1.767   File "/opt/conda/lib/python3.11/site-packages/torch/nn/modules/transformer.py", line 20, in <module>
+1.767     device: torch.device = torch.device(torch._C._get_default_device()),  # torch.device('cpu'),
+1.768 /opt/conda/lib/python3.11/site-packages/torch/nn/modules/transformer.py:20: UserWarning: Failed to initialize NumPy: _ARRAY_API not found (Triggered internally at ../torch/csrc/utils/tensor_numpy.cpp:84.)
+1.768   device: torch.device = torch.device(torch._C._get_default_device()),  # torch.device('cpu'),
+2.269 PyTorch 2.1.0+cu121
+2.274 Traceback (most recent call last):
+2.274   File "<string>", line 1, in <module>
+2.274 AssertionError
+------
+
+ [33m1 warning found (use docker --debug to expand):
+[0m - InvalidBaseImagePlatform: Base image pytorch/pytorch:2.4.0-cuda12.1-cudnn9-runtime was pulled with platform "linux/amd64", expected "linux/arm64" for current build (line 3)
+Dockerfile.v130-fixed:118
+--------------------
+ 117 |     # Verification: check packages are installed with compatible versions
+ 118 | >>> RUN python -c "import torch; print(f'PyTorch {torch.__version__}'); assert torch.__version__ == '2.1.0'" && \
+ 119 | >>>     python -c "import torchvision; print(f'Torchvision {torchvision.__version__}'); assert torchvision.__version__ == '0.16.0'" && \
+ 120 | >>>     python -c "import numpy; print(f'NumPy {numpy.__version__}')" && \
+ 121 | >>>     python -c "import scipy; print(f'SciPy {scipy.__version__}')" && \
+ 122 | >>>     python -c "import easydict; print('EasyDict OK')" && \
+ 123 | >>>     python -c "import huggingface_hub; print(f'HuggingFace Hub {huggingface_hub.__version__}')" && \
+ 124 | >>>     python -c "import diffusers; print(f'Diffusers {diffusers.__version__}')" && \
+ 125 | >>>     python -c "import pkg_resources; pkg_resources.get_distribution('xfuser'); print('xfuser package installed')" && \
+ 126 | >>>     python -c "import skimage; print(f'scikit-image {skimage.__version__}')" && \
+ 127 | >>>     python -c "import xformers; print(f'xformers {xformers.__version__}')" && \
+ 128 | >>>     echo "V130 FIXED: Compatible PyTorch 2.1.0 and torchvision 0.16.0 with all dependencies"
+ 129 |     
+--------------------
+ERROR: failed to solve: process "/bin/sh -c python -c \"import torch; print(f'PyTorch {torch.__version__}'); assert torch.__version__ == '2.1.0'\" &&     python -c \"import torchvision; print(f'Torchvision {torchvision.__version__}'); assert torchvision.__version__ == '0.16.0'\" &&     python -c \"import numpy; print(f'NumPy {numpy.__version__}')\" &&     python -c \"import scipy; print(f'SciPy {scipy.__version__}')\" &&     python -c \"import easydict; print('EasyDict OK')\" &&     python -c \"import huggingface_hub; print(f'HuggingFace Hub {huggingface_hub.__version__}')\" &&     python -c \"import diffusers; print(f'Diffusers {diffusers.__version__}')\" &&     python -c \"import pkg_resources; pkg_resources.get_distribution('xfuser'); print('xfuser package installed')\" &&     python -c \"import skimage; print(f'scikit-image {skimage.__version__}')\" &&     python -c \"import xformers; print(f'xformers {xformers.__version__}')\" &&     echo \"V130 FIXED: Compatible PyTorch 2.1.0 and torchvision 0.16.0 with all dependencies\"" did not complete successfully: exit code: 1
+
+View build details: docker-desktop://dashboard/build/desktop-linux/desktop-linux/5zv0g4atutqpldjs3whoxul3c

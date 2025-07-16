@@ -1,0 +1,339 @@
+#0 building with "desktop-linux" instance using docker driver
+
+#1 [internal] load build definition from Dockerfile.v130-pytorch-compat
+#1 transferring dockerfile: 4.14kB 0.0s done
+#1 DONE 0.0s
+
+#2 [internal] load metadata for docker.io/pytorch/pytorch:2.4.0-cuda12.1-cudnn9-runtime
+#2 ...
+
+#3 [auth] pytorch/pytorch:pull token for registry-1.docker.io
+#3 DONE 0.0s
+
+#2 [internal] load metadata for docker.io/pytorch/pytorch:2.4.0-cuda12.1-cudnn9-runtime
+#2 DONE 0.9s
+
+#4 [internal] load .dockerignore
+#4 transferring context: 2B done
+#4 DONE 0.0s
+
+#5 [base 1/2] FROM docker.io/pytorch/pytorch:2.4.0-cuda12.1-cudnn9-runtime@sha256:68c022c2f4627943a6f3e574cfd2c8ae4256210d5f66ae2b117942e0a8d4fa9d
+#5 DONE 0.0s
+
+#6 [base 2/2] RUN ln -snf /usr/share/zoneinfo/UTC /etc/localtime && echo UTC > /etc/timezone &&     apt-get update && apt-get install -y --no-install-recommends     git     ffmpeg     && rm -rf /var/lib/apt/lists/*
+#6 CACHED
+
+#7 [deps 1/8] RUN pip install --no-cache-dir     "numpy>=1.23.5,<2"
+#7 CACHED
+
+#8 [internal] load build context
+#8 transferring context: 238B done
+#8 DONE 0.0s
+
+#9 [deps 2/8] RUN pip install --no-cache-dir     torch==2.1.0     torchvision==0.16.0
+#9 0.989 Collecting torch==2.1.0
+#9 1.053   Downloading torch-2.1.0-cp311-cp311-manylinux1_x86_64.whl.metadata (25 kB)
+#9 1.110 Collecting torchvision==0.16.0
+#9 1.122   Downloading torchvision-0.16.0-cp311-cp311-manylinux1_x86_64.whl.metadata (6.6 kB)
+#9 1.146 Requirement already satisfied: filelock in /opt/conda/lib/python3.11/site-packages (from torch==2.1.0) (3.13.1)
+#9 1.147 Requirement already satisfied: typing-extensions in /opt/conda/lib/python3.11/site-packages (from torch==2.1.0) (4.11.0)
+#9 1.148 Requirement already satisfied: sympy in /opt/conda/lib/python3.11/site-packages (from torch==2.1.0) (1.12)
+#9 1.149 Requirement already satisfied: networkx in /opt/conda/lib/python3.11/site-packages (from torch==2.1.0) (3.3)
+#9 1.150 Requirement already satisfied: jinja2 in /opt/conda/lib/python3.11/site-packages (from torch==2.1.0) (3.1.4)
+#9 1.152 Requirement already satisfied: fsspec in /opt/conda/lib/python3.11/site-packages (from torch==2.1.0) (2024.6.1)
+#9 1.175 Collecting nvidia-cuda-nvrtc-cu12==12.1.105 (from torch==2.1.0)
+#9 1.190   Downloading nvidia_cuda_nvrtc_cu12-12.1.105-py3-none-manylinux1_x86_64.whl.metadata (1.5 kB)
+#9 1.217 Collecting nvidia-cuda-runtime-cu12==12.1.105 (from torch==2.1.0)
+#9 1.230   Downloading nvidia_cuda_runtime_cu12-12.1.105-py3-none-manylinux1_x86_64.whl.metadata (1.5 kB)
+#9 1.263 Collecting nvidia-cuda-cupti-cu12==12.1.105 (from torch==2.1.0)
+#9 1.273   Downloading nvidia_cuda_cupti_cu12-12.1.105-py3-none-manylinux1_x86_64.whl.metadata (1.6 kB)
+#9 1.302 Collecting nvidia-cudnn-cu12==8.9.2.26 (from torch==2.1.0)
+#9 1.313   Downloading nvidia_cudnn_cu12-8.9.2.26-py3-none-manylinux1_x86_64.whl.metadata (1.6 kB)
+#9 1.341 Collecting nvidia-cublas-cu12==12.1.3.1 (from torch==2.1.0)
+#9 1.368   Downloading nvidia_cublas_cu12-12.1.3.1-py3-none-manylinux1_x86_64.whl.metadata (1.5 kB)
+#9 1.392 Collecting nvidia-cufft-cu12==11.0.2.54 (from torch==2.1.0)
+#9 1.407   Downloading nvidia_cufft_cu12-11.0.2.54-py3-none-manylinux1_x86_64.whl.metadata (1.5 kB)
+#9 1.432 Collecting nvidia-curand-cu12==10.3.2.106 (from torch==2.1.0)
+#9 1.444   Downloading nvidia_curand_cu12-10.3.2.106-py3-none-manylinux1_x86_64.whl.metadata (1.5 kB)
+#9 1.464 Collecting nvidia-cusolver-cu12==11.4.5.107 (from torch==2.1.0)
+#9 1.472   Downloading nvidia_cusolver_cu12-11.4.5.107-py3-none-manylinux1_x86_64.whl.metadata (1.6 kB)
+#9 1.493 Collecting nvidia-cusparse-cu12==12.1.0.106 (from torch==2.1.0)
+#9 1.503   Downloading nvidia_cusparse_cu12-12.1.0.106-py3-none-manylinux1_x86_64.whl.metadata (1.6 kB)
+#9 1.528 Collecting nvidia-nccl-cu12==2.18.1 (from torch==2.1.0)
+#9 1.542   Downloading nvidia_nccl_cu12-2.18.1-py3-none-manylinux1_x86_64.whl.metadata (1.8 kB)
+#9 1.563 Collecting nvidia-nvtx-cu12==12.1.105 (from torch==2.1.0)
+#9 1.572   Downloading nvidia_nvtx_cu12-12.1.105-py3-none-manylinux1_x86_64.whl.metadata (1.7 kB)
+#9 1.591 Collecting triton==2.1.0 (from torch==2.1.0)
+#9 1.601   Downloading triton-2.1.0-0-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (1.3 kB)
+#9 1.605 Requirement already satisfied: numpy in /opt/conda/lib/python3.11/site-packages (from torchvision==0.16.0) (1.26.4)
+#9 1.606 Requirement already satisfied: requests in /opt/conda/lib/python3.11/site-packages (from torchvision==0.16.0) (2.32.3)
+#9 1.608 Requirement already satisfied: pillow!=8.3.*,>=5.3.0 in /opt/conda/lib/python3.11/site-packages (from torchvision==0.16.0) (10.4.0)
+#9 1.637 Collecting nvidia-nvjitlink-cu12 (from nvidia-cusolver-cu12==11.4.5.107->torch==2.1.0)
+#9 1.646   Downloading nvidia_nvjitlink_cu12-12.9.86-py3-none-manylinux2010_x86_64.manylinux_2_12_x86_64.whl.metadata (1.7 kB)
+#9 1.723 Requirement already satisfied: MarkupSafe>=2.0 in /opt/conda/lib/python3.11/site-packages (from jinja2->torch==2.1.0) (2.1.3)
+#9 1.740 Requirement already satisfied: charset-normalizer<4,>=2 in /opt/conda/lib/python3.11/site-packages (from requests->torchvision==0.16.0) (2.0.4)
+#9 1.741 Requirement already satisfied: idna<4,>=2.5 in /opt/conda/lib/python3.11/site-packages (from requests->torchvision==0.16.0) (3.7)
+#9 1.742 Requirement already satisfied: urllib3<3,>=1.21.1 in /opt/conda/lib/python3.11/site-packages (from requests->torchvision==0.16.0) (2.2.2)
+#9 1.742 Requirement already satisfied: certifi>=2017.4.17 in /opt/conda/lib/python3.11/site-packages (from requests->torchvision==0.16.0) (2024.7.4)
+#9 1.745 Requirement already satisfied: mpmath>=0.19 in /opt/conda/lib/python3.11/site-packages (from sympy->torch==2.1.0) (1.3.0)
+#9 1.778 Downloading torch-2.1.0-cp311-cp311-manylinux1_x86_64.whl (670.2 MB)
+#9 20.56    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 670.2/670.2 MB 45.5 MB/s eta 0:00:00
+#9 20.58 Downloading torchvision-0.16.0-cp311-cp311-manylinux1_x86_64.whl (6.9 MB)
+#9 20.74    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 6.9/6.9 MB 42.6 MB/s eta 0:00:00
+#9 20.75 Downloading nvidia_cublas_cu12-12.1.3.1-py3-none-manylinux1_x86_64.whl (410.6 MB)
+#9 31.22    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 410.6/410.6 MB 24.9 MB/s eta 0:00:00
+#9 31.23 Downloading nvidia_cuda_cupti_cu12-12.1.105-py3-none-manylinux1_x86_64.whl (14.1 MB)
+#9 31.58    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 14.1/14.1 MB 40.4 MB/s eta 0:00:00
+#9 31.59 Downloading nvidia_cuda_nvrtc_cu12-12.1.105-py3-none-manylinux1_x86_64.whl (23.7 MB)
+#9 32.17    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 23.7/23.7 MB 42.2 MB/s eta 0:00:00
+#9 32.19 Downloading nvidia_cuda_runtime_cu12-12.1.105-py3-none-manylinux1_x86_64.whl (823 kB)
+#9 32.20    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 823.6/823.6 kB 66.7 MB/s eta 0:00:00
+#9 32.21 Downloading nvidia_cudnn_cu12-8.9.2.26-py3-none-manylinux1_x86_64.whl (731.7 MB)
+#9 51.82    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 731.7/731.7 MB 41.3 MB/s eta 0:00:00
+#9 51.83 Downloading nvidia_cufft_cu12-11.0.2.54-py3-none-manylinux1_x86_64.whl (121.6 MB)
+#9 55.30    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 121.6/121.6 MB 35.5 MB/s eta 0:00:00
+#9 55.31 Downloading nvidia_curand_cu12-10.3.2.106-py3-none-manylinux1_x86_64.whl (56.5 MB)
+#9 56.95    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 56.5/56.5 MB 36.8 MB/s eta 0:00:00
+#9 56.96 Downloading nvidia_cusolver_cu12-11.4.5.107-py3-none-manylinux1_x86_64.whl (124.2 MB)
+#9 60.48    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 124.2/124.2 MB 41.4 MB/s eta 0:00:00
+#9 60.49 Downloading nvidia_cusparse_cu12-12.1.0.106-py3-none-manylinux1_x86_64.whl (196.0 MB)
+#9 65.86    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 196.0/196.0 MB 38.6 MB/s eta 0:00:00
+#9 65.89 Downloading nvidia_nccl_cu12-2.18.1-py3-none-manylinux1_x86_64.whl (209.8 MB)
+#9 71.39    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 209.8/209.8 MB 43.0 MB/s eta 0:00:00
+#9 71.54 Downloading nvidia_nvtx_cu12-12.1.105-py3-none-manylinux1_x86_64.whl (99 kB)
+#9 71.55    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 99.1/99.1 kB 48.2 MB/s eta 0:00:00
+#9 71.56 Downloading triton-2.1.0-0-cp311-cp311-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (89.2 MB)
+#9 73.98    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 89.2/89.2 MB 38.7 MB/s eta 0:00:00
+#9 74.00 Downloading nvidia_nvjitlink_cu12-12.9.86-py3-none-manylinux2010_x86_64.manylinux_2_12_x86_64.whl (39.7 MB)
+#9 75.01    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 39.7/39.7 MB 38.5 MB/s eta 0:00:00
+#9 83.36 Installing collected packages: triton, nvidia-nvtx-cu12, nvidia-nvjitlink-cu12, nvidia-nccl-cu12, nvidia-curand-cu12, nvidia-cufft-cu12, nvidia-cuda-runtime-cu12, nvidia-cuda-nvrtc-cu12, nvidia-cuda-cupti-cu12, nvidia-cublas-cu12, nvidia-cusparse-cu12, nvidia-cudnn-cu12, nvidia-cusolver-cu12, torch, torchvision
+#9 83.36   Attempting uninstall: triton
+#9 83.37     Found existing installation: triton 3.0.0
+#9 83.37     Uninstalling triton-3.0.0:
+#9 84.26       Successfully uninstalled triton-3.0.0
+#9 103.9   Attempting uninstall: torch
+#9 103.9     Found existing installation: torch 2.4.0
+#9 103.9     Uninstalling torch-2.4.0:
+#9 112.7       Successfully uninstalled torch-2.4.0
+#9 123.3   Attempting uninstall: torchvision
+#9 123.3     Found existing installation: torchvision 0.19.0
+#9 123.3     Uninstalling torchvision-0.19.0:
+#9 123.6       Successfully uninstalled torchvision-0.19.0
+#9 124.3 Successfully installed nvidia-cublas-cu12-12.1.3.1 nvidia-cuda-cupti-cu12-12.1.105 nvidia-cuda-nvrtc-cu12-12.1.105 nvidia-cuda-runtime-cu12-12.1.105 nvidia-cudnn-cu12-8.9.2.26 nvidia-cufft-cu12-11.0.2.54 nvidia-curand-cu12-10.3.2.106 nvidia-cusolver-cu12-11.4.5.107 nvidia-cusparse-cu12-12.1.0.106 nvidia-nccl-cu12-2.18.1 nvidia-nvjitlink-cu12-12.9.86 nvidia-nvtx-cu12-12.1.105 torch-2.1.0 torchvision-0.16.0 triton-2.1.0
+#9 124.3 WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv
+#9 DONE 124.9s
+
+#10 [deps 3/8] RUN pip install --no-cache-dir     "transformers>=4.49.0"     "diffusers>=0.31.0"     "accelerate>=1.1.1"     "safetensors>=0.3.1"     "einops>=0.8.0"     "huggingface-hub>=0.19.0"     "tokenizers>=0.20.3"
+#10 0.906 Collecting transformers>=4.49.0
+#10 0.988   Downloading transformers-4.53.2-py3-none-any.whl.metadata (40 kB)
+#10 1.002      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 40.9/40.9 kB 4.9 MB/s eta 0:00:00
+#10 1.054 Collecting diffusers>=0.31.0
+#10 1.071   Downloading diffusers-0.34.0-py3-none-any.whl.metadata (20 kB)
+#10 1.107 Collecting accelerate>=1.1.1
+#10 1.123   Downloading accelerate-1.9.0-py3-none-any.whl.metadata (19 kB)
+#10 1.259 Collecting safetensors>=0.3.1
+#10 1.271   Downloading safetensors-0.5.3-cp38-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (3.8 kB)
+#10 1.289 Collecting einops>=0.8.0
+#10 1.300   Downloading einops-0.8.1-py3-none-any.whl.metadata (13 kB)
+#10 1.369 Collecting huggingface-hub>=0.19.0
+#10 1.377   Downloading huggingface_hub-0.33.4-py3-none-any.whl.metadata (14 kB)
+#10 1.532 Collecting tokenizers>=0.20.3
+#10 1.544   Downloading tokenizers-0.21.2-cp39-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (6.8 kB)
+#10 1.712 Requirement already satisfied: filelock in /opt/conda/lib/python3.11/site-packages (from transformers>=4.49.0) (3.13.1)
+#10 1.721 Requirement already satisfied: numpy>=1.17 in /opt/conda/lib/python3.11/site-packages (from transformers>=4.49.0) (1.26.4)
+#10 1.722 Requirement already satisfied: packaging>=20.0 in /opt/conda/lib/python3.11/site-packages (from transformers>=4.49.0) (24.1)
+#10 1.723 Requirement already satisfied: pyyaml>=5.1 in /opt/conda/lib/python3.11/site-packages (from transformers>=4.49.0) (6.0.1)
+#10 2.030 Collecting regex!=2019.12.17 (from transformers>=4.49.0)
+#10 2.044   Downloading regex-2024.11.6-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (40 kB)
+#10 2.046      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 40.5/40.5 kB 195.2 MB/s eta 0:00:00
+#10 2.049 Requirement already satisfied: requests in /opt/conda/lib/python3.11/site-packages (from transformers>=4.49.0) (2.32.3)
+#10 2.057 Requirement already satisfied: tqdm>=4.27 in /opt/conda/lib/python3.11/site-packages (from transformers>=4.49.0) (4.66.4)
+#10 2.136 Collecting importlib_metadata (from diffusers>=0.31.0)
+#10 2.144   Downloading importlib_metadata-8.7.0-py3-none-any.whl.metadata (4.8 kB)
+#10 2.155 Requirement already satisfied: Pillow in /opt/conda/lib/python3.11/site-packages (from diffusers>=0.31.0) (10.4.0)
+#10 2.183 Requirement already satisfied: psutil in /opt/conda/lib/python3.11/site-packages (from accelerate>=1.1.1) (5.9.0)
+#10 2.185 Requirement already satisfied: torch>=2.0.0 in /opt/conda/lib/python3.11/site-packages (from accelerate>=1.1.1) (2.1.0)
+#10 2.260 Requirement already satisfied: fsspec>=2023.5.0 in /opt/conda/lib/python3.11/site-packages (from huggingface-hub>=0.19.0) (2024.6.1)
+#10 2.263 Requirement already satisfied: typing-extensions>=3.7.4.3 in /opt/conda/lib/python3.11/site-packages (from huggingface-hub>=0.19.0) (4.11.0)
+#10 2.293 Collecting hf-xet<2.0.0,>=1.1.2 (from huggingface-hub>=0.19.0)
+#10 2.300   Downloading hf_xet-1.1.5-cp37-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (879 bytes)
+#10 2.381 Requirement already satisfied: sympy in /opt/conda/lib/python3.11/site-packages (from torch>=2.0.0->accelerate>=1.1.1) (1.12)
+#10 2.382 Requirement already satisfied: networkx in /opt/conda/lib/python3.11/site-packages (from torch>=2.0.0->accelerate>=1.1.1) (3.3)
+#10 2.383 Requirement already satisfied: jinja2 in /opt/conda/lib/python3.11/site-packages (from torch>=2.0.0->accelerate>=1.1.1) (3.1.4)
+#10 2.385 Requirement already satisfied: nvidia-cuda-nvrtc-cu12==12.1.105 in /opt/conda/lib/python3.11/site-packages (from torch>=2.0.0->accelerate>=1.1.1) (12.1.105)
+#10 2.386 Requirement already satisfied: nvidia-cuda-runtime-cu12==12.1.105 in /opt/conda/lib/python3.11/site-packages (from torch>=2.0.0->accelerate>=1.1.1) (12.1.105)
+#10 2.388 Requirement already satisfied: nvidia-cuda-cupti-cu12==12.1.105 in /opt/conda/lib/python3.11/site-packages (from torch>=2.0.0->accelerate>=1.1.1) (12.1.105)
+#10 2.390 Requirement already satisfied: nvidia-cudnn-cu12==8.9.2.26 in /opt/conda/lib/python3.11/site-packages (from torch>=2.0.0->accelerate>=1.1.1) (8.9.2.26)
+#10 2.391 Requirement already satisfied: nvidia-cublas-cu12==12.1.3.1 in /opt/conda/lib/python3.11/site-packages (from torch>=2.0.0->accelerate>=1.1.1) (12.1.3.1)
+#10 2.393 Requirement already satisfied: nvidia-cufft-cu12==11.0.2.54 in /opt/conda/lib/python3.11/site-packages (from torch>=2.0.0->accelerate>=1.1.1) (11.0.2.54)
+#10 2.394 Requirement already satisfied: nvidia-curand-cu12==10.3.2.106 in /opt/conda/lib/python3.11/site-packages (from torch>=2.0.0->accelerate>=1.1.1) (10.3.2.106)
+#10 2.396 Requirement already satisfied: nvidia-cusolver-cu12==11.4.5.107 in /opt/conda/lib/python3.11/site-packages (from torch>=2.0.0->accelerate>=1.1.1) (11.4.5.107)
+#10 2.397 Requirement already satisfied: nvidia-cusparse-cu12==12.1.0.106 in /opt/conda/lib/python3.11/site-packages (from torch>=2.0.0->accelerate>=1.1.1) (12.1.0.106)
+#10 2.399 Requirement already satisfied: nvidia-nccl-cu12==2.18.1 in /opt/conda/lib/python3.11/site-packages (from torch>=2.0.0->accelerate>=1.1.1) (2.18.1)
+#10 2.400 Requirement already satisfied: nvidia-nvtx-cu12==12.1.105 in /opt/conda/lib/python3.11/site-packages (from torch>=2.0.0->accelerate>=1.1.1) (12.1.105)
+#10 2.402 Requirement already satisfied: triton==2.1.0 in /opt/conda/lib/python3.11/site-packages (from torch>=2.0.0->accelerate>=1.1.1) (2.1.0)
+#10 2.417 Requirement already satisfied: nvidia-nvjitlink-cu12 in /opt/conda/lib/python3.11/site-packages (from nvidia-cusolver-cu12==11.4.5.107->torch>=2.0.0->accelerate>=1.1.1) (12.9.86)
+#10 2.481 Collecting zipp>=3.20 (from importlib_metadata->diffusers>=0.31.0)
+#10 2.491   Downloading zipp-3.23.0-py3-none-any.whl.metadata (3.6 kB)
+#10 2.514 Requirement already satisfied: charset-normalizer<4,>=2 in /opt/conda/lib/python3.11/site-packages (from requests->transformers>=4.49.0) (2.0.4)
+#10 2.515 Requirement already satisfied: idna<4,>=2.5 in /opt/conda/lib/python3.11/site-packages (from requests->transformers>=4.49.0) (3.7)
+#10 2.516 Requirement already satisfied: urllib3<3,>=1.21.1 in /opt/conda/lib/python3.11/site-packages (from requests->transformers>=4.49.0) (2.2.2)
+#10 2.517 Requirement already satisfied: certifi>=2017.4.17 in /opt/conda/lib/python3.11/site-packages (from requests->transformers>=4.49.0) (2024.7.4)
+#10 2.542 Requirement already satisfied: MarkupSafe>=2.0 in /opt/conda/lib/python3.11/site-packages (from jinja2->torch>=2.0.0->accelerate>=1.1.1) (2.1.3)
+#10 2.557 Requirement already satisfied: mpmath>=0.19 in /opt/conda/lib/python3.11/site-packages (from sympy->torch>=2.0.0->accelerate>=1.1.1) (1.3.0)
+#10 2.579 Downloading transformers-4.53.2-py3-none-any.whl (10.8 MB)
+#10 2.969    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 10.8/10.8 MB 28.7 MB/s eta 0:00:00
+#10 2.984 Downloading diffusers-0.34.0-py3-none-any.whl (3.8 MB)
+#10 3.096    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.8/3.8 MB 34.6 MB/s eta 0:00:00
+#10 3.108 Downloading accelerate-1.9.0-py3-none-any.whl (367 kB)
+#10 3.118    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 367.1/367.1 kB 70.0 MB/s eta 0:00:00
+#10 3.130 Downloading safetensors-0.5.3-cp38-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (471 kB)
+#10 3.142    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 471.6/471.6 kB 51.0 MB/s eta 0:00:00
+#10 3.151 Downloading einops-0.8.1-py3-none-any.whl (64 kB)
+#10 3.154    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 64.4/64.4 kB 131.7 MB/s eta 0:00:00
+#10 3.168 Downloading huggingface_hub-0.33.4-py3-none-any.whl (515 kB)
+#10 3.181    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 515.3/515.3 kB 48.8 MB/s eta 0:00:00
+#10 3.198 Downloading tokenizers-0.21.2-cp39-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (3.1 MB)
+#10 3.288    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.1/3.1 MB 35.7 MB/s eta 0:00:00
+#10 3.299 Downloading hf_xet-1.1.5-cp37-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (3.1 MB)
+#10 3.384    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.1/3.1 MB 38.2 MB/s eta 0:00:00
+#10 3.396 Downloading regex-2024.11.6-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (792 kB)
+#10 3.417    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 792.7/792.7 kB 41.9 MB/s eta 0:00:00
+#10 3.430 Downloading importlib_metadata-8.7.0-py3-none-any.whl (27 kB)
+#10 3.442 Downloading zipp-3.23.0-py3-none-any.whl (10 kB)
+#10 4.170 Installing collected packages: zipp, safetensors, regex, hf-xet, einops, importlib_metadata, huggingface-hub, tokenizers, diffusers, transformers, accelerate
+#10 10.27 Successfully installed accelerate-1.9.0 diffusers-0.34.0 einops-0.8.1 hf-xet-1.1.5 huggingface-hub-0.33.4 importlib_metadata-8.7.0 regex-2024.11.6 safetensors-0.5.3 tokenizers-0.21.2 transformers-4.53.2 zipp-3.23.0
+#10 10.27 WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv
+#10 DONE 10.6s
+
+#11 [deps 4/8] RUN pip install --no-cache-dir     "xfuser>=0.4.1"
+#11 0.743 Collecting xfuser>=0.4.1
+#11 0.794   Downloading xfuser-0.4.3.post3-py3-none-any.whl.metadata (22 kB)
+#11 0.811 Requirement already satisfied: torch>=2.1.0 in /opt/conda/lib/python3.11/site-packages (from xfuser>=0.4.1) (2.1.0)
+#11 0.812 Requirement already satisfied: accelerate>=0.33.0 in /opt/conda/lib/python3.11/site-packages (from xfuser>=0.4.1) (1.9.0)
+#11 0.816 Requirement already satisfied: transformers>=4.39.1 in /opt/conda/lib/python3.11/site-packages (from xfuser>=0.4.1) (4.53.2)
+#11 0.883 Collecting sentencepiece>=0.1.99 (from xfuser>=0.4.1)
+#11 0.896   Downloading sentencepiece-0.2.0-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (7.7 kB)
+#11 0.898 Requirement already satisfied: beautifulsoup4>=4.12.3 in /opt/conda/lib/python3.11/site-packages (from xfuser>=0.4.1) (4.12.3)
+#11 0.990 Collecting distvae (from xfuser>=0.4.1)
+#11 1.001   Downloading DistVAE-0.0.0b5-py3-none-any.whl.metadata (701 bytes)
+#11 1.103 Collecting yunchang>=0.6.0 (from xfuser>=0.4.1)
+#11 1.113   Downloading yunchang-0.6.3.post1-py3-none-any.whl.metadata (12 kB)
+#11 1.175 Collecting pytest (from xfuser>=0.4.1)
+#11 1.185   Downloading pytest-8.4.1-py3-none-any.whl.metadata (7.7 kB)
+#11 1.257 Collecting opencv-python (from xfuser>=0.4.1)
+#11 1.268   Downloading opencv_python-4.12.0.88-cp37-abi3-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (19 kB)
+#11 1.303 Collecting imageio (from xfuser>=0.4.1)
+#11 1.314   Downloading imageio-2.37.0-py3-none-any.whl.metadata (5.2 kB)
+#11 1.334 Collecting imageio-ffmpeg (from xfuser>=0.4.1)
+#11 1.342   Downloading imageio_ffmpeg-0.6.0-py3-none-manylinux2014_x86_64.whl.metadata (1.5 kB)
+#11 1.344 Requirement already satisfied: einops in /opt/conda/lib/python3.11/site-packages (from xfuser>=0.4.1) (0.8.1)
+#11 1.374 Requirement already satisfied: numpy<3.0.0,>=1.17 in /opt/conda/lib/python3.11/site-packages (from accelerate>=0.33.0->xfuser>=0.4.1) (1.26.4)
+#11 1.375 Requirement already satisfied: packaging>=20.0 in /opt/conda/lib/python3.11/site-packages (from accelerate>=0.33.0->xfuser>=0.4.1) (24.1)
+#11 1.376 Requirement already satisfied: psutil in /opt/conda/lib/python3.11/site-packages (from accelerate>=0.33.0->xfuser>=0.4.1) (5.9.0)
+#11 1.376 Requirement already satisfied: pyyaml in /opt/conda/lib/python3.11/site-packages (from accelerate>=0.33.0->xfuser>=0.4.1) (6.0.1)
+#11 1.379 Requirement already satisfied: huggingface_hub>=0.21.0 in /opt/conda/lib/python3.11/site-packages (from accelerate>=0.33.0->xfuser>=0.4.1) (0.33.4)
+#11 1.380 Requirement already satisfied: safetensors>=0.4.3 in /opt/conda/lib/python3.11/site-packages (from accelerate>=0.33.0->xfuser>=0.4.1) (0.5.3)
+#11 1.384 Requirement already satisfied: soupsieve>1.2 in /opt/conda/lib/python3.11/site-packages (from beautifulsoup4>=4.12.3->xfuser>=0.4.1) (2.5)
+#11 1.412 Requirement already satisfied: filelock in /opt/conda/lib/python3.11/site-packages (from torch>=2.1.0->xfuser>=0.4.1) (3.13.1)
+#11 1.413 Requirement already satisfied: typing-extensions in /opt/conda/lib/python3.11/site-packages (from torch>=2.1.0->xfuser>=0.4.1) (4.11.0)
+#11 1.414 Requirement already satisfied: sympy in /opt/conda/lib/python3.11/site-packages (from torch>=2.1.0->xfuser>=0.4.1) (1.12)
+#11 1.415 Requirement already satisfied: networkx in /opt/conda/lib/python3.11/site-packages (from torch>=2.1.0->xfuser>=0.4.1) (3.3)
+#11 1.416 Requirement already satisfied: jinja2 in /opt/conda/lib/python3.11/site-packages (from torch>=2.1.0->xfuser>=0.4.1) (3.1.4)
+#11 1.417 Requirement already satisfied: fsspec in /opt/conda/lib/python3.11/site-packages (from torch>=2.1.0->xfuser>=0.4.1) (2024.6.1)
+#11 1.419 Requirement already satisfied: nvidia-cuda-nvrtc-cu12==12.1.105 in /opt/conda/lib/python3.11/site-packages (from torch>=2.1.0->xfuser>=0.4.1) (12.1.105)
+#11 1.420 Requirement already satisfied: nvidia-cuda-runtime-cu12==12.1.105 in /opt/conda/lib/python3.11/site-packages (from torch>=2.1.0->xfuser>=0.4.1) (12.1.105)
+#11 1.422 Requirement already satisfied: nvidia-cuda-cupti-cu12==12.1.105 in /opt/conda/lib/python3.11/site-packages (from torch>=2.1.0->xfuser>=0.4.1) (12.1.105)
+#11 1.423 Requirement already satisfied: nvidia-cudnn-cu12==8.9.2.26 in /opt/conda/lib/python3.11/site-packages (from torch>=2.1.0->xfuser>=0.4.1) (8.9.2.26)
+#11 1.425 Requirement already satisfied: nvidia-cublas-cu12==12.1.3.1 in /opt/conda/lib/python3.11/site-packages (from torch>=2.1.0->xfuser>=0.4.1) (12.1.3.1)
+#11 1.426 Requirement already satisfied: nvidia-cufft-cu12==11.0.2.54 in /opt/conda/lib/python3.11/site-packages (from torch>=2.1.0->xfuser>=0.4.1) (11.0.2.54)
+#11 1.427 Requirement already satisfied: nvidia-curand-cu12==10.3.2.106 in /opt/conda/lib/python3.11/site-packages (from torch>=2.1.0->xfuser>=0.4.1) (10.3.2.106)
+#11 1.429 Requirement already satisfied: nvidia-cusolver-cu12==11.4.5.107 in /opt/conda/lib/python3.11/site-packages (from torch>=2.1.0->xfuser>=0.4.1) (11.4.5.107)
+#11 1.430 Requirement already satisfied: nvidia-cusparse-cu12==12.1.0.106 in /opt/conda/lib/python3.11/site-packages (from torch>=2.1.0->xfuser>=0.4.1) (12.1.0.106)
+#11 1.431 Requirement already satisfied: nvidia-nccl-cu12==2.18.1 in /opt/conda/lib/python3.11/site-packages (from torch>=2.1.0->xfuser>=0.4.1) (2.18.1)
+#11 1.433 Requirement already satisfied: nvidia-nvtx-cu12==12.1.105 in /opt/conda/lib/python3.11/site-packages (from torch>=2.1.0->xfuser>=0.4.1) (12.1.105)
+#11 1.434 Requirement already satisfied: triton==2.1.0 in /opt/conda/lib/python3.11/site-packages (from torch>=2.1.0->xfuser>=0.4.1) (2.1.0)
+#11 1.444 Requirement already satisfied: nvidia-nvjitlink-cu12 in /opt/conda/lib/python3.11/site-packages (from nvidia-cusolver-cu12==11.4.5.107->torch>=2.1.0->xfuser>=0.4.1) (12.9.86)
+#11 1.610 Requirement already satisfied: regex!=2019.12.17 in /opt/conda/lib/python3.11/site-packages (from transformers>=4.39.1->xfuser>=0.4.1) (2024.11.6)
+#11 1.611 Requirement already satisfied: requests in /opt/conda/lib/python3.11/site-packages (from transformers>=4.39.1->xfuser>=0.4.1) (2.32.3)
+#11 1.612 Requirement already satisfied: tokenizers<0.22,>=0.21 in /opt/conda/lib/python3.11/site-packages (from transformers>=4.39.1->xfuser>=0.4.1) (0.21.2)
+#11 1.615 Requirement already satisfied: tqdm>=4.27 in /opt/conda/lib/python3.11/site-packages (from transformers>=4.39.1->xfuser>=0.4.1) (4.66.4)
+#11 1.667 Collecting torch>=2.1.0 (from xfuser>=0.4.1)
+#11 1.676   Downloading torch-2.7.1-cp311-cp311-manylinux_2_28_x86_64.whl.metadata (29 kB)
+#11 1.681 Requirement already satisfied: diffusers>=0.27.2 in /opt/conda/lib/python3.11/site-packages (from distvae->xfuser>=0.4.1) (0.34.0)
+#11 1.727 Collecting sympy>=1.13.3 (from torch>=2.1.0->xfuser>=0.4.1)
+#11 1.738   Downloading sympy-1.14.0-py3-none-any.whl.metadata (12 kB)
+#11 1.758 Collecting nvidia-cuda-nvrtc-cu12==12.6.77 (from torch>=2.1.0->xfuser>=0.4.1)
+#11 1.767   Downloading nvidia_cuda_nvrtc_cu12-12.6.77-py3-none-manylinux2014_x86_64.whl.metadata (1.5 kB)
+#11 1.785 Collecting nvidia-cuda-runtime-cu12==12.6.77 (from torch>=2.1.0->xfuser>=0.4.1)
+#11 1.793   Downloading nvidia_cuda_runtime_cu12-12.6.77-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (1.5 kB)
+#11 1.812 Collecting nvidia-cuda-cupti-cu12==12.6.80 (from torch>=2.1.0->xfuser>=0.4.1)
+#11 1.818   Downloading nvidia_cuda_cupti_cu12-12.6.80-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (1.6 kB)
+#11 1.840 Collecting nvidia-cudnn-cu12==9.5.1.17 (from torch>=2.1.0->xfuser>=0.4.1)
+#11 1.846   Downloading nvidia_cudnn_cu12-9.5.1.17-py3-none-manylinux_2_28_x86_64.whl.metadata (1.6 kB)
+#11 1.864 Collecting nvidia-cublas-cu12 (from nvidia-cudnn-cu12==8.9.2.26->torch>=2.1.0->xfuser>=0.4.1)
+#11 1.873   Downloading nvidia_cublas_cu12-12.6.4.1-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (1.5 kB)
+#11 1.891 Collecting nvidia-cufft-cu12==11.3.0.4 (from torch>=2.1.0->xfuser>=0.4.1)
+#11 1.899   Downloading nvidia_cufft_cu12-11.3.0.4-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (1.5 kB)
+#11 1.922 Collecting nvidia-curand-cu12==10.3.7.77 (from torch>=2.1.0->xfuser>=0.4.1)
+#11 1.930   Downloading nvidia_curand_cu12-10.3.7.77-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (1.5 kB)
+#11 1.949 Collecting nvidia-cusolver-cu12==11.7.1.2 (from torch>=2.1.0->xfuser>=0.4.1)
+#11 1.959   Downloading nvidia_cusolver_cu12-11.7.1.2-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (1.6 kB)
+#11 1.979 Collecting nvidia-cusparse-cu12 (from nvidia-cusolver-cu12==11.4.5.107->torch>=2.1.0->xfuser>=0.4.1)
+#11 1.986   Downloading nvidia_cusparse_cu12-12.5.4.2-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (1.6 kB)
+#11 2.003 Collecting nvidia-cusparselt-cu12==0.6.3 (from torch>=2.1.0->xfuser>=0.4.1)
+#11 2.013   Downloading nvidia_cusparselt_cu12-0.6.3-py3-none-manylinux2014_x86_64.whl.metadata (6.8 kB)
+#11 2.031 Collecting nvidia-nccl-cu12==2.26.2 (from torch>=2.1.0->xfuser>=0.4.1)
+#11 2.037   Downloading nvidia_nccl_cu12-2.26.2-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (2.0 kB)
+#11 2.056 Collecting nvidia-nvtx-cu12==12.6.77 (from torch>=2.1.0->xfuser>=0.4.1)
+#11 2.067   Downloading nvidia_nvtx_cu12-12.6.77-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (1.6 kB)
+#11 2.087 Collecting nvidia-nvjitlink-cu12 (from nvidia-cusolver-cu12==11.4.5.107->torch>=2.1.0->xfuser>=0.4.1)
+#11 2.098   Downloading nvidia_nvjitlink_cu12-12.6.85-py3-none-manylinux2010_x86_64.manylinux_2_12_x86_64.whl.metadata (1.5 kB)
+#11 2.115 Collecting nvidia-cufile-cu12==1.11.1.6 (from torch>=2.1.0->xfuser>=0.4.1)
+#11 2.123   Downloading nvidia_cufile_cu12-1.11.1.6-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (1.5 kB)
+#11 2.149 Collecting triton==3.3.1 (from torch>=2.1.0->xfuser>=0.4.1)
+#11 2.163   Downloading triton-3.3.1-cp311-cp311-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (1.5 kB)
+#11 2.215 Requirement already satisfied: setuptools>=40.8.0 in /opt/conda/lib/python3.11/site-packages (from triton==3.3.1->torch>=2.1.0->xfuser>=0.4.1) (69.5.1)
+#11 2.241 Requirement already satisfied: pillow>=8.3.2 in /opt/conda/lib/python3.11/site-packages (from imageio->xfuser>=0.4.1) (10.4.0)
+#11 2.460 Collecting numpy<3.0.0,>=1.17 (from accelerate>=0.33.0->xfuser>=0.4.1)
+#11 2.478   Downloading numpy-2.2.6-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl.metadata (62 kB)
+#11 2.483      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 62.0/62.0 kB 281.1 MB/s eta 0:00:00
+#11 2.525 Collecting iniconfig>=1 (from pytest->xfuser>=0.4.1)
+#11 2.532   Downloading iniconfig-2.1.0-py3-none-any.whl.metadata (2.7 kB)
+#11 2.553 Collecting pluggy<2,>=1.5 (from pytest->xfuser>=0.4.1)
+#11 2.563   Downloading pluggy-1.6.0-py3-none-any.whl.metadata (4.8 kB)
+#11 2.565 Requirement already satisfied: pygments>=2.7.2 in /opt/conda/lib/python3.11/site-packages (from pytest->xfuser>=0.4.1) (2.15.1)
+#11 2.614 Requirement already satisfied: importlib_metadata in /opt/conda/lib/python3.11/site-packages (from diffusers>=0.27.2->distvae->xfuser>=0.4.1) (8.7.0)
+#11 2.671 Requirement already satisfied: hf-xet<2.0.0,>=1.1.2 in /opt/conda/lib/python3.11/site-packages (from huggingface_hub>=0.21.0->accelerate>=0.33.0->xfuser>=0.4.1) (1.1.5)
+#11 2.767 Requirement already satisfied: mpmath<1.4,>=1.1.0 in /opt/conda/lib/python3.11/site-packages (from sympy>=1.13.3->torch>=2.1.0->xfuser>=0.4.1) (1.3.0)
+#11 2.797 Requirement already satisfied: MarkupSafe>=2.0 in /opt/conda/lib/python3.11/site-packages (from jinja2->torch>=2.1.0->xfuser>=0.4.1) (2.1.3)
+#11 2.823 Requirement already satisfied: charset-normalizer<4,>=2 in /opt/conda/lib/python3.11/site-packages (from requests->transformers>=4.39.1->xfuser>=0.4.1) (2.0.4)
+#11 2.824 Requirement already satisfied: idna<4,>=2.5 in /opt/conda/lib/python3.11/site-packages (from requests->transformers>=4.39.1->xfuser>=0.4.1) (3.7)
+#11 2.825 Requirement already satisfied: urllib3<3,>=1.21.1 in /opt/conda/lib/python3.11/site-packages (from requests->transformers>=4.39.1->xfuser>=0.4.1) (2.2.2)
+#11 2.827 Requirement already satisfied: certifi>=2017.4.17 in /opt/conda/lib/python3.11/site-packages (from requests->transformers>=4.39.1->xfuser>=0.4.1) (2024.7.4)
+#11 2.891 Requirement already satisfied: zipp>=3.20 in /opt/conda/lib/python3.11/site-packages (from importlib_metadata->diffusers>=0.27.2->distvae->xfuser>=0.4.1) (3.23.0)
+#11 2.917 Downloading xfuser-0.4.3.post3-py3-none-any.whl (196 kB)
+#11 2.931    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 196.2/196.2 kB 32.6 MB/s eta 0:00:00
+#11 2.942 Downloading sentencepiece-0.2.0-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (1.3 MB)
+#11 3.006    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.3/1.3 MB 20.8 MB/s eta 0:00:00
+#11 3.019 Downloading yunchang-0.6.3.post1-py3-none-any.whl (48 kB)
+#11 3.020    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 48.1/48.1 kB 377.0 MB/s eta 0:00:00
+#11 3.032 Downloading DistVAE-0.0.0b5-py3-none-any.whl (28 kB)
+#11 3.041 Downloading torch-2.7.1-cp311-cp311-manylinux_2_28_x86_64.whl (821.2 MB)
+#11 25.44    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 821.2/821.2 MB 42.4 MB/s eta 0:00:00
+#11 25.46 Downloading nvidia_cublas_cu12-12.6.4.1-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (393.1 MB)
+#11 35.76    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 393.1/393.1 MB 39.0 MB/s eta 0:00:00
+#11 35.78 Downloading nvidia_cuda_cupti_cu12-12.6.80-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (8.9 MB)
+#11 36.00    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 8.9/8.9 MB 42.5 MB/s eta 0:00:00
+#11 36.01 Downloading nvidia_cuda_nvrtc_cu12-12.6.77-py3-none-manylinux2014_x86_64.whl (23.7 MB)
+#11 36.57    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 23.7/23.7 MB 43.2 MB/s eta 0:00:00
+#11 36.58 Downloading nvidia_cuda_runtime_cu12-12.6.77-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (897 kB)
+#11 36.60    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 897.7/897.7 kB 58.4 MB/s eta 0:00:00
+#11 36.62 Downloading nvidia_cudnn_cu12-9.5.1.17-py3-none-manylinux_2_28_x86_64.whl (571.0 MB)
+#11 52.26    ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 571.0/571.0 MB 27.3 MB/s eta 0:00:00
+#11 52.27 Downloading nvidia_cufft_cu12-11.3.0.4-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (200.2 MB)
+#11 CANCELED
+
+ [33m1 warning found (use docker --debug to expand):
+[0m - InvalidBaseImagePlatform: Base image pytorch/pytorch:2.4.0-cuda12.1-cudnn9-runtime was pulled with platform "linux/amd64", expected "linux/arm64" for current build (line 3)
+ERROR: failed to solve: Canceled: context canceled

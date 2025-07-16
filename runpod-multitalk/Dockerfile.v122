@@ -1,0 +1,109 @@
+# MultiTalk V122 - Fix NumPy/SciPy based on cog-MultiTalk
+# Using Python 3.12 and exact dependency versions
+FROM pytorch/pytorch:2.4.0-cuda12.1-cudnn9-devel
+
+# System dependencies
+ENV DEBIAN_FRONTEND=noninteractive
+RUN apt-get update && apt-get install -y \
+    git \
+    ffmpeg \
+    gcc \
+    g++ \
+    build-essential \
+    ninja-build \
+    python3-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Environment variables
+ENV PYTHONPATH=/app/multitalk_official:/app:/runpod-volume/models
+ENV HF_HOME=/runpod-volume/huggingface
+ENV TRANSFORMERS_CACHE=/runpod-volume/huggingface
+ENV MODEL_PATH=/runpod-volume/models
+ENV PYTHONUNBUFFERED=1
+ENV PIP_NO_CACHE_DIR=1
+
+WORKDIR /app
+
+# Install exact versions from cog-MultiTalk
+RUN pip install --no-cache-dir \
+    "numpy>=1.23.5,<2" \
+    "torch>=2.4.0" \
+    "torchvision>=0.19.0" \
+    "torchaudio>=2.4.0"
+
+# Install transformers and core ML libraries
+RUN pip install --no-cache-dir \
+    "transformers>=4.49.0" \
+    "tokenizers>=0.19.1" \
+    "diffusers>=0.31.0" \
+    "accelerate>=1.1.1" \
+    "safetensors>=0.4.3" \
+    "huggingface-hub>=0.23.5" \
+    einops \
+    timm \
+    sentencepiece \
+    peft
+
+# Install scipy and scikit-learn with compatible versions
+RUN pip install --no-cache-dir \
+    "scipy>=1.13.0" \
+    "scikit-learn>=1.5.0"
+
+# Install audio processing
+RUN pip install --no-cache-dir \
+    "librosa>=0.10.2" \
+    "soundfile>=0.12.1" \
+    pyloudnorm \
+    pydub \
+    av
+
+# Install image processing
+RUN pip install --no-cache-dir \
+    "opencv-python>=4.10.0" \
+    "imageio>=2.35.0" \
+    imageio-ffmpeg \
+    "Pillow>=10.4.0" \
+    moviepy
+
+# Install additional dependencies
+RUN pip install --no-cache-dir \
+    rotary-embedding-torch \
+    tensorboardX \
+    omegaconf \
+    easydict \
+    ftfy \
+    packaging
+
+# Install RunPod and AWS
+RUN pip install --no-cache-dir \
+    boto3 \
+    runpod==1.7.3
+
+# Try to install xformers
+RUN pip install --no-cache-dir xformers || echo "xformers installation failed, continuing without it"
+
+# Try to install flash-attn
+RUN pip install --no-cache-dir flash-attn || echo "flash-attn installation failed, continuing without it"
+
+# Clone MultiTalk repository
+RUN mkdir -p /app/multitalk_official && \
+    cd /app/multitalk_official && \
+    git clone https://github.com/MeiGen-AI/MultiTalk.git . && \
+    echo "MultiTalk repository cloned successfully"
+
+# Copy implementation files
+COPY multitalk_v121_working_implementation.py /app/
+COPY handler_v121_working.py /app/handler.py
+COPY s3_handler.py /app/
+
+# Update handler to identify as V122
+RUN sed -i 's/V121/V122/g' /app/handler.py || true
+
+# Verify installations
+RUN python -c "import numpy; print(f'NumPy {numpy.__version__} OK')"
+RUN python -c "import scipy; print(f'SciPy {scipy.__version__} OK')"
+RUN python -c "import torch; print(f'PyTorch {torch.__version__} OK')"
+RUN python -c "import transformers; print(f'Transformers {transformers.__version__} OK')"
+RUN python -c "import librosa; print(f'Librosa {librosa.__version__} OK')"
+
+CMD ["python", "-u", "/app/handler.py"]

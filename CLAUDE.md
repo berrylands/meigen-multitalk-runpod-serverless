@@ -77,10 +77,22 @@ docker build -t multitalk-runpod .
 3. RunPod staging deployment
 4. Production deployment with real models
 
+## MeiGen-MultiTalk Implementation
+
+**IMPORTANT**: Always refer to `MEIGEN_MULTITALK_REFERENCE.md` for the correct implementation details from the working codebase.
+
+Key points:
+- Uses `wan.MultiTalkPipeline` from the official MeiGen-MultiTalk implementation
+- Requires specific model loading sequence: Wav2Vec2 → MultiTalk → WAN 2.1 → VAE → CLIP
+- Uses size bucketing ("multitalk-480") for resolution management
+- Supports turbo mode for faster generation
+- Proper audio embedding extraction with `Wav2Vec2Model`
+
 ## Important TODOs
 
-1. Implement actual GGUF model loading for Wan2.1
-2. Integrate real MultiTalk video generation pipeline
+1. ✅ ~~Implement actual GGUF model loading for Wan2.1~~ Use `wan.MultiTalkPipeline` instead
+2. ✅ ~~Integrate real MultiTalk video generation pipeline~~ Use proper MeiGen-MultiTalk implementation
 3. Add proper error handling and retry logic
 4. Implement S3 upload functionality
 5. Add monitoring and metrics
+6. **PRIORITY**: Deploy V114 to replace broken V112 on existing endpoint

@@ -1,0 +1,101 @@
+# MultiTalk V127 - With xfuser dependency (package verification)
+# Stage 1: Use a pre-built PyTorch image with CUDA
+FROM pytorch/pytorch:2.4.0-cuda12.1-cudnn9-runtime AS base
+
+# Set timezone non-interactively to avoid build hanging
+ENV DEBIAN_FRONTEND=noninteractive
+ENV TZ=UTC
+
+# Install system dependencies quickly
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone && \
+    apt-get update && apt-get install -y --no-install-recommends \
+    git \
+    ffmpeg \
+    && rm -rf /var/lib/apt/lists/*
+
+# Stage 2: Install Python dependencies in layers
+FROM base AS deps
+
+# Install NumPy first (with version constraint)
+RUN pip install --no-cache-dir \
+    "numpy>=1.23.5,<2"
+
+# Install core ML dependencies with newer versions
+RUN pip install --no-cache-dir \
+    "transformers>=4.49.0" \
+    "diffusers>=0.31.0" \
+    "accelerate>=1.1.1" \
+    "safetensors>=0.3.1" \
+    "einops>=0.8.0" \
+    "huggingface-hub>=0.19.0" \
+    "tokenizers>=0.20.3"
+
+# Install xfuser which is required by MultiTalk
+RUN pip install --no-cache-dir \
+    "xfuser>=0.4.1"
+
+# Install audio/video dependencies
+RUN pip install --no-cache-dir \
+    "librosa>=0.10.0" \
+    "soundfile>=0.12.1" \
+    pyloudnorm==0.1.1 \
+    "opencv-python-headless>=4.9.0.80" \
+    imageio==2.33.1 \
+    imageio-ffmpeg==0.4.9
+
+# Install all remaining dependencies
+RUN pip install --no-cache-dir \
+    boto3 \
+    runpod==1.7.3 \
+    Pillow==10.2.0 \
+    moviepy==1.0.3 \
+    easydict \
+    omegaconf \
+    tensorboardX \
+    ftfy \
+    timm \
+    sentencepiece \
+    peft \
+    rotary-embedding-torch \
+    scipy
+
+# Stage 3: Final image
+FROM deps AS final
+
+# Set environment variables
+ENV PYTHONPATH=/app/multitalk_official:/app:/runpod-volume/models
+ENV HF_HOME=/runpod-volume/huggingface
+ENV TRANSFORMERS_CACHE=/runpod-volume/huggingface
+ENV MODEL_PATH=/runpod-volume/models
+ENV PYTHONUNBUFFERED=1
+
+WORKDIR /app
+
+# Clone MultiTalk repository
+RUN git clone https://github.com/MeiGen-AI/MultiTalk.git /app/multitalk_official && \
+    echo "MultiTalk repository cloned"
+
+# Copy our implementation files
+COPY multitalk_v75_0_json_input.py /app/
+COPY handler_v122_s3_fix.py /app/handler.py
+COPY s3_handler.py /app/
+
+# Update handler to identify as V127
+RUN sed -i 's/V122/V127/g' /app/handler.py || true
+RUN sed -i 's/V123/V127/g' /app/handler.py || true
+RUN sed -i 's/V124/V127/g' /app/handler.py || true
+RUN sed -i 's/V125/V127/g' /app/handler.py || true
+RUN sed -i 's/V126/V127/g' /app/handler.py || true
+
+# Verification: check packages are installed without importing xfuser (which requires CUDA)
+RUN python -c "import numpy; print(f'NumPy {numpy.__version__}')" && \
+    python -c "import scipy; print(f'SciPy {scipy.__version__}')" && \
+    python -c "import torch; print(f'PyTorch {torch.__version__}')" && \
+    python -c "import easydict; print('EasyDict OK')" && \
+    python -c "import huggingface_hub; print(f'HuggingFace Hub {huggingface_hub.__version__}')" && \
+    python -c "import diffusers; print(f'Diffusers {diffusers.__version__}')" && \
+    python -c "import pkg_resources; pkg_resources.get_distribution('xfuser'); print('xfuser package installed and available')" && \
+    python -c "import pkg_resources; import os; print('xfuser location:', os.path.dirname(pkg_resources.get_distribution('xfuser').location))" && \
+    echo "V127 ready with xfuser (verified package installation)"
+
+CMD ["python", "-u", "/app/handler.py"]

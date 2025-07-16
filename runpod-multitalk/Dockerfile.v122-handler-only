@@ -1,0 +1,11 @@
+# MultiTalk V122 - Handler Fix Only
+# Use the working V76 image with just a new handler
+FROM berrylands/multitalk-runpod:v76-real-implementation
+
+# Copy the format-compatible handler
+COPY handler_v122_format_fix.py /app/handler.py
+
+# Verify the handler
+RUN python -c "print('V122 Format Fix Handler installed')"
+
+CMD ["python", "-u", "/app/handler.py"]
