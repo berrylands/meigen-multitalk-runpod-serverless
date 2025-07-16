@@ -27,7 +27,7 @@ jobs:
     - name: Login to DockerHub
       uses: docker/login-action@v3
       with:
-        username: jasonedge
+        username: berrylands
         password: ${{ secrets.DOCKERHUB_TOKEN }}
     
     - name: Determine version
@@ -54,9 +54,9 @@ jobs:
         platforms: linux/amd64
         push: true
         tags: |
-          jasonedge/multitalk-runpod:${{ steps.version.outputs.tag }}
-          jasonedge/multitalk-runpod:${{ steps.version.outputs.version }}
-          jasonedge/multitalk-runpod:latest
+          berrylands/multitalk-runpod:${{ steps.version.outputs.tag }}
+          berrylands/multitalk-runpod:${{ steps.version.outputs.version }}
+          berrylands/multitalk-runpod:latest
         cache-from: type=gha
         cache-to: type=gha,mode=max
         build-args: |
@@ -67,10 +67,10 @@ jobs:
       if: success()
       run: |
         echo "✅ Docker image pushed successfully!"
-        echo "📦 Image: jasonedge/multitalk-runpod:${{ steps.version.outputs.tag }}"
+        echo "📦 Image: berrylands/multitalk-runpod:${{ steps.version.outputs.tag }}"
         echo ""
         echo "Template ID: 5y1gyg4n78kqwz"
-        echo "New image: jasonedge/multitalk-runpod:${{ steps.version.outputs.tag }}"
+        echo "New image: berrylands/multitalk-runpod:${{ steps.version.outputs.tag }}"
         echo ""
         echo "To update the template:"
         echo "1. Go to RunPod dashboard"
@@ -83,7 +83,7 @@ jobs:
         echo "" >> $GITHUB_STEP_SUMMARY
         echo "## Version: ${{ steps.version.outputs.version }}" >> $GITHUB_STEP_SUMMARY
         echo "**Tag:** ${{ steps.version.outputs.tag }}" >> $GITHUB_STEP_SUMMARY
-        echo "**Image:** jasonedge/multitalk-runpod:${{ steps.version.outputs.tag }}" >> $GITHUB_STEP_SUMMARY
+        echo "**Image:** berrylands/multitalk-runpod:${{ steps.version.outputs.tag }}" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
         echo "## RunPod Template" >> $GITHUB_STEP_SUMMARY
         echo "Template ID: \`5y1gyg4n78kqwz\`" >> $GITHUB_STEP_SUMMARY
