@@ -1,4 +1,4 @@
-# MultiTalk V114 - Complete Offline Operation with Network Storage
+# MultiTalk V114 - Complete Offline Operation (Simplified Build)
 FROM pytorch/pytorch:2.1.2-cuda12.1-cudnn8-devel
 
 # System dependencies
@@ -12,31 +12,23 @@ RUN apt-get update && apt-get install -y \
     ninja-build \
     && rm -rf /var/lib/apt/lists/*
 
-# Environment variables for offline operation
+# Environment variables
 ENV PYTHONPATH=/app/multitalk_official:/app:/runpod-volume/models
 ENV HF_HOME=/runpod-volume/huggingface
 ENV TRANSFORMERS_CACHE=/runpod-volume/huggingface
-ENV HF_DATASETS_CACHE=/runpod-volume/huggingface
 ENV MODEL_PATH=/runpod-volume/models
 ENV PYTHONUNBUFFERED=1
 ENV PIP_NO_CACHE_DIR=1
 
-# Offline operation flags (can be enabled during runtime)
-ENV HF_HUB_OFFLINE=0
-ENV TRANSFORMERS_OFFLINE=0
-ENV HF_DATASETS_OFFLINE=0
-
 WORKDIR /app
 
-# Install core dependencies in stages to avoid conflicts
-# Stage 1: Basic scientific computing
+# Install dependencies in stages (same as V113)
 RUN pip install --no-cache-dir \
     numpy==1.24.3 \
     scipy==1.10.1 \
     packaging \
     ninja
 
-# Stage 2: ML frameworks (avoid version conflicts)
 RUN pip install --no-cache-dir \
     transformers==4.43.3 \
     tokenizers==0.19.1 \
@@ -49,7 +41,6 @@ RUN pip install --no-cache-dir \
     sentencepiece \
     peft
 
-# Stage 3: Audio processing
 RUN pip install --no-cache-dir \
     librosa==0.10.2 \
     soundfile==0.12.1 \
@@ -57,18 +48,15 @@ RUN pip install --no-cache-dir \
     pydub \
     av
 
-# Stage 4: Computer vision
 RUN pip install --no-cache-dir \
     opencv-python>=4.9.0 \
     imageio>=2.30.0 \
     imageio-ffmpeg \
     Pillow
 
-# Stage 5: Video processing
 RUN pip install --no-cache-dir \
     moviepy
 
-# Stage 6: Additional ML tools
 RUN pip install --no-cache-dir \
     rotary-embedding-torch \
     tensorboardX \
@@ -76,34 +64,25 @@ RUN pip install --no-cache-dir \
     easydict \
     ftfy
 
-# Stage 7: Cloud and utilities
 RUN pip install --no-cache-dir \
     boto3 \
     runpod==1.7.3
 
-# Stage 8: Try xformers (may fail, but continue)
+# Try xformers (may fail, but continue)
 RUN pip install --no-cache-dir xformers || echo "xformers installation failed, continuing without it"
 
-# Stage 9: Install xfuser dependencies first
+# Install xfuser dependencies
 RUN pip install --no-cache-dir \
     beautifulsoup4>=4.12.3 \
     yunchang>=0.6.0
 
-# Stage 10: Install xfuser with fallback
+# Install xfuser with fallback
 RUN pip install --no-cache-dir xfuser==0.4.1 || echo "xfuser installation failed, continuing without it"
 
-# Verify key installations
+# Verify installations
 RUN python -c "import torch; print(f'PyTorch {torch.__version__} OK')"
 RUN python -c "import transformers; print(f'Transformers {transformers.__version__} OK')"
 RUN python -c "import runpod; print(f'RunPod {runpod.__version__} OK')"
-RUN python -c "import cv2; print('OpenCV OK')"
-RUN python -c "import librosa; print('Librosa OK')"
-RUN python -c "import moviepy; print('MoviePy OK')"
-RUN python -c "import safetensors; print('SafeTensors OK')"
-RUN python -c "import diffusers; print('Diffusers OK')"
-
-# Try to import xfuser (optional)
-RUN python -c "import xfuser; print(f'xfuser {xfuser.__version__} OK')" || echo "xfuser not available"
 
 # Clone MultiTalk repository
 RUN mkdir -p /app/multitalk_official && \
@@ -115,8 +94,8 @@ RUN mkdir -p /app/multitalk_official && \
 COPY multitalk_v113_implementation.py /app/
 COPY handler_v114.py /app/handler.py
 
-# Test our implementation
-RUN python -c "from multitalk_v113_implementation import MultiTalkV113; print('V113 implementation imported successfully')"
-RUN python -c "import handler; print('V114 handler imported successfully')"
+# Test imports
+RUN python -c "from multitalk_v113_implementation import MultiTalkV113; print('V113 implementation OK')"
+RUN python -c "import handler; print('V114 handler OK')"
 
 CMD ["python", "-u", "/app/handler.py"]
