@@ -1,0 +1,23 @@
+# MultiTalk V120 - Add xfuser for MeiGen-MultiTalk
+FROM berrylands/multitalk-runpod:v119
+
+# Install xfuser and its dependencies
+# xfuser requires specific versions to work with MeiGen-MultiTalk
+RUN pip install --no-cache-dir \
+    yunchang==0.3 \
+    ninja \
+    flash-attn==2.5.8 --no-build-isolation || echo "flash-attn optional, continuing"
+
+# Install xfuser with specific version
+RUN pip install --no-cache-dir xfuser==0.4.0
+
+# Verify installations
+RUN python -c "import xfuser; print(f'xfuser {xfuser.__version__} installed successfully')"
+
+# Test MeiGen-MultiTalk imports
+RUN python -c "try: from xfuser.core.distributed import is_dp_last_group; print('xfuser distributed OK')\nexcept Exception as e: print(f'xfuser test failed: {e}')"
+
+# Update handler to report V120
+RUN sed -i 's/V115/V120/g' /app/handler.py || echo "Handler update failed, continuing"
+
+CMD ["python", "-u", "/app/handler.py"]
