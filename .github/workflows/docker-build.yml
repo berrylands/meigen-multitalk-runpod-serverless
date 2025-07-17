@@ -1,13 +1,7 @@
 name: Build and Push MultiTalk
 
 on:
-  push:
-    branches: [ master, main ]
-    paths:
-      - 'runpod-multitalk/Dockerfile.v*'
-      - 'runpod-multitalk/handler_v*.py'
-      - 'runpod-multitalk/multitalk_v*.py'
-      - '.github/workflows/docker-build.yml'
+  # Only trigger on manual dispatch to avoid duplicate builds
   workflow_dispatch:
     inputs:
       version:
