@@ -26,7 +26,6 @@ RUN pip install --no-cache-dir \
     "tokenizers>=0.20.3" \
     "sentencepiece>=0.1.99" \
     "beautifulsoup4>=4.12.3" \
-    "distvae" \
     "yunchang>=0.6.0" \
     "pytest" \
     "opencv-python" \
@@ -61,6 +60,11 @@ RUN pip install --no-cache-dir --index-url https://download.pytorch.org/whl/cu11
     torch==2.1.0+cu118 \
     torchvision==0.16.0+cu118 \
     xformers==0.0.22.post7
+
+# CRITICAL: Force reinstall NumPy 1.26.4 after all other packages
+RUN pip uninstall -y numpy && \
+    pip install --no-cache-dir --no-deps "numpy==1.26.4" && \
+    pip install --no-cache-dir "numba==0.59.1"
 
 # Clean up pip cache and temporary files
 RUN pip cache purge && rm -rf /tmp/* /var/tmp/* ~/.cache
