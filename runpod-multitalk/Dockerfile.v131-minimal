@@ -1,0 +1,95 @@
+# MultiTalk V131 Minimal - Optimized for GitHub Actions disk space
+# Use a smaller base image and optimize build process
+FROM pytorch/pytorch:2.1.0-cuda11.8-cudnn8-runtime AS base
+
+# Set timezone and clean up in single layer
+ENV DEBIAN_FRONTEND=noninteractive TZ=UTC
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone && \
+    apt-get update && apt-get install -y --no-install-recommends git ffmpeg && \
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+# Stage 2: Install all Python dependencies in optimized order
+FROM base AS deps
+
+# Install NumPy and Numba first (critical for compatibility)
+RUN pip uninstall -y numpy && \
+    pip install --no-cache-dir --no-deps "numpy==1.26.4" "numba==0.59.1"
+
+# Install all other dependencies in single layer to reduce image size
+RUN pip install --no-cache-dir \
+    "transformers>=4.49.0" \
+    "diffusers>=0.31.0" \
+    "accelerate>=1.1.1" \
+    "safetensors>=0.3.1" \
+    "einops>=0.8.0" \
+    "huggingface-hub>=0.19.0" \
+    "tokenizers>=0.20.3" \
+    "sentencepiece>=0.1.99" \
+    "beautifulsoup4>=4.12.3" \
+    "distvae" \
+    "yunchang>=0.6.0" \
+    "pytest" \
+    "opencv-python" \
+    "imageio" \
+    "imageio-ffmpeg" \
+    "scikit-image>=0.21.0" \
+    "librosa>=0.10.0" \
+    "soundfile>=0.12.1" \
+    pyloudnorm==0.1.1 \
+    "opencv-python-headless>=4.9.0.80" \
+    imageio==2.33.1 \
+    imageio-ffmpeg==0.4.9 \
+    boto3 \
+    runpod==1.7.3 \
+    Pillow==10.2.0 \
+    moviepy==1.0.3 \
+    easydict \
+    omegaconf \
+    tensorboardX \
+    ftfy \
+    timm \
+    sentencepiece \
+    peft \
+    rotary-embedding-torch \
+    scipy
+
+# Install xfuser without torch dependencies
+RUN pip install --no-cache-dir --no-deps "xfuser>=0.4.1"
+
+# Install CUDA 11.8 specific torch packages
+RUN pip install --no-cache-dir --index-url https://download.pytorch.org/whl/cu118 \
+    torch==2.1.0+cu118 \
+    torchvision==0.16.0+cu118 \
+    xformers==0.0.22.post7
+
+# Clean up pip cache and temporary files
+RUN pip cache purge && rm -rf /tmp/* /var/tmp/* ~/.cache
+
+# Stage 3: Final minimal image
+FROM deps AS final
+
+# Set environment variables
+ENV PYTHONPATH=/app/multitalk_official:/app:/runpod-volume/models \
+    HF_HOME=/runpod-volume/huggingface \
+    TRANSFORMERS_CACHE=/runpod-volume/huggingface \
+    MODEL_PATH=/runpod-volume/models \
+    PYTHONUNBUFFERED=1
+
+WORKDIR /app
+
+# Clone and clean up in single layer
+RUN git clone https://github.com/MeiGen-AI/MultiTalk.git /app/multitalk_official && \
+    rm -rf /app/multitalk_official/.git
+
+# Copy files and update version in single layer
+COPY multitalk_v75_0_json_input.py /app/
+COPY handler_v122_s3_fix.py /app/handler.py
+COPY s3_handler.py /app/
+RUN sed -i 's/V12[0-9]/V131/g' /app/handler.py
+
+# Minimal verification (without importing large libraries)
+RUN python -c "import numpy; print(f'NumPy {numpy.__version__}'); assert numpy.__version__.startswith('1.26')" && \
+    python -c "import torch; print(f'PyTorch {torch.__version__}')" && \
+    echo "V131 Minimal: NumPy 1.26.4 + CUDA 11.8 compatibility"
+
+CMD ["python", "-u", "/app/handler.py"]
