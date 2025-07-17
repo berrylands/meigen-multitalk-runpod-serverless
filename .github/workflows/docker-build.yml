@@ -19,23 +19,11 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-    - name: Maximize build space
-      uses: easimon/maximize-build-space@master
-      with:
-        root-reserve-mb: 2048
-        swap-size-mb: 4096
-        remove-dotnet: 'true'
-        remove-android: 'true'
-        remove-haskell: 'true'
-        remove-codeql: 'true'
-        remove-docker-images: 'true'
-        build-mount-path: '/var/lib/docker'
-        
-    - name: Additional cleanup
+    - name: Free up disk space
       run: |
-        echo "=== Before additional cleanup ==="
+        echo "=== Before cleanup ==="
         df -h
-        echo "=== Cleaning up more space ==="
+        echo "=== Freeing up disk space (preserving Docker) ==="
         sudo rm -rf /usr/share/dotnet
         sudo rm -rf /usr/local/lib/android
         sudo rm -rf /opt/ghc
@@ -44,9 +32,11 @@ jobs:
         sudo rm -rf /usr/local/share/boost
         sudo rm -rf /usr/local/share/powershell
         sudo rm -rf /usr/share/swift
+        sudo rm -rf /usr/local/julia*
+        sudo rm -rf /usr/share/miniconda
+        sudo rm -rf /usr/local/share/chromium
         sudo apt-get clean
-        sudo docker system prune -af --volumes
-        echo "=== After additional cleanup ==="
+        echo "=== After cleanup ==="
         df -h
         
     - uses: actions/checkout@v4
