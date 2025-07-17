@@ -11,9 +11,9 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Version to build (e.g., v130-final)'
+        description: 'Version to build (e.g., v131)'
         required: false
-        default: 'v130-final'
+        default: 'v131'
 
 jobs:
   build:
@@ -36,8 +36,8 @@ jobs:
         if [ "${{ github.event.inputs.version }}" != "" ]; then
           VERSION="${{ github.event.inputs.version }}"
         else
-          # Default to v130-final
-          VERSION="v130-final"
+          # Default to v131
+          VERSION="v131"
         fi
         echo "version=$VERSION" >> $GITHUB_OUTPUT
         echo "Building version: $VERSION"
@@ -88,10 +88,11 @@ jobs:
         echo "## RunPod Template" >> $GITHUB_STEP_SUMMARY
         echo "Template ID: \`5y1gyg4n78kqwz\`" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY
-        echo "## V130 Final Features" >> $GITHUB_STEP_SUMMARY
-        echo "- ✅ PyTorch 2.1.0+cu121 (compatible with cog-MultiTalk)" >> $GITHUB_STEP_SUMMARY
+        echo "## V131 Features" >> $GITHUB_STEP_SUMMARY
+        echo "- ✅ PyTorch 2.1.0 base image (avoiding NumPy conflicts)" >> $GITHUB_STEP_SUMMARY
         echo "- ✅ Torchvision 0.16.0" >> $GITHUB_STEP_SUMMARY
-        echo "- ✅ NumPy 1.26.4 (avoiding NumPy 2.x issues)" >> $GITHUB_STEP_SUMMARY
+        echo "- ✅ NumPy 1.26.4 (fixed for Numba compatibility)" >> $GITHUB_STEP_SUMMARY
+        echo "- ✅ Numba 0.59.1 (compatible with NumPy 1.26.4)" >> $GITHUB_STEP_SUMMARY
         echo "- ✅ xformers 0.0.22" >> $GITHUB_STEP_SUMMARY
         echo "- ✅ xfuser, scikit-image, and all dependencies" >> $GITHUB_STEP_SUMMARY
         echo "" >> $GITHUB_STEP_SUMMARY

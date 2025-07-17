@@ -1,0 +1,140 @@
+# MultiTalk V131 - Fix NumPy version conflict with Numba
+# Use PyTorch 2.1.0 base image to avoid NumPy conflicts
+FROM pytorch/pytorch:2.1.0-cuda11.8-cudnn8-runtime AS base
+
+# Set timezone non-interactively to avoid build hanging
+ENV DEBIAN_FRONTEND=noninteractive
+ENV TZ=UTC
+
+# Install system dependencies quickly
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone && \
+    apt-get update && apt-get install -y --no-install-recommends \
+    git \
+    ffmpeg \
+    && rm -rf /var/lib/apt/lists/*
+
+# Stage 2: Install Python dependencies in layers
+FROM base AS deps
+
+# CRITICAL: Uninstall any existing NumPy and install the correct version
+RUN pip uninstall -y numpy && \
+    pip install --no-cache-dir --no-deps "numpy==1.26.4"
+
+# Install numba with compatible NumPy
+RUN pip install --no-cache-dir \
+    "numba==0.59.1"
+
+# Install core ML dependencies WITHOUT torch/torchvision (already in base image)
+RUN pip install --no-cache-dir \
+    "transformers>=4.49.0" \
+    "diffusers>=0.31.0" \
+    "accelerate>=1.1.1" \
+    "safetensors>=0.3.1" \
+    "einops>=0.8.0" \
+    "huggingface-hub>=0.19.0" \
+    "tokenizers>=0.20.3"
+
+# Install xfuser WITHOUT its torch dependency using --no-deps
+RUN pip install --no-cache-dir --no-deps \
+    "xfuser>=0.4.1"
+
+# Install xfuser's other dependencies manually (excluding torch)
+RUN pip install --no-cache-dir \
+    "sentencepiece>=0.1.99" \
+    "beautifulsoup4>=4.12.3" \
+    "distvae" \
+    "yunchang>=0.6.0" \
+    "pytest" \
+    "opencv-python" \
+    "imageio" \
+    "imageio-ffmpeg"
+
+# Install scikit-image (skimage) which is required by MultiTalk
+RUN pip install --no-cache-dir \
+    "scikit-image>=0.21.0"
+
+# Install audio/video dependencies
+RUN pip install --no-cache-dir \
+    "librosa>=0.10.0" \
+    "soundfile>=0.12.1" \
+    pyloudnorm==0.1.1 \
+    "opencv-python-headless>=4.9.0.80" \
+    imageio==2.33.1 \
+    imageio-ffmpeg==0.4.9
+
+# Install all remaining dependencies
+RUN pip install --no-cache-dir \
+    boto3 \
+    runpod==1.7.3 \
+    Pillow==10.2.0 \
+    moviepy==1.0.3 \
+    easydict \
+    omegaconf \
+    tensorboardX \
+    ftfy \
+    timm \
+    sentencepiece \
+    peft \
+    rotary-embedding-torch \
+    scipy
+
+# Install torchvision compatible with PyTorch 2.1.0
+RUN pip install --no-cache-dir \
+    torchvision==0.16.0
+
+# Install xformers compatible with PyTorch 2.1.0 LAST
+RUN pip install --no-cache-dir \
+    "xformers>=0.0.22,<0.0.23"
+
+# CRITICAL: Final NumPy check and force-reinstall if needed
+RUN python -c "import numpy; print(f'NumPy version: {numpy.__version__}'); assert numpy.__version__.startswith('1.26'), f'Wrong NumPy version: {numpy.__version__}'" || \
+    (pip uninstall -y numpy && pip install --no-cache-dir --no-deps "numpy==1.26.4")
+
+# Stage 3: Final image
+FROM deps AS final
+
+# Set environment variables
+ENV PYTHONPATH=/app/multitalk_official:/app:/runpod-volume/models
+ENV HF_HOME=/runpod-volume/huggingface
+ENV TRANSFORMERS_CACHE=/runpod-volume/huggingface
+ENV MODEL_PATH=/runpod-volume/models
+ENV PYTHONUNBUFFERED=1
+
+WORKDIR /app
+
+# Clone MultiTalk repository
+RUN git clone https://github.com/MeiGen-AI/MultiTalk.git /app/multitalk_official && \
+    echo "MultiTalk repository cloned"
+
+# Copy our implementation files
+COPY multitalk_v75_0_json_input.py /app/
+COPY handler_v122_s3_fix.py /app/handler.py
+COPY s3_handler.py /app/
+
+# Update handler to identify as V131
+RUN sed -i 's/V122/V131/g' /app/handler.py || true
+RUN sed -i 's/V123/V131/g' /app/handler.py || true
+RUN sed -i 's/V124/V131/g' /app/handler.py || true
+RUN sed -i 's/V125/V131/g' /app/handler.py || true
+RUN sed -i 's/V126/V131/g' /app/handler.py || true
+RUN sed -i 's/V127/V131/g' /app/handler.py || true
+RUN sed -i 's/V128/V131/g' /app/handler.py || true
+RUN sed -i 's/V129/V131/g' /app/handler.py || true
+RUN sed -i 's/V130/V131/g' /app/handler.py || true
+
+# Verification: check packages are installed with compatible versions
+RUN python -c "import torch; print(f'PyTorch {torch.__version__}'); assert torch.__version__.startswith('2.1.0')" && \
+    python -c "import torchvision; print(f'Torchvision {torchvision.__version__}'); assert torchvision.__version__.startswith('0.16.0')" && \
+    python -c "import numpy; print(f'NumPy {numpy.__version__}'); assert numpy.__version__.startswith('1.26'), f'Wrong NumPy: {numpy.__version__}'" && \
+    python -c "import numba; print(f'Numba {numba.__version__}')" && \
+    python -c "import librosa; print(f'Librosa {librosa.__version__}')" && \
+    python -c "import scipy; print(f'SciPy {scipy.__version__}')" && \
+    python -c "import easydict; print('EasyDict OK')" && \
+    python -c "import huggingface_hub; print(f'HuggingFace Hub {huggingface_hub.__version__}')" && \
+    python -c "import diffusers; print(f'Diffusers {diffusers.__version__}')" && \
+    python -c "import pkg_resources; pkg_resources.get_distribution('xfuser'); print('xfuser package installed')" && \
+    python -c "import skimage; print(f'scikit-image {skimage.__version__}')" && \
+    python -c "import xformers; print(f'xformers {xformers.__version__}')" && \
+    echo "V131: Fixed NumPy 1.26.4 for Numba compatibility"
+
+CMD ["python", "-u", "/app/handler.py"]
