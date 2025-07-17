@@ -11,9 +11,9 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Version to build (e.g., v131)'
+        description: 'Version to build (e.g., v131-fixed)'
         required: false
-        default: 'v131'
+        default: 'v131-fixed'
 
 jobs:
   build:
@@ -36,8 +36,8 @@ jobs:
         if [ "${{ github.event.inputs.version }}" != "" ]; then
           VERSION="${{ github.event.inputs.version }}"
         else
-          # Default to v131
-          VERSION="v131"
+          # Default to v131-fixed
+          VERSION="v131-fixed"
         fi
         echo "version=$VERSION" >> $GITHUB_OUTPUT
         echo "Building version: $VERSION"
