@@ -21,8 +21,9 @@ RUN pip install --no-cache-dir --index-url https://download.pytorch.org/whl/cu11
     torchvision==0.16.0+cu118 \
     xformers==0.0.22.post7
 
-# Install optimum with quanto for quantization support
-RUN pip install --no-cache-dir "optimum[quanto]>=1.17.0"
+# Install optimum with quanto for quantization support (compatible with PyTorch 2.1.0)
+# Use older version that doesn't require float8 support
+RUN pip install --no-cache-dir "optimum[quanto]==1.17.1"
 
 # Install distvae without dependencies to avoid NumPy upgrade
 RUN pip install --no-cache-dir --no-deps distvae
@@ -99,12 +100,12 @@ COPY handler_v122_s3_fix.py /app/handler.py
 COPY s3_handler.py /app/
 RUN sed -i 's/V12[0-9]/V133/g' /app/handler.py
 
-# Final verification (skip GPU-dependent imports)
+# Final verification (skip GPU-dependent imports and optimum.quanto which may need GPU)
 RUN python -c "import numpy; print(f'NumPy {numpy.__version__}')" && \
     python -c "import torch; print(f'PyTorch {torch.__version__}')" && \
     python -c "import numba; print(f'Numba {numba.__version__}')" && \
     python -c "import distvae; print('distvae imported successfully')" && \
-    python -c "import optimum.quanto; print('optimum.quanto imported successfully')" && \
-    echo "V133: Added optimum[quanto] for quantization support"
+    python -c "import optimum; print('optimum imported successfully')" && \
+    echo "V133: Added optimum[quanto] 1.17.1 for quantization support"
 
 CMD ["python", "-u", "/app/handler.py"]
