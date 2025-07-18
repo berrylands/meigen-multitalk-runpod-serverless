@@ -1,0 +1,105 @@
+# MultiTalk V141 - Debug startup issues
+FROM pytorch/pytorch:2.1.0-cuda11.8-cudnn8-runtime AS base
+
+# Install system dependencies
+ENV DEBIAN_FRONTEND=noninteractive TZ=UTC
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone && \
+    apt-get update && apt-get install -y --no-install-recommends git ffmpeg && \
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+WORKDIR /app
+
+# Set environment variables
+ENV PYTHONPATH=/app/cog_multitalk_reference:/app:/runpod-volume/models \
+    HF_HOME=/runpod-volume/huggingface \
+    TRANSFORMERS_CACHE=/runpod-volume/huggingface \
+    MODEL_PATH=/runpod-volume/models \
+    PYTHONUNBUFFERED=1
+
+# Copy and extract reference implementation FIRST
+COPY cog_multitalk_reference.tar.gz /app/
+RUN tar -xzf cog_multitalk_reference.tar.gz && \
+    rm cog_multitalk_reference.tar.gz && \
+    echo "=== V141 Reference Implementation Check ===" && \
+    ls -la /app/ && \
+    echo "Contents of cog_multitalk_reference:" && \
+    ls -la /app/cog_multitalk_reference/ && \
+    echo "Checking for wan directory:" && \
+    ls -la /app/cog_multitalk_reference/wan/ || echo "wan directory not found" && \
+    echo "Checking for src directory:" && \
+    ls -la /app/cog_multitalk_reference/src/ || echo "src directory not found"
+
+# Copy our files
+COPY multitalk_reference_wrapper.py /app/
+COPY handler_v136_reference.py /app/handler.py
+COPY s3_handler.py /app/
+
+# Install all dependencies in one layer to avoid conflicts
+RUN pip install --no-cache-dir \
+    "numpy==1.26.4" \
+    "numba==0.59.1" \
+    "opencv-python>=4.9.0.80" \
+    "diffusers>=0.31.0" \
+    "transformers>=4.49.0" \
+    "tokenizers>=0.20.3" \
+    "accelerate>=1.1.1" \
+    "tqdm" \
+    "imageio==2.33.1" \
+    "imageio-ffmpeg==0.4.9" \
+    "easydict" \
+    "ftfy" \
+    "dashscope" \
+    "gradio>=5.0.0" \
+    "pyloudnorm==0.1.1" \
+    "soundfile>=0.12.1" \
+    "librosa>=0.10.0" \
+    "einops>=0.8.0" \
+    "huggingface-hub>=0.19.0" \
+    "ninja" \
+    "packaging" \
+    "safetensors>=0.3.1" \
+    "loguru" \
+    "scikit-image>=0.21.0" \
+    "boto3" \
+    "botocore" \
+    "runpod==1.7.3" \
+    "Pillow==10.2.0" \
+    "scipy" \
+    "sentencepiece" \
+    "regex" \
+    "filelock" \
+    "requests" \
+    "pyyaml" && \
+    pip install --no-cache-dir --no-deps "xfuser>=0.4.1" "distvae" && \
+    echo "V141: Installation complete"
+
+# Create a startup debug script
+RUN echo '#!/bin/bash' > /app/debug_startup.sh && \
+    echo 'echo "=== V141 Debug Startup ===" ' >> /app/debug_startup.sh && \
+    echo 'echo "Python version: $(python --version)"' >> /app/debug_startup.sh && \
+    echo 'echo "Working directory: $(pwd)"' >> /app/debug_startup.sh && \
+    echo 'echo "Directory contents:"' >> /app/debug_startup.sh && \
+    echo 'ls -la /app/' >> /app/debug_startup.sh && \
+    echo 'echo "Reference implementation check:"' >> /app/debug_startup.sh && \
+    echo 'ls -la /app/cog_multitalk_reference/' >> /app/debug_startup.sh && \
+    echo 'echo "PYTHONPATH: $PYTHONPATH"' >> /app/debug_startup.sh && \
+    echo 'echo "Testing Python imports..."' >> /app/debug_startup.sh && \
+    echo 'python -c "import sys; print(\"Python path:\", sys.path)"' >> /app/debug_startup.sh && \
+    echo 'echo "Testing reference imports..."' >> /app/debug_startup.sh && \
+    echo 'python -c "' >> /app/debug_startup.sh && \
+    echo 'import sys' >> /app/debug_startup.sh && \
+    echo 'sys.path.insert(0, \"/app/cog_multitalk_reference\")' >> /app/debug_startup.sh && \
+    echo 'print(\"Trying to import wan...\")' >> /app/debug_startup.sh && \
+    echo 'try:' >> /app/debug_startup.sh && \
+    echo '    import wan' >> /app/debug_startup.sh && \
+    echo '    print(\"✅ wan imported successfully\")' >> /app/debug_startup.sh && \
+    echo 'except Exception as e:' >> /app/debug_startup.sh && \
+    echo '    print(f\"❌ Failed to import wan: {e}\")' >> /app/debug_startup.sh && \
+    echo '    import traceback' >> /app/debug_startup.sh && \
+    echo '    traceback.print_exc()' >> /app/debug_startup.sh && \
+    echo '"' >> /app/debug_startup.sh && \
+    echo 'echo "Starting handler..."' >> /app/debug_startup.sh && \
+    echo 'exec python -u /app/handler.py' >> /app/debug_startup.sh && \
+    chmod +x /app/debug_startup.sh
+
+CMD ["/app/debug_startup.sh"]
