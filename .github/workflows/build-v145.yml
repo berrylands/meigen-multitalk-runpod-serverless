@@ -1,0 +1,41 @@
+name: Build V145 Cog Match
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'runpod-multitalk/Dockerfile.v145-cog-match'
+      - '.github/workflows/build-v145.yml'
+  workflow_dispatch:
+
+env:
+  DOCKER_BUILDKIT: 1
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Login to DockerHub
+      uses: docker/login-action@v3
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+    - name: Build and push V145 Cog Match
+      uses: docker/build-push-action@v5
+      with:
+        context: ./runpod-multitalk
+        file: ./runpod-multitalk/Dockerfile.v145-cog-match
+        push: true
+        tags: |
+          ${{ secrets.DOCKERHUB_USERNAME }}/multitalk-runpod:v145-cog-match
+          ${{ secrets.DOCKERHUB_USERNAME }}/multitalk-runpod:v145-cog-match-${{ github.sha }}
+        cache-from: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/multitalk-runpod:buildcache
+        cache-to: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/multitalk-runpod:buildcache,mode=max

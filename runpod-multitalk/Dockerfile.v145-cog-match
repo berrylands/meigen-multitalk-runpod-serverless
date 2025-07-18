@@ -1,0 +1,111 @@
+# MultiTalk V145 - Match Replicate Cog Environment
+# Using devel image (not runtime) to have nvcc for flash-attn compilation
+FROM pytorch/pytorch:2.4.0-cuda12.1-cudnn9-devel AS base
+
+# Install system dependencies including git and ffmpeg
+ENV DEBIAN_FRONTEND=noninteractive TZ=UTC
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone && \
+    apt-get update && apt-get install -y --no-install-recommends \
+        git \
+        ffmpeg \
+        curl \
+        build-essential \
+        ninja-build && \
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+WORKDIR /app
+
+# Set environment variables including CUDA_HOME for flash-attn
+ENV PYTHONPATH=/app/cog_multitalk_reference:/app:/runpod-volume/models \
+    HF_HOME=/runpod-volume/huggingface \
+    TRANSFORMERS_CACHE=/runpod-volume/huggingface \
+    MODEL_PATH=/runpod-volume/models \
+    PYTHONUNBUFFERED=1 \
+    CUDA_HOME=/usr/local/cuda
+
+# Copy and extract reference implementation
+COPY cog_multitalk_reference.tar.gz /app/
+RUN tar -xzf cog_multitalk_reference.tar.gz && \
+    rm cog_multitalk_reference.tar.gz && \
+    echo "Reference implementation extracted"
+
+# Install pget utility (as Cog does)
+RUN curl -o /usr/local/bin/pget -L "https://github.com/replicate/pget/releases/latest/download/pget_$(uname -s)_$(uname -m)" && \
+    chmod +x /usr/local/bin/pget
+
+# Install flash-attn with --no-build-isolation (as Cog does)
+# This requires nvcc which is why we use devel image
+RUN pip install flash-attn --no-build-isolation
+
+# Install core dependencies from reference requirements.txt
+# Matching the exact order and versions from cog-MultiTalk
+RUN pip install --no-cache-dir \
+    "opencv-python>=4.9.0.80" \
+    "diffusers>=0.31.0" \
+    "transformers>=4.49.0" \
+    "tokenizers>=0.20.3" \
+    "accelerate>=1.1.1" \
+    "tqdm" \
+    "imageio" \
+    "easydict" \
+    "ftfy" \
+    "dashscope" \
+    "imageio-ffmpeg" \
+    "gradio>=5.0.0" \
+    "numpy>=1.23.5,<2" \
+    "xfuser>=0.4.1" \
+    "pyloudnorm" \
+    "torch>=2.4.0" \
+    "torchvision>=0.19.0" \
+    "torchaudio>=2.4.0" \
+    "soundfile>=0.12.1" \
+    "librosa>=0.10.0" \
+    "einops>=0.8.0" \
+    "huggingface-hub>=0.19.0" \
+    "xformers>=0.0.28" \
+    "ninja" \
+    "packaging" \
+    "safetensors>=0.3.1"
+
+# Install additional dependencies we need
+RUN pip install --no-cache-dir \
+    "loguru" \
+    "scikit-image>=0.21.0" \
+    "numba" \
+    "scipy" \
+    "sentencepiece" \
+    "regex" \
+    "filelock" \
+    "requests" \
+    "pyyaml" \
+    "boto3" \
+    "botocore" \
+    "runpod==1.7.3" \
+    "Pillow==10.2.0"
+
+# Install yunchang (should work now with flash-attn installed)
+RUN git clone https://github.com/feifeibear/long-context-attention.git && \
+    cd long-context-attention && \
+    pip install -e . && \
+    cd .. && \
+    echo "yunchang installed from source"
+
+# Install distvae without dependencies
+RUN pip install --no-cache-dir --no-deps distvae
+
+# Copy our handler files
+COPY multitalk_reference_wrapper.py /app/
+COPY handler_v136_reference.py /app/handler.py
+COPY s3_handler.py /app/
+
+# Verification step
+RUN echo "=== V145 Verification ===" && \
+    python -c "import torch; print(f'PyTorch: {torch.__version__}')" && \
+    python -c "import torch; print(f'CUDA available: {torch.cuda.is_available()}')" && \
+    python -c "import flash_attn; print('✅ flash_attn imported')" && \
+    python -c "import yunchang; print('✅ yunchang imported')" && \
+    python -c "import xfuser; print('✅ xfuser imported')" && \
+    python -c "import sys; sys.path.insert(0, '/app/cog_multitalk_reference'); import wan; print('✅ wan imported')" && \
+    echo "V145: All imports successful (matching Cog environment)"
+
+CMD ["python", "-u", "/app/handler.py"]
