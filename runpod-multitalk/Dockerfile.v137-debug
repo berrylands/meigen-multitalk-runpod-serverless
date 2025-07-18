@@ -1,0 +1,102 @@
+# MultiTalk V137 - Debug version with startup diagnostics
+FROM pytorch/pytorch:2.1.0-cuda11.8-cudnn8-runtime AS base
+
+# Set timezone and clean up in single layer
+ENV DEBIAN_FRONTEND=noninteractive TZ=UTC
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone && \
+    apt-get update && apt-get install -y --no-install-recommends git ffmpeg && \
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+# Stage 2: Install dependencies with careful ordering
+FROM base AS deps
+
+# First, install NumPy 1.26.4 and lock it
+RUN pip uninstall -y numpy && \
+    pip install --no-cache-dir "numpy==1.26.4" && \
+    pip install --no-cache-dir "numba==0.59.1"
+
+# Install CUDA 11.8 specific torch packages BEFORE other dependencies
+RUN pip install --no-cache-dir --index-url https://download.pytorch.org/whl/cu118 \
+    torch==2.1.0+cu118 \
+    torchvision==0.16.0+cu118 \
+    torchaudio==2.1.0+cu118 \
+    xformers==0.0.22.post7
+
+# Install core dependencies without version conflicts
+RUN pip install --no-cache-dir \
+    "opencv-python>=4.9.0.80" \
+    "diffusers>=0.31.0" \
+    "transformers>=4.49.0" \
+    "tokenizers>=0.20.3" \
+    "accelerate>=1.1.1" \
+    "tqdm" \
+    "imageio==2.33.1" \
+    "imageio-ffmpeg==0.4.9" \
+    "easydict" \
+    "ftfy" \
+    "dashscope" \
+    "gradio>=5.0.0" \
+    "pyloudnorm==0.1.1" \
+    "soundfile>=0.12.1" \
+    "librosa>=0.10.0" \
+    "einops>=0.8.0" \
+    "huggingface-hub>=0.19.0" \
+    "ninja" \
+    "packaging" \
+    "safetensors>=0.3.1" \
+    "loguru" \
+    "scikit-image>=0.21.0" \
+    "boto3" \
+    "runpod==1.7.3" \
+    "Pillow==10.2.0"
+
+# Install xfuser and distvae without dependencies
+RUN pip install --no-cache-dir --no-deps "xfuser>=0.4.1" && \
+    pip install --no-cache-dir --no-deps distvae
+
+# Force NumPy version
+RUN pip uninstall -y numpy && \
+    pip install --no-cache-dir --no-deps "numpy==1.26.4"
+
+# Clean up
+RUN pip cache purge && rm -rf /tmp/* /var/tmp/* ~/.cache
+
+# Stage 3: Final image
+FROM deps AS final
+
+# Set environment variables
+ENV PYTHONPATH=/app/cog_multitalk_reference:/app:/runpod-volume/models \
+    HF_HOME=/runpod-volume/huggingface \
+    TRANSFORMERS_CACHE=/runpod-volume/huggingface \
+    MODEL_PATH=/runpod-volume/models \
+    PYTHONUNBUFFERED=1
+
+WORKDIR /app
+
+# Copy reference implementation
+COPY cog_multitalk_reference /app/cog_multitalk_reference
+
+# Copy our files
+COPY multitalk_reference_wrapper.py /app/
+COPY handler_v136_reference.py /app/handler.py
+COPY s3_handler.py /app/
+
+# Create a debug startup script
+RUN echo '#!/bin/bash' > /app/start.sh && \
+    echo 'echo "=== V137 Debug Startup ===" ' >> /app/start.sh && \
+    echo 'echo "Python version: $(python --version)"' >> /app/start.sh && \
+    echo 'echo "PyTorch version: $(python -c "import torch; print(torch.__version__)")"' >> /app/start.sh && \
+    echo 'echo "NumPy version: $(python -c "import numpy; print(numpy.__version__)")"' >> /app/start.sh && \
+    echo 'echo "Current directory: $(pwd)"' >> /app/start.sh && \
+    echo 'echo "Directory contents:"' >> /app/start.sh && \
+    echo 'ls -la' >> /app/start.sh && \
+    echo 'echo "Reference implementation:"' >> /app/start.sh && \
+    echo 'ls -la /app/cog_multitalk_reference/' >> /app/start.sh && \
+    echo 'echo "PYTHONPATH: $PYTHONPATH"' >> /app/start.sh && \
+    echo 'echo "Testing imports..."' >> /app/start.sh && \
+    echo 'python -c "import sys; sys.path.insert(0, \"/app/cog_multitalk_reference\"); import wan; print(\"wan imported successfully\")"' >> /app/start.sh && \
+    echo 'echo "Starting handler..."' >> /app/start.sh && \
+    echo 'exec python -u /app/handler.py' >> /app/start.sh && \
+    chmod +x /app/start.sh
+
+CMD ["/app/start.sh"]

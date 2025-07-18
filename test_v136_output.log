@@ -1,0 +1,28 @@
+🚀 V136 Test - Reference Implementation
+🐳 Image: berrylands/multitalk-runpod:v136-reference
+🔧 Endpoint: zu0ik6c8yukyl6
+📂 S3 Bucket: ai-models-datalake/tests
+
+🧪 Testing V136 - Reference Implementation
+============================================================
+✅ Using cog-MultiTalk reference (no optimum-quanto)
+✅ Direct Python API calls
+✅ All S3/RunPod functionality preserved
+✅ Based on PyTorch 2.1.0 CUDA 11.8
+============================================================
+
+📤 Sending request at 07:08:31
+🎵 Audio: 1.wav
+🖼️  Image: multi1.png
+⚡ Turbo: True
+✅ Request ID: abf46f46-7ede-4c34-9106-3279e20631f3-e1
+
+⏳ Waiting for result...
+[0s] Status: IN_QUEUE
+
+⏰ Timeout after 5 minutes
+
+============================================================
+❌ V136 test failed - check error output
+📝 Review traceback for missing dependencies
+============================================================
