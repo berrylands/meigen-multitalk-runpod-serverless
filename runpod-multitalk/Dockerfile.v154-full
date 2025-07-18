@@ -1,0 +1,103 @@
+# MultiTalk V154 - Full dependencies with proper initialization
+FROM pytorch/pytorch:2.4.0-cuda12.1-cudnn9-runtime AS base
+
+# Install runtime dependencies
+ENV DEBIAN_FRONTEND=noninteractive TZ=UTC
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone && \
+    apt-get update && apt-get install -y --no-install-recommends \
+        git \
+        ffmpeg \
+        curl \
+        build-essential && \
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+WORKDIR /app
+
+# Set environment variables
+ENV PYTHONPATH=/app/cog_multitalk_reference:/app:/runpod-volume/models \
+    HF_HOME=/runpod-volume/huggingface \
+    TRANSFORMERS_CACHE=/runpod-volume/huggingface \
+    MODEL_PATH=/runpod-volume/models \
+    PYTHONUNBUFFERED=1 \
+    CUDA_LAUNCH_BLOCKING=1
+
+# Copy and extract reference implementation
+COPY cog_multitalk_reference.tar.gz /app/
+RUN tar -xzf cog_multitalk_reference.tar.gz && \
+    rm cog_multitalk_reference.tar.gz && \
+    echo "Reference implementation extracted"
+
+# Install pget utility
+RUN curl -o /usr/local/bin/pget -L "https://github.com/replicate/pget/releases/latest/download/pget_$(uname -s)_$(uname -m)" && \
+    chmod +x /usr/local/bin/pget
+
+# Pin PyTorch versions to avoid drift
+RUN pip install --no-cache-dir --force-reinstall \
+    "torch==2.4.0" \
+    "torchvision==0.19.0" \
+    "torchaudio==2.4.0"
+
+# Install core dependencies
+RUN pip install --no-cache-dir \
+    "transformers>=4.49.0" \
+    "diffusers>=0.31.0" \
+    "accelerate>=1.1.1" \
+    "safetensors>=0.3.1" \
+    "huggingface-hub>=0.19.0"
+
+# Install essential utilities
+RUN pip install --no-cache-dir \
+    "numpy>=1.23.5,<2" \
+    "opencv-python>=4.9.0.80" \
+    "einops>=0.8.0" \
+    "tqdm"
+
+# Install audio/video processing
+RUN pip install --no-cache-dir \
+    "imageio" \
+    "imageio-ffmpeg" \
+    "soundfile>=0.12.1" \
+    "librosa>=0.10.0" \
+    "pyloudnorm"
+
+# Install basic utilities
+RUN pip install --no-cache-dir \
+    "scipy" \
+    "scikit-image" \
+    "easydict" \
+    "ftfy" \
+    "loguru" \
+    "requests" \
+    "pyyaml" \
+    "packaging" \
+    "ninja"
+
+# Install xformers for optimization
+RUN pip install --no-cache-dir "xformers>=0.0.28" || echo "xformers installation failed"
+
+# Install xfuser with dependencies (now with more disk space)
+RUN pip install --no-cache-dir "xfuser==0.4.1" || echo "xfuser installation failed"
+
+# Install yunchang
+RUN git clone https://github.com/feifeibear/long-context-attention.git && \
+    cd long-context-attention && \
+    pip install -e . && \
+    cd .. && \
+    rm -rf long-context-attention/.git
+
+# Install RunPod and S3 dependencies
+RUN pip install --no-cache-dir \
+    "boto3" \
+    "botocore" \
+    "runpod==1.7.3" \
+    "Pillow"
+
+# Copy handler files
+COPY multitalk_reference_wrapper.py /app/
+COPY handler.py /app/
+COPY s3_handler.py /app/
+
+# Create startup test
+RUN python -c "import sys; print(f'Python {sys.version}'); import torch; print(f'PyTorch {torch.__version__}')"
+
+CMD ["python", "-u", "/app/handler.py"]
