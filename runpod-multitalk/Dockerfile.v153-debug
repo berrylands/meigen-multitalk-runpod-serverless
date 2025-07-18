@@ -1,0 +1,612 @@
+# MultiTalk V153 - Maximum Debug Output
+FROM pytorch/pytorch:2.4.0-cuda12.1-cudnn9-runtime AS base
+
+# Install runtime dependencies with debug output
+ENV DEBIAN_FRONTEND=noninteractive TZ=UTC
+RUN echo "🔧 Installing system dependencies..." && \
+    ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone && \
+    apt-get update && apt-get install -y --no-install-recommends \
+        git \
+        ffmpeg \
+        curl \
+        htop \
+        tree \
+        vim \
+        strace && \
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && \
+    echo "✅ System dependencies installed"
+
+WORKDIR /app
+
+# Set environment variables with debug output
+ENV PYTHONPATH=/app/cog_multitalk_reference:/app:/runpod-volume/models \
+    HF_HOME=/runpod-volume/huggingface \
+    TRANSFORMERS_CACHE=/runpod-volume/huggingface \
+    MODEL_PATH=/runpod-volume/models \
+    PYTHONUNBUFFERED=1 \
+    CUDA_LAUNCH_BLOCKING=1 \
+    TORCH_SHOW_CPP_STACKTRACES=1 \
+    PYTHONPATH_DEBUG=1
+
+RUN echo "🔧 Environment variables set:" && \
+    echo "PYTHONPATH=$PYTHONPATH" && \
+    echo "HF_HOME=$HF_HOME" && \
+    echo "MODEL_PATH=$MODEL_PATH"
+
+# Copy and extract reference implementation with debug
+COPY cog_multitalk_reference.tar.gz /app/
+RUN echo "📦 Extracting reference implementation..." && \
+    ls -la /app/cog_multitalk_reference.tar.gz && \
+    tar -xzf cog_multitalk_reference.tar.gz && \
+    rm cog_multitalk_reference.tar.gz && \
+    echo "📦 Reference implementation extracted:" && \
+    ls -la /app/ && \
+    echo "📦 Reference implementation contents:" && \
+    find /app/cog_multitalk_reference -type f | head -20
+
+# Install pget utility with debug
+RUN echo "🔧 Installing pget utility..." && \
+    curl -o /usr/local/bin/pget -L "https://github.com/replicate/pget/releases/latest/download/pget_$(uname -s)_$(uname -m)" && \
+    chmod +x /usr/local/bin/pget && \
+    ls -la /usr/local/bin/pget && \
+    echo "✅ pget installed"
+
+# Pin PyTorch versions with extensive debug
+RUN echo "🔧 Installing PyTorch with debug..." && \
+    pip list | grep -E "(torch|nvidia)" && \
+    echo "🔧 Force reinstalling PyTorch..." && \
+    pip install --no-cache-dir --force-reinstall \
+        "torch==2.4.0" \
+        "torchvision==0.19.0" \
+        "torchaudio==2.4.0" && \
+    echo "✅ PyTorch installation complete:" && \
+    python -c "import torch; print(f'PyTorch: {torch.__version__}'); print(f'CUDA: {torch.cuda.is_available()}'); print(f'CUDA Version: {torch.version.cuda if torch.cuda.is_available() else None}')"
+
+# Install core dependencies with debug
+RUN echo "🔧 Installing core dependencies..." && \
+    pip install --no-cache-dir \
+        "transformers>=4.49.0" \
+        "diffusers>=0.31.0" \
+        "accelerate>=1.1.1" \
+        "safetensors>=0.3.1" \
+        "huggingface-hub>=0.19.0" && \
+    echo "✅ Core dependencies installed:" && \
+    pip list | grep -E "(transformers|diffusers|accelerate|safetensors|huggingface)"
+
+# Install essential utilities with debug
+RUN echo "🔧 Installing essential utilities..." && \
+    pip install --no-cache-dir \
+        "numpy>=1.23.5,<2" \
+        "opencv-python>=4.9.0.80" \
+        "einops>=0.8.0" \
+        "tqdm" && \
+    echo "✅ Essential utilities installed:" && \
+    pip list | grep -E "(numpy|opencv|einops|tqdm)"
+
+# Install audio/video processing with debug
+RUN echo "🔧 Installing audio/video processing..." && \
+    pip install --no-cache-dir \
+        "imageio" \
+        "imageio-ffmpeg" \
+        "soundfile>=0.12.1" \
+        "librosa>=0.10.0" \
+        "pyloudnorm" && \
+    echo "✅ Audio/video processing installed:" && \
+    pip list | grep -E "(imageio|soundfile|librosa|pyloudnorm)"
+
+# Install basic utilities with debug
+RUN echo "🔧 Installing basic utilities..." && \
+    pip install --no-cache-dir \
+        "scipy" \
+        "scikit-image" \
+        "easydict" \
+        "ftfy" \
+        "loguru" \
+        "requests" \
+        "pyyaml" \
+        "packaging" \
+        "ninja" && \
+    echo "✅ Basic utilities installed:" && \
+    pip list | grep -E "(scipy|scikit|easydict|ftfy|loguru|requests|pyyaml|packaging|ninja)"
+
+# Try to install xformers with debug
+RUN echo "🔧 Installing xformers..." && \
+    (pip install --no-cache-dir "xformers>=0.0.28" && \
+     echo "✅ xformers installed successfully:" && \
+     pip list | grep xformers) || \
+    (echo "❌ xformers installation failed, using PyTorch fallback" && \
+     echo "Will use PyTorch native attention instead")
+
+# Install RunPod and S3 dependencies with debug
+RUN echo "🔧 Installing RunPod and S3 dependencies..." && \
+    pip install --no-cache-dir \
+        "boto3" \
+        "botocore" \
+        "runpod==1.7.3" \
+        "Pillow" && \
+    echo "✅ RunPod and S3 dependencies installed:" && \
+    pip list | grep -E "(boto3|botocore|runpod|Pillow)"
+
+# Copy our handler files with debug
+COPY multitalk_reference_wrapper_v150.py /app/multitalk_reference_wrapper.py
+COPY handler_v150_graceful.py /app/handler.py
+COPY s3_handler.py /app/
+RUN echo "📁 Handler files copied:" && \
+    ls -la /app/*.py && \
+    echo "📁 Handler file sizes:" && \
+    wc -l /app/*.py
+
+# Create comprehensive debug startup script
+RUN cat > /app/startup_diagnostics.py << 'EOF'
+#!/usr/bin/env python3
+"""
+V153 Comprehensive Startup Diagnostics with Maximum Debug Output
+"""
+
+import sys
+import os
+import traceback
+import logging
+import subprocess
+import time
+import tempfile
+from pathlib import Path
+
+# Set up detailed logging
+logging.basicConfig(
+    level=logging.DEBUG,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(sys.stdout),
+        logging.FileHandler('/app/startup_debug.log')
+    ]
+)
+logger = logging.getLogger(__name__)
+
+def run_command(cmd, description):
+    """Run a command and log detailed output"""
+    logger.info(f"🔧 {description}")
+    logger.info(f"Running: {cmd}")
+    try:
+        result = subprocess.run(cmd, shell=True, capture_output=True, text=True, timeout=30)
+        logger.info(f"Return code: {result.returncode}")
+        if result.stdout:
+            logger.info(f"STDOUT:\n{result.stdout}")
+        if result.stderr:
+            logger.info(f"STDERR:\n{result.stderr}")
+        return result.returncode == 0
+    except subprocess.TimeoutExpired:
+        logger.error(f"Command timed out: {cmd}")
+        return False
+    except Exception as e:
+        logger.error(f"Command failed: {cmd}, Error: {e}")
+        return False
+
+def test_system_info():
+    """Test system information"""
+    logger.info("=" * 80)
+    logger.info("🖥️  SYSTEM INFORMATION")
+    logger.info("=" * 80)
+    
+    run_command("uname -a", "System information")
+    run_command("cat /proc/version", "Kernel version")
+    run_command("cat /etc/os-release", "OS release")
+    run_command("df -h", "Disk usage")
+    run_command("free -h", "Memory usage")
+    run_command("lscpu", "CPU information")
+    run_command("nvidia-smi", "GPU information")
+    
+    logger.info(f"Python executable: {sys.executable}")
+    logger.info(f"Python version: {sys.version}")
+    logger.info(f"Python path: {sys.path}")
+    
+    # Environment variables
+    logger.info("Environment variables:")
+    for key, value in sorted(os.environ.items()):
+        if any(secret in key.upper() for secret in ['KEY', 'SECRET', 'PASSWORD', 'TOKEN']):
+            logger.info(f"  {key}: ***REDACTED***")
+        else:
+            logger.info(f"  {key}: {value}")
+
+def test_file_system():
+    """Test file system and paths"""
+    logger.info("=" * 80)
+    logger.info("📁 FILE SYSTEM TEST")
+    logger.info("=" * 80)
+    
+    paths_to_check = [
+        "/app",
+        "/app/cog_multitalk_reference",
+        "/runpod-volume",
+        "/runpod-volume/models",
+        "/runpod-volume/huggingface",
+        "/tmp",
+        "/workspace"
+    ]
+    
+    for path in paths_to_check:
+        if os.path.exists(path):
+            logger.info(f"✅ {path} exists")
+            try:
+                contents = os.listdir(path)
+                logger.info(f"   Contents ({len(contents)} items): {contents[:10]}...")
+                run_command(f"ls -la {path}", f"Detailed listing of {path}")
+            except PermissionError:
+                logger.warning(f"   Permission denied reading {path}")
+        else:
+            logger.warning(f"❌ {path} does not exist")
+
+def test_python_imports():
+    """Test Python imports with detailed error reporting"""
+    logger.info("=" * 80)
+    logger.info("🐍 PYTHON IMPORTS TEST")
+    logger.info("=" * 80)
+    
+    # Test basic imports
+    basic_imports = [
+        ("sys", "System module"),
+        ("os", "OS module"),
+        ("json", "JSON module"),
+        ("time", "Time module"),
+        ("logging", "Logging module"),
+        ("subprocess", "Subprocess module"),
+        ("tempfile", "Temporary file module"),
+        ("pathlib", "Path utilities"),
+        ("traceback", "Traceback module")
+    ]
+    
+    logger.info("Testing basic Python imports...")
+    for module_name, description in basic_imports:
+        try:
+            module = __import__(module_name)
+            logger.info(f"✅ {description}: {module}")
+        except Exception as e:
+            logger.error(f"❌ {description}: {e}")
+            logger.error(traceback.format_exc())
+    
+    # Test scientific imports
+    scientific_imports = [
+        ("numpy", "NumPy"),
+        ("torch", "PyTorch"),
+        ("torchvision", "TorchVision"),
+        ("torchaudio", "TorchAudio"),
+        ("PIL", "Pillow"),
+        ("cv2", "OpenCV"),
+        ("scipy", "SciPy"),
+        ("sklearn", "Scikit-learn"),
+        ("einops", "Einops"),
+        ("tqdm", "TQDM")
+    ]
+    
+    logger.info("Testing scientific Python imports...")
+    for module_name, description in scientific_imports:
+        try:
+            module = __import__(module_name)
+            logger.info(f"✅ {description}: {module}")
+            if hasattr(module, '__version__'):
+                logger.info(f"   Version: {module.__version__}")
+        except Exception as e:
+            logger.error(f"❌ {description}: {e}")
+            logger.error(traceback.format_exc())
+    
+    # Test ML/AI imports
+    ml_imports = [
+        ("transformers", "Transformers"),
+        ("diffusers", "Diffusers"),
+        ("accelerate", "Accelerate"),
+        ("safetensors", "SafeTensors"),
+        ("huggingface_hub", "HuggingFace Hub")
+    ]
+    
+    logger.info("Testing ML/AI Python imports...")
+    for module_name, description in ml_imports:
+        try:
+            module = __import__(module_name)
+            logger.info(f"✅ {description}: {module}")
+            if hasattr(module, '__version__'):
+                logger.info(f"   Version: {module.__version__}")
+        except Exception as e:
+            logger.error(f"❌ {description}: {e}")
+            logger.error(traceback.format_exc())
+    
+    # Test audio/video imports
+    av_imports = [
+        ("soundfile", "SoundFile"),
+        ("librosa", "Librosa"),
+        ("pyloudnorm", "PyLoudnorm"),
+        ("imageio", "ImageIO")
+    ]
+    
+    logger.info("Testing audio/video Python imports...")
+    for module_name, description in av_imports:
+        try:
+            module = __import__(module_name)
+            logger.info(f"✅ {description}: {module}")
+            if hasattr(module, '__version__'):
+                logger.info(f"   Version: {module.__version__}")
+        except Exception as e:
+            logger.error(f"❌ {description}: {e}")
+            logger.error(traceback.format_exc())
+    
+    # Test cloud/service imports
+    cloud_imports = [
+        ("boto3", "Boto3"),
+        ("botocore", "Botocore"),
+        ("runpod", "RunPod"),
+        ("requests", "Requests")
+    ]
+    
+    logger.info("Testing cloud/service Python imports...")
+    for module_name, description in cloud_imports:
+        try:
+            module = __import__(module_name)
+            logger.info(f"✅ {description}: {module}")
+            if hasattr(module, '__version__'):
+                logger.info(f"   Version: {module.__version__}")
+        except Exception as e:
+            logger.error(f"❌ {description}: {e}")
+            logger.error(traceback.format_exc())
+
+def test_pytorch_detailed():
+    """Test PyTorch in detail"""
+    logger.info("=" * 80)
+    logger.info("🔥 PYTORCH DETAILED TEST")
+    logger.info("=" * 80)
+    
+    try:
+        import torch
+        logger.info(f"✅ PyTorch imported successfully")
+        logger.info(f"PyTorch version: {torch.__version__}")
+        logger.info(f"PyTorch file: {torch.__file__}")
+        
+        # CUDA information
+        logger.info(f"CUDA available: {torch.cuda.is_available()}")
+        if torch.cuda.is_available():
+            logger.info(f"CUDA version: {torch.version.cuda}")
+            logger.info(f"CUDA device count: {torch.cuda.device_count()}")
+            for i in range(torch.cuda.device_count()):
+                logger.info(f"CUDA device {i}: {torch.cuda.get_device_name(i)}")
+                props = torch.cuda.get_device_properties(i)
+                logger.info(f"  Memory: {props.total_memory / 1024**3:.1f} GB")
+                logger.info(f"  Compute capability: {props.major}.{props.minor}")
+        
+        # Test basic operations
+        logger.info("Testing basic PyTorch operations...")
+        x = torch.randn(2, 3)
+        logger.info(f"Created tensor: {x}")
+        y = x * 2
+        logger.info(f"Multiplied tensor: {y}")
+        
+        if torch.cuda.is_available():
+            logger.info("Testing CUDA operations...")
+            x_cuda = x.cuda()
+            logger.info(f"Moved to CUDA: {x_cuda}")
+            y_cuda = x_cuda * 2
+            logger.info(f"CUDA operation result: {y_cuda}")
+        
+        # Test TorchVision
+        try:
+            import torchvision
+            logger.info(f"✅ TorchVision imported: {torchvision.__version__}")
+            logger.info(f"TorchVision file: {torchvision.__file__}")
+        except Exception as e:
+            logger.error(f"❌ TorchVision import failed: {e}")
+            logger.error(traceback.format_exc())
+        
+        # Test TorchAudio
+        try:
+            import torchaudio
+            logger.info(f"✅ TorchAudio imported: {torchaudio.__version__}")
+            logger.info(f"TorchAudio file: {torchaudio.__file__}")
+        except Exception as e:
+            logger.error(f"❌ TorchAudio import failed: {e}")
+            logger.error(traceback.format_exc())
+            
+    except Exception as e:
+        logger.error(f"❌ PyTorch test failed: {e}")
+        logger.error(traceback.format_exc())
+
+def test_reference_implementation():
+    """Test reference implementation"""
+    logger.info("=" * 80)
+    logger.info("📦 REFERENCE IMPLEMENTATION TEST")
+    logger.info("=" * 80)
+    
+    ref_path = '/app/cog_multitalk_reference'
+    
+    if not os.path.exists(ref_path):
+        logger.error(f"❌ Reference implementation not found: {ref_path}")
+        return
+    
+    logger.info(f"✅ Reference implementation found: {ref_path}")
+    
+    # List contents
+    run_command(f"find {ref_path} -type f", "Reference implementation files")
+    run_command(f"find {ref_path} -name '*.py' | head -10", "Python files in reference")
+    
+    # Test adding to Python path
+    logger.info(f"Adding {ref_path} to Python path...")
+    if ref_path not in sys.path:
+        sys.path.insert(0, ref_path)
+        logger.info(f"✅ Added to Python path")
+    
+    logger.info(f"Updated Python path: {sys.path[:5]}...")
+    
+    # Test importing wan module
+    try:
+        logger.info("Testing wan module import...")
+        import wan
+        logger.info(f"✅ wan module imported: {wan}")
+        logger.info(f"wan module file: {wan.__file__}")
+        logger.info(f"wan module contents: {dir(wan)}")
+    except Exception as e:
+        logger.error(f"❌ wan module import failed: {e}")
+        logger.error(traceback.format_exc())
+    
+    # Test other reference imports
+    reference_imports = [
+        ("wan.configs", "WAN Configs"),
+        ("wan.utils.multitalk_utils", "MultiTalk Utils"),
+        ("src.audio_analysis.wav2vec2", "Wav2Vec2 Analysis"),
+        ("src.utils", "Source Utils")
+    ]
+    
+    for module_name, description in reference_imports:
+        try:
+            module = __import__(module_name, fromlist=[''])
+            logger.info(f"✅ {description}: {module}")
+            logger.info(f"   File: {getattr(module, '__file__', 'N/A')}")
+            logger.info(f"   Contents: {dir(module)[:10]}...")
+        except Exception as e:
+            logger.error(f"❌ {description}: {e}")
+            logger.error(traceback.format_exc())
+
+def test_handler_imports():
+    """Test handler imports"""
+    logger.info("=" * 80)
+    logger.info("🔧 HANDLER IMPORTS TEST")
+    logger.info("=" * 80)
+    
+    # Test importing our handler files
+    handler_files = [
+        ("/app/multitalk_reference_wrapper.py", "MultiTalk Reference Wrapper"),
+        ("/app/handler.py", "Main Handler"),
+        ("/app/s3_handler.py", "S3 Handler")
+    ]
+    
+    for file_path, description in handler_files:
+        logger.info(f"Testing {description}...")
+        
+        if not os.path.exists(file_path):
+            logger.error(f"❌ {description} not found: {file_path}")
+            continue
+        
+        logger.info(f"✅ {description} found: {file_path}")
+        
+        # Show file info
+        stat = os.stat(file_path)
+        logger.info(f"   Size: {stat.st_size} bytes")
+        logger.info(f"   Modified: {time.ctime(stat.st_mtime)}")
+        
+        # Show first few lines
+        try:
+            with open(file_path, 'r') as f:
+                lines = f.readlines()[:10]
+                logger.info(f"   First 10 lines:")
+                for i, line in enumerate(lines, 1):
+                    logger.info(f"     {i:2d}: {line.rstrip()}")
+        except Exception as e:
+            logger.error(f"   Error reading file: {e}")
+    
+    # Test importing the wrapper
+    try:
+        logger.info("Testing MultiTalk wrapper import...")
+        from multitalk_reference_wrapper import MultiTalkReferenceWrapper
+        logger.info(f"✅ MultiTalkReferenceWrapper imported: {MultiTalkReferenceWrapper}")
+    except Exception as e:
+        logger.error(f"❌ MultiTalkReferenceWrapper import failed: {e}")
+        logger.error(traceback.format_exc())
+
+def test_initialization():
+    """Test actual MultiTalk initialization"""
+    logger.info("=" * 80)
+    logger.info("🚀 MULTITALK INITIALIZATION TEST")
+    logger.info("=" * 80)
+    
+    try:
+        logger.info("Attempting to initialize MultiTalk...")
+        from multitalk_reference_wrapper import MultiTalkReferenceWrapper
+        
+        # Create instance
+        logger.info("Creating MultiTalkReferenceWrapper instance...")
+        wrapper = MultiTalkReferenceWrapper()
+        logger.info(f"✅ MultiTalk wrapper created: {wrapper}")
+        
+        # Test wrapper methods
+        logger.info("Testing wrapper methods...")
+        logger.info(f"Wrapper attributes: {dir(wrapper)}")
+        
+    except Exception as e:
+        logger.error(f"❌ MultiTalk initialization failed: {e}")
+        logger.error(traceback.format_exc())
+
+def main():
+    """Run all diagnostic tests"""
+    logger.info("=" * 80)
+    logger.info("🔍 V153 COMPREHENSIVE STARTUP DIAGNOSTICS")
+    logger.info("=" * 80)
+    
+    start_time = time.time()
+    
+    # Run all tests
+    test_system_info()
+    test_file_system()
+    test_python_imports()
+    test_pytorch_detailed()
+    test_reference_implementation()
+    test_handler_imports()
+    test_initialization()
+    
+    end_time = time.time()
+    elapsed = end_time - start_time
+    
+    logger.info("=" * 80)
+    logger.info("🏁 DIAGNOSTICS COMPLETE")
+    logger.info("=" * 80)
+    logger.info(f"Total time: {elapsed:.2f} seconds")
+    logger.info(f"Log file: /app/startup_debug.log")
+    
+    # Always return 0 to avoid build failure
+    return 0
+
+if __name__ == "__main__":
+    sys.exit(main())
+EOF
+
+# Run comprehensive startup diagnostics
+RUN python /app/startup_diagnostics.py
+
+# Create a simple test script for runtime diagnostics
+RUN cat > /app/runtime_test.py << 'EOF'
+#!/usr/bin/env python3
+"""
+Runtime test script for V153
+"""
+import sys
+import os
+import json
+import time
+import logging
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+def test_runtime():
+    """Test runtime functionality"""
+    logger.info("🔍 V153 Runtime Test")
+    logger.info(f"Python: {sys.version}")
+    logger.info(f"Working directory: {os.getcwd()}")
+    logger.info(f"PYTHONPATH: {os.environ.get('PYTHONPATH')}")
+    
+    # Test basic imports
+    try:
+        import torch
+        logger.info(f"✅ PyTorch: {torch.__version__}")
+        logger.info(f"✅ CUDA: {torch.cuda.is_available()}")
+    except Exception as e:
+        logger.error(f"❌ PyTorch: {e}")
+    
+    # Test handler import
+    try:
+        from multitalk_reference_wrapper import MultiTalkReferenceWrapper
+        logger.info("✅ Handler import successful")
+    except Exception as e:
+        logger.error(f"❌ Handler import: {e}")
+    
+    logger.info("🏁 Runtime test complete")
+
+if __name__ == "__main__":
+    test_runtime()
+EOF
+
+CMD ["python", "-u", "/app/handler.py"]
