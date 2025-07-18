@@ -1,5 +1,5 @@
 # MultiTalk V143 - PyTorch 2.4.0 with proper dependencies
-FROM pytorch/pytorch:2.4.0-cuda11.8-cudnn8-runtime AS base
+FROM pytorch/pytorch:2.4.0-cuda11.8-cudnn9-runtime AS base
 
 # Install system dependencies including git for cloning
 ENV DEBIAN_FRONTEND=noninteractive TZ=UTC
