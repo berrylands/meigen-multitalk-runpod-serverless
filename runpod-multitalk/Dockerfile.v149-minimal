@@ -1,0 +1,119 @@
+# MultiTalk V149 - Minimal working version without xfuser
+FROM pytorch/pytorch:2.4.0-cuda12.1-cudnn9-runtime AS base
+
+# Install runtime dependencies
+ENV DEBIAN_FRONTEND=noninteractive TZ=UTC
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone && \
+    apt-get update && apt-get install -y --no-install-recommends \
+        git \
+        ffmpeg \
+        curl && \
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+WORKDIR /app
+
+# Set environment variables
+ENV PYTHONPATH=/app/cog_multitalk_reference:/app:/runpod-volume/models \
+    HF_HOME=/runpod-volume/huggingface \
+    TRANSFORMERS_CACHE=/runpod-volume/huggingface \
+    MODEL_PATH=/runpod-volume/models \
+    PYTHONUNBUFFERED=1
+
+# Copy and extract reference implementation
+COPY cog_multitalk_reference.tar.gz /app/
+RUN tar -xzf cog_multitalk_reference.tar.gz && \
+    rm cog_multitalk_reference.tar.gz && \
+    echo "Reference implementation extracted"
+
+# Install pget utility
+RUN curl -o /usr/local/bin/pget -L "https://github.com/replicate/pget/releases/latest/download/pget_$(uname -s)_$(uname -m)" && \
+    chmod +x /usr/local/bin/pget
+
+# Keep PyTorch versions that come with the base image
+# Install core dependencies without version conflicts
+RUN pip install --no-cache-dir \
+    "transformers>=4.49.0" \
+    "diffusers>=0.31.0" \
+    "accelerate>=1.1.1" \
+    "safetensors>=0.3.1" \
+    "huggingface-hub>=0.19.0"
+
+# Install essential utilities
+RUN pip install --no-cache-dir \
+    "numpy>=1.23.5,<2" \
+    "opencv-python>=4.9.0.80" \
+    "einops>=0.8.0" \
+    "tqdm"
+
+# Install audio/video processing without version conflicts
+RUN pip install --no-cache-dir \
+    "imageio" \
+    "imageio-ffmpeg" \
+    "soundfile>=0.12.1" \
+    "librosa>=0.10.0" \
+    "pyloudnorm"
+
+# Install basic utilities
+RUN pip install --no-cache-dir \
+    "scipy" \
+    "scikit-image" \
+    "easydict" \
+    "ftfy" \
+    "loguru" \
+    "requests" \
+    "pyyaml" \
+    "packaging"
+
+# Install RunPod and S3 dependencies
+RUN pip install --no-cache-dir \
+    "boto3" \
+    "botocore" \
+    "runpod==1.7.3" \
+    "Pillow"
+
+# Copy our handler files
+COPY multitalk_reference_wrapper.py /app/
+COPY handler_v136_reference.py /app/handler.py
+COPY s3_handler.py /app/
+
+# Create a minimal verification script
+RUN cat > /app/verify.py << 'EOF'
+print("=== V149 Verification ===")
+import torch
+print(f"PyTorch: {torch.__version__}")
+print(f"CUDA available: {torch.cuda.is_available()}")
+
+# Test basic imports
+try:
+    import transformers
+    print("transformers imported successfully")
+except ImportError as e:
+    print(f"transformers import failed: {e}")
+
+try:
+    import diffusers
+    print("diffusers imported successfully")
+except ImportError as e:
+    print(f"diffusers import failed: {e}")
+
+try:
+    import accelerate
+    print("accelerate imported successfully")
+except ImportError as e:
+    print(f"accelerate import failed: {e}")
+
+import sys
+sys.path.insert(0, '/app/cog_multitalk_reference')
+try:
+    import wan
+    print("wan imported successfully")
+except ImportError as e:
+    print(f"wan import failed: {e}")
+
+print("V149: Basic imports verification completed")
+EOF
+
+# Run verification
+RUN python /app/verify.py
+
+CMD ["python", "-u", "/app/handler.py"]
