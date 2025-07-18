@@ -1,0 +1,123 @@
+# MultiTalk V138 - Fixed reference implementation copy
+FROM pytorch/pytorch:2.1.0-cuda11.8-cudnn8-runtime AS base
+
+# Set timezone and clean up in single layer
+ENV DEBIAN_FRONTEND=noninteractive TZ=UTC
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone && \
+    apt-get update && apt-get install -y --no-install-recommends git ffmpeg && \
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+# Stage 2: Install dependencies with careful ordering
+FROM base AS deps
+
+# First, install NumPy 1.26.4 and lock it
+RUN pip uninstall -y numpy && \
+    pip install --no-cache-dir "numpy==1.26.4" && \
+    pip install --no-cache-dir "numba==0.59.1"
+
+# Install CUDA 11.8 specific torch packages BEFORE other dependencies
+RUN pip install --no-cache-dir --index-url https://download.pytorch.org/whl/cu118 \
+    torch==2.1.0+cu118 \
+    torchvision==0.16.0+cu118 \
+    torchaudio==2.1.0+cu118 \
+    xformers==0.0.22.post7
+
+# Install dependencies from reference implementation requirements
+RUN pip install --no-cache-dir \
+    "opencv-python>=4.9.0.80" \
+    "diffusers>=0.31.0" \
+    "transformers>=4.49.0" \
+    "tokenizers>=0.20.3" \
+    "accelerate>=1.1.1" \
+    "tqdm" \
+    "imageio" \
+    "easydict" \
+    "ftfy" \
+    "dashscope" \
+    "imageio-ffmpeg" \
+    "gradio>=5.0.0" \
+    "xfuser>=0.4.1" \
+    "pyloudnorm" \
+    "soundfile>=0.12.1" \
+    "librosa>=0.10.0" \
+    "einops>=0.8.0" \
+    "huggingface-hub>=0.19.0" \
+    "ninja" \
+    "packaging" \
+    "safetensors>=0.3.1" \
+    "loguru" \
+    "scikit-image>=0.21.0"
+
+# Install additional dependencies
+RUN pip install --no-cache-dir \
+    "beautifulsoup4>=4.12.3" \
+    "yunchang>=0.6.0" \
+    "opencv-python-headless>=4.9.0.80" \
+    imageio==2.33.1 \
+    imageio-ffmpeg==0.4.9 \
+    boto3 \
+    runpod==1.7.3 \
+    Pillow==10.2.0 \
+    moviepy==1.0.3 \
+    omegaconf \
+    tensorboardX \
+    timm \
+    sentencepiece \
+    peft \
+    rotary-embedding-torch \
+    scipy
+
+# Install distvae without dependencies
+RUN pip install --no-cache-dir --no-deps distvae
+
+# Force reinstall NumPy
+RUN pip uninstall -y numpy && \
+    pip install --no-cache-dir --no-deps "numpy==1.26.4"
+
+# Verify NumPy version
+RUN python -c "import numpy; assert numpy.__version__.startswith('1.26'), f'Wrong NumPy version: {numpy.__version__}'"
+
+# Clean up
+RUN pip cache purge && rm -rf /tmp/* /var/tmp/* ~/.cache
+
+# Stage 3: Final image
+FROM deps AS final
+
+# Set environment variables
+ENV PYTHONPATH=/app/cog_multitalk_reference:/app:/runpod-volume/models \
+    HF_HOME=/runpod-volume/huggingface \
+    TRANSFORMERS_CACHE=/runpod-volume/huggingface \
+    MODEL_PATH=/runpod-volume/models \
+    PYTHONUNBUFFERED=1
+
+WORKDIR /app
+
+# Copy and extract reference implementation archive
+COPY cog_multitalk_reference.tar.gz /app/
+RUN tar -xzf cog_multitalk_reference.tar.gz && \
+    rm cog_multitalk_reference.tar.gz && \
+    ls -la /app/cog_multitalk_reference/
+
+# Copy our wrapper and handler
+COPY multitalk_reference_wrapper.py /app/
+COPY handler_v136_reference.py /app/handler.py
+COPY s3_handler.py /app/
+
+# Verify the reference implementation is properly copied
+RUN echo "Checking reference implementation..." && \
+    ls -la /app/cog_multitalk_reference/ && \
+    ls -la /app/cog_multitalk_reference/wan/ && \
+    ls -la /app/cog_multitalk_reference/src/
+
+# Final verification
+RUN python -c "import numpy; print(f'NumPy {numpy.__version__}')" && \
+    python -c "import torch; print(f'PyTorch {torch.__version__}')" && \
+    python -c "import numba; print(f'Numba {numba.__version__}')" && \
+    python -c "import distvae; print('distvae imported successfully')" && \
+    python -c "import librosa; print('librosa imported successfully')" && \
+    python -c "import pyloudnorm; print('pyloudnorm imported successfully')" && \
+    python -c "import loguru; print('loguru imported successfully')" && \
+    python -c "import dashscope; print('dashscope imported successfully')" && \
+    echo "V138: Fixed reference implementation copy"
+
+CMD ["python", "-u", "/app/handler.py"]
