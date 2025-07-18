@@ -1,0 +1,136 @@
+# MultiTalk V146 - Optimized build with disk space management
+# Using multi-stage build to manage disk space more efficiently
+FROM pytorch/pytorch:2.4.0-cuda12.1-cudnn9-devel AS builder
+
+# Install build dependencies
+ENV DEBIAN_FRONTEND=noninteractive TZ=UTC
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        git \
+        build-essential \
+        ninja-build \
+        curl && \
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+# Set CUDA_HOME for flash-attn compilation
+ENV CUDA_HOME=/usr/local/cuda
+
+# Install flash-attn in builder stage
+RUN pip install --no-cache-dir flash-attn --no-build-isolation && \
+    pip install --no-cache-dir einops>=0.8.0
+
+# Clone and install yunchang
+RUN git clone https://github.com/feifeibear/long-context-attention.git && \
+    cd long-context-attention && \
+    pip install -e . && \
+    cd .. && \
+    rm -rf long-context-attention/.git
+
+# Final stage with runtime image to save space
+FROM pytorch/pytorch:2.4.0-cuda12.1-cudnn9-runtime AS base
+
+# Install runtime dependencies only
+ENV DEBIAN_FRONTEND=noninteractive TZ=UTC
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone && \
+    apt-get update && apt-get install -y --no-install-recommends \
+        git \
+        ffmpeg \
+        curl && \
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+WORKDIR /app
+
+# Copy installed packages from builder
+COPY --from=builder /opt/conda/lib/python3.11/site-packages /opt/conda/lib/python3.11/site-packages
+
+# Set environment variables
+ENV PYTHONPATH=/app/cog_multitalk_reference:/app:/runpod-volume/models \
+    HF_HOME=/runpod-volume/huggingface \
+    TRANSFORMERS_CACHE=/runpod-volume/huggingface \
+    MODEL_PATH=/runpod-volume/models \
+    PYTHONUNBUFFERED=1
+
+# Copy and extract reference implementation
+COPY cog_multitalk_reference.tar.gz /app/
+RUN tar -xzf cog_multitalk_reference.tar.gz && \
+    rm cog_multitalk_reference.tar.gz && \
+    echo "Reference implementation extracted"
+
+# Install pget utility
+RUN curl -o /usr/local/bin/pget -L "https://github.com/replicate/pget/releases/latest/download/pget_$(uname -s)_$(uname -m)" && \
+    chmod +x /usr/local/bin/pget
+
+# Install core dependencies in smaller groups to manage disk space
+# Group 1: Core ML libraries
+RUN pip install --no-cache-dir \
+    "diffusers>=0.31.0" \
+    "transformers>=4.49.0" \
+    "tokenizers>=0.20.3" \
+    "accelerate>=1.1.1" \
+    "safetensors>=0.3.1" \
+    "huggingface-hub>=0.19.0"
+
+# Group 2: Audio/Video processing
+RUN pip install --no-cache-dir \
+    "opencv-python>=4.9.0.80" \
+    "imageio==2.33.1" \
+    "imageio-ffmpeg==0.4.9" \
+    "soundfile>=0.12.1" \
+    "librosa>=0.10.0" \
+    "pyloudnorm==0.1.1"
+
+# Group 3: Additional dependencies
+RUN pip install --no-cache-dir \
+    "tqdm" \
+    "easydict" \
+    "ftfy" \
+    "dashscope" \
+    "numpy>=1.23.5,<2" \
+    "scipy" \
+    "numba" \
+    "scikit-image>=0.21.0"
+
+# Group 4: PyTorch extensions and xfuser
+RUN pip install --no-cache-dir \
+    "xformers>=0.0.28" \
+    "ninja" \
+    "packaging"
+
+# Install xfuser after all dependencies
+RUN pip install --no-cache-dir --no-deps "xfuser==0.4.1"
+
+# Group 5: UI and utilities
+RUN pip install --no-cache-dir \
+    "gradio>=5.0.0" \
+    "loguru" \
+    "sentencepiece" \
+    "regex" \
+    "filelock" \
+    "requests" \
+    "pyyaml"
+
+# Install distvae without dependencies
+RUN pip install --no-cache-dir --no-deps distvae
+
+# Install RunPod and S3 dependencies
+RUN pip install --no-cache-dir \
+    "boto3" \
+    "botocore" \
+    "runpod==1.7.3" \
+    "Pillow==10.2.0"
+
+# Copy our handler files
+COPY multitalk_reference_wrapper.py /app/
+COPY handler_v136_reference.py /app/handler.py
+COPY s3_handler.py /app/
+
+# Verification step
+RUN echo "=== V146 Verification ===" && \
+    python -c "import torch; print(f'PyTorch: {torch.__version__}')"; \
+    python -c "import torch; print(f'CUDA available: {torch.cuda.is_available()}')"; \
+    python -c "import flash_attn; print('✅ flash_attn imported')"; \
+    python -c "import yunchang; print('✅ yunchang imported')"; \
+    python -c "import xfuser; print('✅ xfuser imported')"; \
+    python -c "import sys; sys.path.insert(0, '/app/cog_multitalk_reference'); import wan; print('✅ wan imported')"; \
+    echo "V146: All imports successful (optimized build)"
+
+CMD ["python", "-u", "/app/handler.py"]
