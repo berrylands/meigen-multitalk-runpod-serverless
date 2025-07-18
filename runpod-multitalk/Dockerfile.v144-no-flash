@@ -1,0 +1,96 @@
+# MultiTalk V144 - PyTorch 2.4.0 without flash-attn (uses PyTorch fallback)
+FROM pytorch/pytorch:2.4.0-cuda11.8-cudnn9-runtime AS base
+
+# Install system dependencies including git for cloning
+ENV DEBIAN_FRONTEND=noninteractive TZ=UTC
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone && \
+    apt-get update && apt-get install -y --no-install-recommends \
+        git \
+        ffmpeg \
+        build-essential \
+        ninja-build && \
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+WORKDIR /app
+
+# Set environment variables
+ENV PYTHONPATH=/app/cog_multitalk_reference:/app:/runpod-volume/models \
+    HF_HOME=/runpod-volume/huggingface \
+    TRANSFORMERS_CACHE=/runpod-volume/huggingface \
+    MODEL_PATH=/runpod-volume/models \
+    PYTHONUNBUFFERED=1
+
+# Copy and extract reference implementation
+COPY cog_multitalk_reference.tar.gz /app/
+RUN tar -xzf cog_multitalk_reference.tar.gz && \
+    rm cog_multitalk_reference.tar.gz && \
+    echo "Reference implementation extracted"
+
+# Install yunchang from source as recommended
+# Note: Without flash-attn, xfuser will fall back to PyTorch implementation
+RUN git clone https://github.com/feifeibear/long-context-attention.git && \
+    cd long-context-attention && \
+    pip install -e . && \
+    cd .. && \
+    echo "yunchang installed from source"
+
+# Install core dependencies from reference requirements
+# Note: Using exact versions where specified, ranges where allowed
+RUN pip install --no-cache-dir \
+    "opencv-python>=4.9.0.80" \
+    "diffusers>=0.31.0" \
+    "transformers>=4.49.0" \
+    "tokenizers>=0.20.3" \
+    "accelerate>=1.1.1" \
+    "tqdm" \
+    "imageio==2.33.1" \
+    "imageio-ffmpeg==0.4.9" \
+    "easydict" \
+    "ftfy" \
+    "dashscope" \
+    "gradio>=5.0.0" \
+    "numpy>=1.23.5,<2" \
+    "pyloudnorm==0.1.1" \
+    "soundfile>=0.12.1" \
+    "librosa>=0.10.0" \
+    "einops>=0.8.0" \
+    "huggingface-hub>=0.19.0" \
+    "xformers>=0.0.28" \
+    "ninja" \
+    "packaging" \
+    "safetensors>=0.3.1" \
+    "loguru" \
+    "scikit-image>=0.21.0" \
+    "numba" \
+    "scipy" \
+    "sentencepiece" \
+    "regex" \
+    "filelock" \
+    "requests" \
+    "pyyaml"
+
+# Install xfuser and distvae AFTER yunchang
+# Using specific version to avoid conflicts
+RUN pip install --no-cache-dir --no-deps "xfuser==0.4.1" "distvae"
+
+# Install RunPod and S3 dependencies
+RUN pip install --no-cache-dir \
+    "boto3" \
+    "botocore" \
+    "runpod==1.7.3" \
+    "Pillow==10.2.0"
+
+# Copy our handler files
+COPY multitalk_reference_wrapper.py /app/
+COPY handler_v136_reference.py /app/handler.py
+COPY s3_handler.py /app/
+
+# Verification step
+RUN echo "=== V144 Verification ===" && \
+    python -c "import torch; print(f'PyTorch: {torch.__version__}')" && \
+    python -c "import yunchang; print('✅ yunchang imported')" && \
+    python -c "import xfuser; print('✅ xfuser imported')" && \
+    python -c "import sys; sys.path.insert(0, '/app/cog_multitalk_reference'); import wan; print('✅ wan imported')" && \
+    echo "V144: All imports successful (using PyTorch fallback for attention)"
+
+CMD ["python", "-u", "/app/handler.py"]
