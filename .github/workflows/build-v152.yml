@@ -1,0 +1,41 @@
+name: Build V152 Build Fix
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'runpod-multitalk/Dockerfile.v152-buildfix'
+      - '.github/workflows/build-v152.yml'
+  workflow_dispatch:
+
+env:
+  DOCKER_BUILDKIT: 1
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Login to DockerHub
+      uses: docker/login-action@v3
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+    - name: Build and push V152 Build Fix
+      uses: docker/build-push-action@v5
+      with:
+        context: ./runpod-multitalk
+        file: ./runpod-multitalk/Dockerfile.v152-buildfix
+        push: true
+        tags: |
+          ${{ secrets.DOCKERHUB_USERNAME }}/multitalk-runpod:v152-buildfix
+          ${{ secrets.DOCKERHUB_USERNAME }}/multitalk-runpod:v152-buildfix-${{ github.sha }}
+        cache-from: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/multitalk-runpod:buildcache
+        cache-to: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/multitalk-runpod:buildcache,mode=max
