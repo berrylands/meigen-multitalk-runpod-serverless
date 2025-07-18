@@ -1,0 +1,127 @@
+# MultiTalk V147 - Runtime-only approach with pre-built wheels
+FROM pytorch/pytorch:2.4.0-cuda12.1-cudnn9-runtime AS base
+
+# Install runtime dependencies
+ENV DEBIAN_FRONTEND=noninteractive TZ=UTC
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone && \
+    apt-get update && apt-get install -y --no-install-recommends \
+        git \
+        ffmpeg \
+        curl && \
+    rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+
+WORKDIR /app
+
+# Set environment variables
+ENV PYTHONPATH=/app/cog_multitalk_reference:/app:/runpod-volume/models \
+    HF_HOME=/runpod-volume/huggingface \
+    TRANSFORMERS_CACHE=/runpod-volume/huggingface \
+    MODEL_PATH=/runpod-volume/models \
+    PYTHONUNBUFFERED=1
+
+# Copy and extract reference implementation
+COPY cog_multitalk_reference.tar.gz /app/
+RUN tar -xzf cog_multitalk_reference.tar.gz && \
+    rm cog_multitalk_reference.tar.gz && \
+    echo "Reference implementation extracted"
+
+# Install pget utility
+RUN curl -o /usr/local/bin/pget -L "https://github.com/replicate/pget/releases/latest/download/pget_$(uname -s)_$(uname -m)" && \
+    chmod +x /usr/local/bin/pget
+
+# Try to install flash-attn from pre-built wheel if available
+# If not, we'll skip it and rely on xfuser's fallback to PyTorch implementation
+RUN pip install --no-cache-dir flash-attn || echo "flash-attn installation failed, will use PyTorch fallback"
+
+# Clone and install yunchang without flash-attn requirement
+RUN git clone https://github.com/feifeibear/long-context-attention.git && \
+    cd long-context-attention && \
+    # Modify setup.py to make flash-attn optional
+    sed -i 's/"flash-attn>=2.0.0"/"flash-attn>=2.0.0; platform_machine=='\''NEVER'\''"/' setup.py || true && \
+    pip install -e . && \
+    cd .. && \
+    echo "yunchang installed from source"
+
+# Install core dependencies in smaller batches
+# Batch 1: Essential ML libraries
+RUN pip install --no-cache-dir \
+    "torch>=2.4.0" \
+    "torchvision>=0.19.0" \
+    "torchaudio>=2.4.0"
+
+# Batch 2: Transformers ecosystem
+RUN pip install --no-cache-dir \
+    "transformers>=4.49.0" \
+    "tokenizers>=0.20.3" \
+    "diffusers>=0.31.0" \
+    "accelerate>=1.1.1" \
+    "safetensors>=0.3.1"
+
+# Batch 3: Core dependencies
+RUN pip install --no-cache-dir \
+    "huggingface-hub>=0.19.0" \
+    "numpy>=1.23.5,<2" \
+    "opencv-python>=4.9.0.80" \
+    "einops>=0.8.0" \
+    "tqdm"
+
+# Batch 4: Audio/Video processing
+RUN pip install --no-cache-dir \
+    "imageio==2.33.1" \
+    "imageio-ffmpeg==0.4.9" \
+    "soundfile>=0.12.1" \
+    "librosa>=0.10.0" \
+    "pyloudnorm==0.1.1"
+
+# Batch 5: Additional utilities
+RUN pip install --no-cache-dir \
+    "scipy" \
+    "numba" \
+    "scikit-image>=0.21.0" \
+    "easydict" \
+    "ftfy" \
+    "dashscope"
+
+# Batch 6: More utilities
+RUN pip install --no-cache-dir \
+    "loguru" \
+    "sentencepiece" \
+    "regex" \
+    "filelock" \
+    "requests" \
+    "pyyaml" \
+    "packaging" \
+    "ninja"
+
+# Install xformers
+RUN pip install --no-cache-dir "xformers>=0.0.28"
+
+# Install xfuser and distvae without dependencies
+RUN pip install --no-cache-dir --no-deps "xfuser==0.4.1" "distvae"
+
+# Install Gradio
+RUN pip install --no-cache-dir "gradio>=5.0.0"
+
+# Install RunPod and S3 dependencies
+RUN pip install --no-cache-dir \
+    "boto3" \
+    "botocore" \
+    "runpod==1.7.3" \
+    "Pillow==10.2.0"
+
+# Copy our handler files
+COPY multitalk_reference_wrapper.py /app/
+COPY handler_v136_reference.py /app/handler.py
+COPY s3_handler.py /app/
+
+# Verification step with graceful handling of missing flash-attn
+RUN echo "=== V147 Verification ===" && \
+    python -c "import torch; print(f'PyTorch: {torch.__version__}')" && \
+    python -c "import torch; print(f'CUDA available: {torch.cuda.is_available()}')" && \
+    python -c "try: import flash_attn; print('✅ flash_attn imported'); except: print('⚠️  flash_attn not available, using PyTorch fallback')" && \
+    python -c "import yunchang; print('✅ yunchang imported')" && \
+    python -c "import xfuser; print('✅ xfuser imported')" && \
+    python -c "import sys; sys.path.insert(0, '/app/cog_multitalk_reference'); import wan; print('✅ wan imported')" && \
+    echo "V147: Core imports successful (runtime-only build)"
+
+CMD ["python", "-u", "/app/handler.py"]
